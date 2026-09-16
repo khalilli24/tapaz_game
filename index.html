@@ -196,10 +196,11 @@
             align-items: center;
             justify-content: center;
         }
-        .catalog-bottle svg {
-            width: 65px;
-            height: 75px;
-            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.7));
+        .catalog-bottle img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
         }
         .catalog-info {
             flex: 1;
@@ -207,12 +208,29 @@
             flex-direction: column;
             gap: 4px;
         }
+        .item-header-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 8px;
+        }
         .item-name {
             font-family: var(--font-ui);
             font-weight: 600;
             font-size: 16px;
             color: var(--gold-light);
             letter-spacing: 0.02em;
+        }
+        .item-counter {
+            font-family: var(--font-ui);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--gold);
+            background: rgba(212, 160, 76, 0.15);
+            border: 1px solid rgba(212, 160, 76, 0.35);
+            padding: 2px 6px;
+            border-radius: 6px;
+            white-space: nowrap;
         }
         .item-desc {
             font-size: 11px;
@@ -746,139 +764,7 @@
             </div>
         </div>
 
-        <div class="catalog-list">
-            <div class="catalog-item">
-                <div class="catalog-bottle">
-                    <img src="perfume1.jpg" alt="TAPAZ Amber Royal" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
-                </div>
-                <div class="catalog-info">
-                    <div class="item-name">Tom Ford Oud Wood</div>
-                    <div class="item-desc">Ноты: кардамон и розовый перец</div>
-                    <div class="item-price">7 000 ₽</div>
-                    <button class="btn btn-gold item-btn" onclick="addToCart('Tom Ford Oud Wood', 7000)">В КОРЗИНУ</button>
-                </div>
-            </div>
-
-            <div class="catalog-item">
-                <div class="catalog-bottle">
-                    <img src="perfume2.jpg" alt="TAPAZ Amber Royal" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
-                </div>
-                <div class="catalog-info">
-                    <div class="item-name">Криштиану Роналду</div>
-                    <div class="item-desc">ФУТБОЛИСТ</div>
-                    <div class="item-price">228 000 ₽</div>
-                    <button class="btn btn-gold item-btn" onclick="addToCart('Криштиану Роналду', 228000)">В КОРЗИНУ</button>
-                </div>
-            </div>
-
-            <div class="catalog-item">
-                <div class="catalog-bottle">
-                    <img src="perfume3.jpg" alt="TAPAZ Amber Royal" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
-                </div>
-                <div class="catalog-info">
-                    <div class="item-name">Трусы Hello Kitty</div>
-                    <div class="item-desc">В наличии все размеры</div>
-                    <div class="item-price">400 ₽</div>
-                    <button class="btn btn-gold item-btn" onclick="addToCart('Трусы Hello Kitty', 400)">В КОРЗИНУ</button>
-                </div>
-            </div>
-
-            <div class="catalog-item">
-                <div class="catalog-bottle">
-                    <img src="perfume4.jpg" alt="TAPAZ Amber Royal" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
-                </div>
-                <div class="catalog-info">
-                    <div class="item-name">Часы Rolex Daytona</div>
-                    <div class="item-desc">Прекрасный подарок для мужчины</div>
-                    <div class="item-price">900 000 ₽</div>
-                    <button class="btn btn-gold item-btn" onclick="addToCart('Часы Rolex Daytona', 900000)">В КОРЗИНУ</button>
-                </div>
-            </div>
-
-            <div class="catalog-item">
-                <div class="catalog-bottle">
-                    <img src="perfume5.jpg" alt="TAPAZ Amber Royal" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
-                </div>
-                <div class="catalog-info">
-                    <div class="item-name">Kirki Tiziana Terenzi</div>
-                    <div class="item-desc">Ноты: маракуйя, персик, малина, чёрная смородина, груша и ноты песка</div>
-                    <div class="item-price">18 000 ₽</div>
-                    <button class="btn btn-gold item-btn" onclick="addToCart('Kirki Tiziana Terenzi', 18000)">В КОРЗИНУ</button>
-                </div>
-            </div>
-
-            <div class="catalog-item">
-                <div class="catalog-bottle">
-                    <img src="perfume6.jpg" alt="TAPAZ Amber Royal" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
-                </div>
-                <div class="catalog-info">
-                    <div class="item-name">Hormone Paris This Is Not Gaba</div>
-                    <div class="item-desc">Ноты: апельсин, лаванда, мандарин</div>
-                    <div class="item-price">27 000 ₽</div>
-                    <button class="btn btn-gold item-btn" onclick="addToCart('Hormone Paris This Is Not Gaba', 27000)">В КОРЗИНУ</button>
-                </div>
-            </div>
-
-            <div class="catalog-item">
-                <div class="catalog-bottle">
-                    <img src="perfume7.jpg" alt="TAPAZ Amber Royal" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
-                </div>
-                <div class="catalog-info">
-                    <div class="item-name">Джинсы мужские морской клеш</div>
-                    <div class="item-desc">В наличии</div>
-                    <div class="item-price">7 499 ₽</div>
-                    <button class="btn btn-gold item-btn" onclick="addToCart('Джинсы мужские морской клеш', 7499)">В КОРЗИНУ</button>
-                </div>
-            </div>
-
-            <div class="catalog-item">
-                <div class="catalog-bottle">
-                    <img src="perfume8.jpg" alt="TAPAZ Amber Royal" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
-                </div>
-                <div class="catalog-info">
-                    <div class="item-name">Кроссовки Nike Dunk Low Retro Premium</div>
-                    <div class="item-desc">Цвет: Curry</div>
-                    <div class="item-price">11 999 ₽</div>
-                    <button class="btn btn-gold item-btn" onclick="addToCart('Кроссовки Nike Dunk Low Retro Premium', 11999)">В КОРЗИНУ</button>
-                </div>
-            </div>
-
-            <div class="catalog-item">
-                <div class="catalog-bottle">
-                    <img src="perfume9.jpg" alt="TAPAZ Amber Royal" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
-                </div>
-                <div class="catalog-info">
-                    <div class="item-name">Игрушка для детей</div>
-                    <div class="item-desc">Цвет: Розовый</div>
-                    <div class="item-price">799 ₽</div>
-                    <button class="btn btn-gold item-btn" onclick="addToCart('Игрушка для детей', 799)">В КОРЗИНУ</button>
-                </div>
-            </div>
-
-            <div class="catalog-item">
-                <div class="catalog-bottle">
-                    <img src="perfume10.jpg" alt="TAPAZ Amber Royal" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
-                </div>
-                <div class="catalog-info">
-                    <div class="item-name">Беспроводные наушники Apple AirPods Pro 2</div>
-                    <div class="item-desc">Цвет: Белый</div>
-                    <div class="item-price">17 999 ₽</div>
-                    <button class="btn btn-gold item-btn" onclick="addToCart('Беспроводные наушники Apple AirPods Pro 2', 17999)">В КОРЗИНУ</button>
-                </div>
-            </div>
-
-            <div class="catalog-item">
-                <div class="catalog-bottle">
-                    <img src="perfume11.jpg" alt="TAPAZ Amber Royal" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
-                </div>
-                <div class="catalog-info">
-                    <div class="item-name">Apple MacBook Air 15 (2025)</div>
-                    <div class="item-desc">Цвет: Серебристый</div>
-                    <div class="item-price">209 999 ₽</div>
-                    <button class="btn btn-gold item-btn" onclick="addToCart('Apple MacBook Air 15 (2025)', 209999)">В КОРЗИНУ</button>
-                </div>
-            </div>
-        </div>
+        <div class="catalog-list" id="catalogListContainer"></div>
     </div>
 
     <!-- 1.1 ЭКРАН: КОРЗИНА С ВЫБРАННЫМИ ТОВАРАМИ -->
@@ -1074,6 +960,52 @@
 </div>
 
 <script>
+    /* ================= БАЗА ТОВАРОВ КАТАЛОГА ================= */
+    const BASE_PRODUCTS = [
+        { name: 'Tom Ford Oud Wood', img: 'perfume1.jpg', desc: 'Ноты: кардамон и розовый перец', price: 7000 },
+        { name: 'Криштиану Роналду', img: 'perfume2.jpg', desc: 'ФУТБОЛИСТ', price: 228000 },
+        { name: 'Трусы Hello Kitty', img: 'perfume3.jpg', desc: 'В наличии все размеры', price: 400 },
+        { name: 'Часы Rolex Daytona', img: 'perfume4.jpg', desc: 'Прекрасный подарок для мужчины', price: 900000 },
+        { name: 'Kirki Tiziana Terenzi', img: 'perfume5.jpg', desc: 'Ноты: маракуйя, персик, малина, чёрная смородина, груша и ноты песка', price: 18000 },
+        { name: 'Hormone Paris This Is Not Gaba', img: 'perfume6.jpg', desc: 'Ноты: апельсин, лаванда, мандарин', price: 27000 },
+        { name: 'Джинсы мужские морской клеш', img: 'perfume7.jpg', desc: 'В наличии', price: 7499 },
+        { name: 'Кроссовки Nike Dunk Low Retro Premium', img: 'perfume8.jpg', desc: 'Цвет: Curry', price: 11999 },
+        { name: 'Игрушка для детей', img: 'perfume9.jpg', desc: 'Цвет: Розовый', price: 799 },
+        { name: 'Беспроводные наушники Apple AirPods Pro 2', img: 'perfume10.jpg', desc: 'Цвет: Белый', price: 17999 },
+        { name: 'Apple MacBook Air 15 (2025)', img: 'perfume11.jpg', desc: 'Цвет: Серебристый', price: 209999 }
+    ];
+
+    function initCatalog() {
+        const container = document.getElementById('catalogListContainer');
+        if (!container) return;
+        const totalTarget = 1000;
+        const baseLen = BASE_PRODUCTS.length;
+        const fragment = document.createDocumentFragment();
+
+        for (let i = 0; i < totalTarget; i++) {
+            const item = BASE_PRODUCTS[i % baseLen];
+            const div = document.createElement('div');
+            div.className = 'catalog-item';
+            div.innerHTML = `
+                <div class="catalog-bottle">
+                    <img src="${item.img}" loading="lazy" alt="TAPAZ Amber Royal">
+                </div>
+                <div class="catalog-info">
+                    <div class="item-header-row">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-counter">#${i + 1}</div>
+                    </div>
+                    <div class="item-desc">${item.desc}</div>
+                    <div class="item-price">${item.price.toLocaleString('ru-RU')} ₽</div>
+                    <button class="btn btn-gold item-btn" onclick="addToCart('${item.name.replace(/'/g, "\\'")}', ${item.price})">В КОРЗИНУ</button>
+                </div>
+            `;
+            fragment.appendChild(div);
+        }
+        container.appendChild(fragment);
+    }
+    initCatalog();
+
     /* ================= СВГ ФЛАКОНЫ ================= */
     const BOARD_SIZE = 8;
 
@@ -1173,7 +1105,6 @@
             list.appendChild(div);
         });
 
-        // Расчет списания бонусов: 1 Б = 1 ₽, не более суммы заказа
         let discount = 0;
         if (isBonusApplied && bonusPoints > 0) {
             discount = Math.min(bonusPoints, subtotal);
