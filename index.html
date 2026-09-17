@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>TAPAZ — Telegram Mini App</title>
+    <!-- Подключаем Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
             margin: 0;
@@ -208,29 +210,12 @@
             flex-direction: column;
             gap: 4px;
         }
-        .item-header-row {
-            display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-            gap: 8px;
-        }
         .item-name {
             font-family: var(--font-ui);
             font-weight: 600;
             font-size: 16px;
             color: var(--gold-light);
             letter-spacing: 0.02em;
-        }
-        .item-counter {
-            font-family: var(--font-ui);
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--gold);
-            background: rgba(212, 160, 76, 0.15);
-            border: 1px solid rgba(212, 160, 76, 0.35);
-            padding: 2px 6px;
-            border-radius: 6px;
-            white-space: nowrap;
         }
         .item-desc {
             font-size: 11px;
@@ -798,7 +783,7 @@
                 <span>Итого к оплате:</span>
                 <span class="cart-total-val" id="cartTotalSum">0 ₽</span>
             </div>
-            <button class="btn btn-gold" style="width: 100%; min-height: 48px;" onclick="checkoutInTelegram()">ОФОРМИТЬ В TELEGRAM</button>
+            <button class="btn btn-gold" id="checkoutBtn" style="width: 100%; min-height: 48px;" onclick="checkoutInTelegram()">ОФОРМИТЬ В TELEGRAM</button>
         </div>
     </div>
 
@@ -960,6 +945,12 @@
 </div>
 
 <script>
+    /* ================= НАСТРОЙКИ УВЕДОМЛЕНИЙ ДЛЯ КОНСУЛЬТАНТА ================= */
+    // Замените на токен вашего бота от @BotFather
+    const BOT_TOKEN = '8841223635:AAF6RfQnAckFBE6N8wVSuSrqesTm8c14iVs';
+    // Замените на числовой Telegram ID консультанта или группы
+    const MANAGER_CHAT_ID = '8287154272';
+
     /* ================= БАЗА ТОВАРОВ КАТАЛОГА ================= */
     const BASE_PRODUCTS = [
         { name: 'Tom Ford Oud Wood', img: 'perfume1.jpg', desc: 'Ноты: кардамон и розовый перец', price: 7000 },
@@ -972,18 +963,17 @@
         { name: 'Кроссовки Nike Dunk Low Retro Premium', img: 'perfume8.jpg', desc: 'Цвет: Curry', price: 11999 },
         { name: 'Игрушка для детей', img: 'perfume9.jpg', desc: 'Цвет: Розовый', price: 799 },
         { name: 'Беспроводные наушники Apple AirPods Pro 2', img: 'perfume10.jpg', desc: 'Цвет: Белый', price: 17999 },
-        { name: 'Apple MacBook Air 15 (2025)', img: 'perfume11.jpg', desc: 'Цвет: Серебристый', price: 209999 }
+        { name: 'Apple MacBook Air 15 (2025)', img: 'perfume11.jpg', desc: 'Цвет: Серебристый', price: 209999 },
+        { name: 'Kirke Malina', img: 'kirke malina.jpg', desc: 'Ноты: Малина, Маракуя', price: 1700 },
+        { name: 'Kirke Sex', img: 'Gemini_Generated_Image_bhcymibhcymibhcy.jpg', desc: 'Ноты: Апельсин, ваниль, мускус', price: 1900 }
     ];
 
     function initCatalog() {
         const container = document.getElementById('catalogListContainer');
         if (!container) return;
-        const totalTarget = 1000;
-        const baseLen = BASE_PRODUCTS.length;
         const fragment = document.createDocumentFragment();
 
-        for (let i = 0; i < totalTarget; i++) {
-            const item = BASE_PRODUCTS[i % baseLen];
+        BASE_PRODUCTS.forEach(item => {
             const div = document.createElement('div');
             div.className = 'catalog-item';
             div.innerHTML = `
@@ -991,17 +981,14 @@
                     <img src="${item.img}" loading="lazy" alt="TAPAZ Amber Royal">
                 </div>
                 <div class="catalog-info">
-                    <div class="item-header-row">
-                        <div class="item-name">${item.name}</div>
-                        <div class="item-counter">#${i + 1}</div>
-                    </div>
+                    <div class="item-name">${item.name}</div>
                     <div class="item-desc">${item.desc}</div>
                     <div class="item-price">${item.price.toLocaleString('ru-RU')} ₽</div>
                     <button class="btn btn-gold item-btn" onclick="addToCart('${item.name.replace(/'/g, "\\'")}', ${item.price})">В КОРЗИНУ</button>
                 </div>
             `;
             fragment.appendChild(div);
-        }
+        });
         container.appendChild(fragment);
     }
     initCatalog();
@@ -1131,34 +1118,102 @@
         summary.style.display = 'flex';
     }
 
-    function checkoutInTelegram() {
+    /* ================= ОТПРАВКА ЗАКАЗА КОНСУЛЬТАНТУ ================= */
+    async function checkoutInTelegram() {
         const keys = Object.keys(cart);
         if (keys.length === 0) return;
 
+        const btn = document.getElementById('checkoutBtn');
+        btn.disabled = true;
+        btn.textContent = 'ОФОРМЛЯЕМ...';
+
+        // 1. Получаем данные пользователя из Telegram WebApp
+        const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user || {};
+        const userName = tgUser.first_name ? `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() : 'Анонимный клиент';
+        const userNick = tgUser.username ? `@${tgUser.username}` : 'Ник скрыт';
+        const userId = tgUser.id ? tgUser.id : 'Не определён';
+        const userContactLink = tgUser.username 
+            ? `https://t.me/${tgUser.username}` 
+            : (tgUser.id ? `tg://user?id=${tgUser.id}` : 'https://t.me/tamaz_9');
+
+        // 2. Считаем позиции и скидку
         let subtotal = 0;
-        let text = 'Здравствуйте! Хочу оформить заказ:\n\n';
+        let itemsText = '';
         keys.forEach(name => {
             const item = cart[name];
             const sum = item.price * item.qty;
             subtotal += sum;
-            text += `• ${name} — ${item.qty} шт. (${sum.toLocaleString('ru-RU')} ₽)\n`;
+            itemsText += `• ${name} — ${item.qty} шт. (${sum.toLocaleString('ru-RU')} ₽)\n`;
         });
 
         let discount = 0;
         if (isBonusApplied && bonusPoints > 0) {
             discount = Math.min(bonusPoints, subtotal);
-            text += `\nСумма без скидки: ${subtotal.toLocaleString('ru-RU')} ₽`;
-            text += `\nСписано бонусов: -${discount} Б (${discount} ₽)`;
         }
-
         const finalTotal = Math.max(0, subtotal - discount);
-        text += `\nИтого к оплате: ${finalTotal.toLocaleString('ru-RU')} ₽`;
 
-        const tgLink = `https://t.me/tamaz_9?text=${encodeURIComponent(text)}`;
-        if (window.Telegram?.WebApp) {
-            Telegram.WebApp.openTelegramLink(tgLink);
-        } else {
-            window.open(tgLink, '_blank');
+        // 3. Формируем подробный отчёт для консультанта
+        const managerMessage = 
+`🔔 <b>НОВЫЙ ЗАКАЗ В TAPAZ!</b>
+
+👤 <b>Клиент:</b> ${userName} (${userNick})
+🆔 <b>Telegram ID:</b> <code>${userId}</code>
+🔗 <b>Ссылка на диалог:</b> <a href="${userContactLink}">Открыть чат с клиентом</a>
+
+📦 <b>Состав заказа:</b>
+${itemsText}
+💰 <b>Сумма без скидки:</b> ${subtotal.toLocaleString('ru-RU')} ₽
+${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` : ''}💵 <b>ИТОГО К ОПЛАТЕ: ${finalTotal.toLocaleString('ru-RU')} ₽</b>`;
+
+        // 4. Отправляем уведомление ботом консультанту
+        try {
+            if (BOT_TOKEN !== '123456789:ABCdefGhIJKlmNoPQRstuVWXyz') {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: MANAGER_CHAT_ID,
+                        text: managerMessage,
+                        parse_mode: 'HTML',
+                        disable_web_page_preview: true
+                    })
+                });
+            }
+
+            // Списываем бонусы, если были применены
+            if (isBonusApplied && discount > 0) {
+                bonusPoints = Math.max(0, bonusPoints - discount);
+                localStorage.setItem('tapaz_bonus', bonusPoints.toString());
+                updateBonusUI();
+            }
+
+            // Очищаем корзину
+            cart = {};
+            updateCartCount();
+            renderCartItems();
+
+            showToast('✅ Заказ оформлен! Консультант скоро свяжется с вами.');
+
+            // Если мини-апп открыт в Telegram, закрываем окно через 2 секунды
+            setTimeout(() => {
+                if (window.Telegram?.WebApp?.close) {
+                    Telegram.WebApp.close();
+                }
+            }, 2000);
+
+        } catch (e) {
+            console.error(e);
+            // Резервный вариант: если интернет дал сбой, открываем чат с предзаполненным текстом
+            const fallbackText = `Здравствуйте! Хочу оформить заказ:\n\n${itemsText}\nИтого к оплате: ${finalTotal.toLocaleString('ru-RU')} ₽`;
+            const tgLink = `https://t.me/tamaz_9?text=${encodeURIComponent(fallbackText)}`;
+            if (window.Telegram?.WebApp) {
+                Telegram.WebApp.openTelegramLink(tgLink);
+            } else {
+                window.open(tgLink, '_blank');
+            }
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'ОФОРМИТЬ В TELEGRAM';
         }
     }
 
