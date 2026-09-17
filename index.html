@@ -28,7 +28,7 @@
             --line-gold: rgba(212, 160, 76, 0.4);
             --line-gold-strong: rgba(244, 207, 119, 0.7);
             --text: #f4e4bf;
-            --text-dim: rgba(244, 228, 191, 0.55);
+            --text-dim: rgba(244, 228, 191, 0.65);
             --text-bright: #f4cf77;
             --heart: #e0566c;
             --font-display: Georgia, 'Times New Roman', serif;
@@ -141,6 +141,78 @@
             display: flex;
         }
 
+        /* ================= ЭКРАН КАТЕГОРИЙ ================= */
+        .categories-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--line-gold);
+            margin-bottom: 18px;
+        }
+        .categories-title {
+            font-family: var(--font-display);
+            font-size: 20px;
+            color: var(--gold-light);
+            letter-spacing: 0.08em;
+        }
+        .categories-list {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            justify-content: center;
+            padding: 10px 0;
+        }
+        .category-card {
+            background: linear-gradient(135deg, rgba(19, 24, 56, 0.95) 0%, rgba(10, 14, 34, 0.95) 100%);
+            border: 1px solid var(--line-gold);
+            border-radius: 14px;
+            padding: 24px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+        .category-card:active {
+            transform: scale(0.98);
+            border-color: var(--gold-light);
+        }
+        .category-info {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .category-name {
+            font-family: var(--font-display);
+            font-size: 19px;
+            color: var(--gold-light);
+            letter-spacing: 0.05em;
+            font-weight: bold;
+        }
+        .category-desc {
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+        .category-arrow {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(212, 160, 76, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-light);
+            flex-shrink: 0;
+        }
+        .category-arrow svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
         /* ================= КАТАЛОГ ТОВАРОВ ================= */
         .catalog-header {
             display: flex;
@@ -152,9 +224,11 @@
         }
         .catalog-title {
             font-family: var(--font-display);
-            font-size: 20px;
+            font-size: 18px;
             color: var(--gold-light);
-            letter-spacing: 0.1em;
+            letter-spacing: 0.05em;
+            text-align: center;
+            flex: 1;
         }
         .cart-indicator {
             display: flex;
@@ -177,26 +251,37 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 16px;
             padding-right: 4px;
         }
+
         .catalog-item {
-            background: rgba(13, 18, 41, 0.85);
+            background: rgba(13, 18, 41, 0.9);
             border: 1px solid var(--line-gold);
-            border-radius: 14px;
-            padding: 14px;
+            border-radius: 16px;
+            padding: 16px;
             display: flex;
-            gap: 14px;
-            align-items: center;
+            gap: 16px;
+            align-items: flex-start;
+            position: relative;
         }
+
         .catalog-bottle {
-            width: 80px;
-            height: 90px;
+            width: 100px;
+            height: 120px;
             flex-shrink: 0;
-            background: radial-gradient(circle, rgba(212, 160, 76, 0.15) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(212, 160, 76, 0.18) 0%, transparent 75%);
             display: flex;
             align-items: center;
             justify-content: center;
+            border-radius: 10px;
+            border: 1px solid rgba(212, 160, 76, 0.2);
+            cursor: zoom-in;
+            transition: transform 0.15s ease, border-color 0.2s ease;
+        }
+        .catalog-bottle:active {
+            transform: scale(0.97);
+            border-color: var(--gold-light);
         }
         .catalog-bottle img {
             width: 100%;
@@ -204,37 +289,105 @@
             object-fit: contain;
             border-radius: 8px;
         }
+
         .catalog-info {
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 6px;
+            min-width: 0;
         }
+        
+        .item-top-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
         .item-name {
             font-family: var(--font-ui);
-            font-weight: 600;
-            font-size: 16px;
+            font-weight: 700;
+            font-size: 17px;
             color: var(--gold-light);
             letter-spacing: 0.02em;
+            word-break: break-word;
         }
+
+        .item-volume {
+            font-family: var(--font-ui);
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--gold-light);
+            white-space: nowrap;
+            letter-spacing: 0.03em;
+            background: rgba(212, 160, 76, 0.12);
+            padding: 2px 7px;
+            border-radius: 6px;
+            border: 1px solid rgba(212, 160, 76, 0.35);
+        }
+
         .item-desc {
-            font-size: 11px;
+            font-size: 12px;
             color: var(--text-dim);
-            line-height: 1.3;
+            line-height: 1.4;
         }
         .item-price {
             font-family: var(--font-ui);
-            font-size: 16px;
+            font-size: 17px;
             color: #fff;
             font-weight: bold;
-            margin-top: 4px;
+            margin-top: 2px;
         }
         .item-btn {
-            padding: 8px 14px;
-            font-size: 11px;
-            border-radius: 6px;
-            margin-top: 4px;
+            padding: 9px 16px;
+            font-size: 12px;
+            border-radius: 8px;
+            margin-top: 6px;
             align-self: flex-start;
+        }
+        .catalog-empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 14px;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        /* ================= МОДАЛЬНОЕ ОКНО ДЛЯ ПРОСМОТРА КАРТИНКИ ================= */
+        .image-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(3, 6, 18, 0.92);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            padding: 20px;
+            cursor: zoom-out;
+        }
+        .image-modal.active {
+            display: flex;
+        }
+        .image-modal img {
+            max-width: 90%;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: 14px;
+            border: 1px solid var(--line-gold);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.85);
+            animation: zoomIn 0.2s ease-out;
+        }
+        @keyframes zoomIn {
+            from { transform: scale(0.85); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
 
         /* ================= ЭКРАН КОРЗИНЫ ================= */
@@ -738,11 +891,46 @@
 
 <div class="game-container">
 
-    <!-- 1. РАЗДЕЛ: КАТАЛОГ ТОВАРОВ -->
+    <!-- 0. РАЗДЕЛ: ВЫБОР КАТЕГОРИИ КАТАЛОГА -->
+    <div class="screen" id="categoriesScreen">
+        <div class="categories-header">
+            <button class="icon-btn" onclick="switchMainSection('menu')"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+            <div class="categories-title">КАТЕГОРИИ АРОМАТОВ</div>
+            <div style="width:38px;"></div>
+        </div>
+
+        <div class="categories-list">
+            <div class="category-card" onclick="openCategory('female', 'Женские ароматы')">
+                <div class="category-info">
+                    <div class="category-name">Женские ароматы</div>
+                    <div class="category-desc">Нежные, цветочные, сладкие и изысканные</div>
+                </div>
+                <div class="category-arrow"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
+            </div>
+
+            <div class="category-card" onclick="openCategory('male', 'Мужские ароматы')">
+                <div class="category-info">
+                    <div class="category-name">Мужские ароматы</div>
+                    <div class="category-desc">Строгие, древесные, свежие и кожаные ноты</div>
+                </div>
+                <div class="category-arrow"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
+            </div>
+
+            <div class="category-card" onclick="openCategory('unisex', 'Унисекс')">
+                <div class="category-info">
+                    <div class="category-name">Унисекс</div>
+                    <div class="category-desc">Универсальные нишевые композиции</div>
+                </div>
+                <div class="category-arrow"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1. РАЗДЕЛ: КАТАЛОГ ТОВАРОВ ВЫБРАННОЙ КАТЕГОРИИ -->
     <div class="screen" id="catalogScreen">
         <div class="catalog-header">
-            <button class="icon-btn" onclick="switchMainSection('menu')"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
-            <div class="catalog-title">КАТАЛОГ ТОВАРОВ</div>
+            <button class="icon-btn" onclick="showScreen('categoriesScreen')"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+            <div class="catalog-title" id="catalogCategoryTitle">КАТАЛОГ</div>
             <div class="cart-indicator" onclick="openCartScreen()">
                 <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
                 <span id="cartCount">0</span>
@@ -844,8 +1032,8 @@
         </div>
 
         <div class="menu-actions">
-            <!-- КНОПКА 1: КАТАЛОГ ТОВАРОВ -->
-            <button class="btn btn-gold btn-action-main" onclick="showScreen('catalogScreen')">КАТАЛОГ ТОВАРОВ</button>
+            <!-- КНОПКА 1: ПЕРЕХОД К ВЫБОРУ КАТЕГОРИЙ -->
+            <button class="btn btn-gold btn-action-main" onclick="showScreen('categoriesScreen')">КАТАЛОГ ТОВАРОВ</button>
 
             <!-- КНОПКА 2: ИГРОВАЯ АРЕНА TAPAZ -->
             <button class="btn btn-gold btn-action-main" id="playBtn" onclick="showScreen('levelsScreen')">ИГРОВАЯ АРЕНА TAPAZ</button>
@@ -923,17 +1111,11 @@
         </button>
         <button class="nav-item" id="navSupportBtn" onclick="switchMainSection('support')">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <!-- Гарнитура -->
                 <path d="M4 13V11C4 6.58 7.58 3 12 3C16.42 3 20 6.58 20 11V13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                <!-- Левый наушник -->
                 <rect x="2.5" y="11" width="3" height="6" rx="1.5" fill="currentColor"/>
-                <!-- Правый наушник -->
                 <rect x="18.5" y="11" width="3" height="6" rx="1.5" fill="currentColor"/>
-                <!-- Голова -->
                 <circle cx="12" cy="10.5" r="3.1" stroke="currentColor" stroke-width="1.6"/>
-                <!-- Плечи / тело оператора -->
                 <path d="M6.5 21C6.5 17.9 8.95 15.5 12 15.5C15.05 15.5 17.5 17.9 17.5 21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                <!-- Микрофон -->
                 <path d="M18.5 16.5C17.8 18 16.3 19 14.5 19H13.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
                 <circle cx="13.3" cy="19" r="1" fill="currentColor"/>
             </svg>
@@ -941,57 +1123,98 @@
         </button>
     </div>
 
+    <!-- МОДАЛЬНОЕ ОКНО ДЛЯ ПРОСМОТРА КАРТИНКИ -->
+    <div class="image-modal" id="imageModal" onclick="closeImageModal()">
+        <img id="modalImage" src="" alt="TAPAZ Preview">
+    </div>
+
     <div class="toast" id="toast"></div>
 </div>
 
 <script>
     /* ================= НАСТРОЙКИ УВЕДОМЛЕНИЙ ДЛЯ КОНСУЛЬТАНТА ================= */
-    // Замените на токен вашего бота от @BotFather
     const BOT_TOKEN = '8841223635:AAF6RfQnAckFBE6N8wVSuSrqesTm8c14iVs';
-    // Замените на числовой Telegram ID консультанта или группы
     const MANAGER_CHAT_ID = '8287154272';
 
     /* ================= БАЗА ТОВАРОВ КАТАЛОГА ================= */
     const BASE_PRODUCTS = [
-        { name: 'Tom Ford Oud Wood', img: 'perfume1.jpg', desc: 'Ноты: кардамон и розовый перец', price: 7000 },
-        { name: 'Криштиану Роналду', img: 'perfume2.jpg', desc: 'ФУТБОЛИСТ', price: 228000 },
-        { name: 'Трусы Hello Kitty', img: 'perfume3.jpg', desc: 'В наличии все размеры', price: 400 },
-        { name: 'Часы Rolex Daytona', img: 'perfume4.jpg', desc: 'Прекрасный подарок для мужчины', price: 900000 },
-        { name: 'Kirki Tiziana Terenzi', img: 'perfume5.jpg', desc: 'Ноты: маракуйя, персик, малина, чёрная смородина, груша и ноты песка', price: 18000 },
-        { name: 'Hormone Paris This Is Not Gaba', img: 'perfume6.jpg', desc: 'Ноты: апельсин, лаванда, мандарин', price: 27000 },
-        { name: 'Джинсы мужские морской клеш', img: 'perfume7.jpg', desc: 'В наличии', price: 7499 },
-        { name: 'Кроссовки Nike Dunk Low Retro Premium', img: 'perfume8.jpg', desc: 'Цвет: Curry', price: 11999 },
-        { name: 'Игрушка для детей', img: 'perfume9.jpg', desc: 'Цвет: Розовый', price: 799 },
-        { name: 'Беспроводные наушники Apple AirPods Pro 2', img: 'perfume10.jpg', desc: 'Цвет: Белый', price: 17999 },
-        { name: 'Apple MacBook Air 15 (2025)', img: 'perfume11.jpg', desc: 'Цвет: Серебристый', price: 209999 },
-        { name: 'Kirke Malina', img: 'kirke malina.jpg', desc: 'Ноты: Малина, Маракуя', price: 1700 },
-        { name: 'Kirke Sex', img: 'Gemini_Generated_Image_bhcymibhcymibhcy.jpg', desc: 'Ноты: Апельсин, ваниль, мускус', price: 1900 }
+        { 
+            name: 'Creed Aventus', 
+            volume: '100 ml',
+            img: 'CreedAventus.jpg', 
+            desc: 'Верхние ноты: бергамот, черная смородина, лимон, розовый перец, яблоко. Средние ноты: пачули, ананас, жасмин. Базовые ноты: мускус, амброксан, дубовый мох, кедр, берёза. Описание: создан для уверенных в себе, харизматичных и целеустремленных мужчин.', 
+            price: 8200, 
+            category: 'male' 
+        }
     ];
 
-    function initCatalog() {
+    let currentCategoryKey = 'all';
+
+    function openCategory(categoryKey, titleText) {
+        currentCategoryKey = categoryKey;
+        document.getElementById('catalogCategoryTitle').textContent = titleText.toUpperCase();
+        renderCatalogByCategory(categoryKey);
+        showScreen('catalogScreen');
+    }
+
+    function renderCatalogByCategory(categoryKey) {
         const container = document.getElementById('catalogListContainer');
         if (!container) return;
-        const fragment = document.createDocumentFragment();
+        container.innerHTML = '';
 
-        BASE_PRODUCTS.forEach(item => {
+        const filtered = BASE_PRODUCTS.filter(item => {
+            if (categoryKey === 'all') return true;
+            return item.category === categoryKey;
+        });
+
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div class="catalog-empty-state">
+                    В этой категории пока нет товаров.<br>
+                    Они скоро появятся!
+                </div>
+            `;
+            return;
+        }
+
+        const fragment = document.createDocumentFragment();
+        filtered.forEach(item => {
             const div = document.createElement('div');
             div.className = 'catalog-item';
+            
+            const volumeHtml = item.volume ? `<div class="item-volume">${item.volume}</div>` : '';
+            const cartItemName = item.volume ? `${item.name} (${item.volume})` : item.name;
+
             div.innerHTML = `
-                <div class="catalog-bottle">
-                    <img src="${item.img}" loading="lazy" alt="TAPAZ Amber Royal">
+                <div class="catalog-bottle" onclick="openImageModal('${item.img}')">
+                    <img src="${item.img}" loading="lazy" alt="TAPAZ Perfume">
                 </div>
                 <div class="catalog-info">
-                    <div class="item-name">${item.name}</div>
+                    <div class="item-top-row">
+                        <div class="item-name">${item.name}</div>
+                        ${volumeHtml}
+                    </div>
                     <div class="item-desc">${item.desc}</div>
                     <div class="item-price">${item.price.toLocaleString('ru-RU')} ₽</div>
-                    <button class="btn btn-gold item-btn" onclick="addToCart('${item.name.replace(/'/g, "\\'")}', ${item.price})">В КОРЗИНУ</button>
+                    <button class="btn btn-gold item-btn" onclick="addToCart('${cartItemName.replace(/'/g, "\\'")}', ${item.price})">В КОРЗИНУ</button>
                 </div>
             `;
             fragment.appendChild(div);
         });
         container.appendChild(fragment);
     }
-    initCatalog();
+
+    /* ================= ФУНКЦИИ ПРОСМОТРА ФОТО ================= */
+    function openImageModal(src) {
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        modalImg.src = src;
+        modal.classList.add('active');
+    }
+
+    function closeImageModal() {
+        document.getElementById('imageModal').classList.remove('active');
+    }
 
     /* ================= СВГ ФЛАКОНЫ ================= */
     const BOARD_SIZE = 8;
@@ -1127,16 +1350,31 @@
         btn.disabled = true;
         btn.textContent = 'ОФОРМЛЯЕМ...';
 
-        // 1. Получаем данные пользователя из Telegram WebApp
-        const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user || {};
-        const userName = tgUser.first_name ? `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() : 'Анонимный клиент';
-        const userNick = tgUser.username ? `@${tgUser.username}` : 'Ник скрыт';
-        const userId = tgUser.id ? tgUser.id : 'Не определён';
-        const userContactLink = tgUser.username 
-            ? `https://t.me/${tgUser.username}` 
-            : (tgUser.id ? `tg://user?id=${tgUser.id}` : 'https://t.me/tamaz_9');
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+        }
 
-        // 2. Считаем позиции и скидку
+        let tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+
+        if (!tgUser && window.Telegram?.WebApp?.initData) {
+            try {
+                const params = new URLSearchParams(window.Telegram.WebApp.initData);
+                const userRaw = params.get('user');
+                if (userRaw) tgUser = JSON.parse(userRaw);
+            } catch (e) {
+                console.error("Ошибка парсинга initData:", e);
+            }
+        }
+
+        const userName = tgUser?.first_name 
+            ? `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() 
+            : 'Анонимный клиент';
+        const userNick = tgUser?.username ? `@${tgUser.username}` : 'Ник скрыт';
+        const userId = tgUser?.id ? tgUser.id : 'Не определён';
+        const userContactLink = tgUser?.username 
+            ? `https://t.me/${tgUser.username}` 
+            : (tgUser?.id ? `tg://user?id=${tgUser.id}` : 'https://t.me/tamaz_9');
+
         let subtotal = 0;
         let itemsText = '';
         keys.forEach(name => {
@@ -1152,7 +1390,6 @@
         }
         const finalTotal = Math.max(0, subtotal - discount);
 
-        // 3. Формируем подробный отчёт для консультанта
         const managerMessage = 
 `🔔 <b>НОВЫЙ ЗАКАЗ В TAPAZ!</b>
 
@@ -1165,7 +1402,6 @@ ${itemsText}
 💰 <b>Сумма без скидки:</b> ${subtotal.toLocaleString('ru-RU')} ₽
 ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` : ''}💵 <b>ИТОГО К ОПЛАТЕ: ${finalTotal.toLocaleString('ru-RU')} ₽</b>`;
 
-        // 4. Отправляем уведомление ботом консультанту
         try {
             if (BOT_TOKEN !== '123456789:ABCdefGhIJKlmNoPQRstuVWXyz') {
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
@@ -1180,21 +1416,18 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
                 });
             }
 
-            // Списываем бонусы, если были применены
             if (isBonusApplied && discount > 0) {
                 bonusPoints = Math.max(0, bonusPoints - discount);
                 localStorage.setItem('tapaz_bonus', bonusPoints.toString());
                 updateBonusUI();
             }
 
-            // Очищаем корзину
             cart = {};
             updateCartCount();
             renderCartItems();
 
             showToast('✅ Заказ оформлен! Консультант скоро свяжется с вами.');
 
-            // Если мини-апп открыт в Telegram, закрываем окно через 2 секунды
             setTimeout(() => {
                 if (window.Telegram?.WebApp?.close) {
                     Telegram.WebApp.close();
@@ -1203,7 +1436,6 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
 
         } catch (e) {
             console.error(e);
-            // Резервный вариант: если интернет дал сбой, открываем чат с предзаполненным текстом
             const fallbackText = `Здравствуйте! Хочу оформить заказ:\n\n${itemsText}\nИтого к оплате: ${finalTotal.toLocaleString('ru-RU')} ₽`;
             const tgLink = `https://t.me/tamaz_9?text=${encodeURIComponent(fallbackText)}`;
             if (window.Telegram?.WebApp) {
