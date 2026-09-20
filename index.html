@@ -479,10 +479,6 @@
             font-weight: 600;
             color: var(--gold-light);
         }
-        .cart-bonus-desc {
-            font-size: 11px;
-            color: var(--text-dim);
-        }
         .cart-bonus-btn {
             padding: 6px 12px;
             font-size: 11px;
@@ -961,7 +957,8 @@
         <div class="catalog-header">
             <button class="icon-btn" onclick="showScreen('categoriesScreen')"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
             <div class="catalog-title" id="catalogCategoryTitle">КАТАЛОГ</div>
-            <div class="cart-indicator" onclick="openCartScreen()">
+            <!-- Переход в корзину из каталога (возврат приведет назад в каталог) -->
+            <div class="cart-indicator" onclick="openCartScreen('catalogScreen')">
                 <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
                 <span id="cartCount">0</span>
             </div>
@@ -973,7 +970,8 @@
     <!-- 1.1 ЭКРАН: КОРЗИНА С ВЫБРАННЫМИ ТОВАРАМИ -->
     <div class="screen" id="cartScreen">
         <div class="catalog-header">
-            <button class="icon-btn" onclick="showScreen('catalogScreen')"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+            <!-- Кнопка назад возвращает на экран, с которого зашли (главное меню или каталог) -->
+            <button class="icon-btn" onclick="backFromCart()"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
             <div class="catalog-title">КОРЗИНА</div>
             <div style="width:38px;"></div>
         </div>
@@ -984,7 +982,6 @@
             <div class="cart-bonus-block" id="cartBonusRow">
                 <div class="cart-bonus-info">
                     <div class="cart-bonus-title" id="cartBonusTitle">Бонусы TAPAZ: 0 Б</div>
-                    <div class="cart-bonus-desc" id="cartBonusDesc"></div>
                 </div>
                 <button class="btn btn-outline cart-bonus-btn" id="cartBonusApplyBtn" onclick="toggleBonusUse()">СПИСАТЬ</button>
             </div>
@@ -1170,8 +1167,8 @@
             <span class="nav-label">МЕНЮ</span>
         </button>
 
-        <!-- КОРЗИНА ПО ЦЕНТРУ -->
-        <button class="nav-item" id="navCartBtn" onclick="openCartScreen()">
+        <!-- КОРЗИНА ПО ЦЕНТРУ: передает 'mainMenu' для возврата на главный экран -->
+        <button class="nav-item" id="navCartBtn" onclick="openCartScreen('mainMenu')">
             <div class="nav-cart-pill">
                 <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
                 <span id="navCartCount">0</span>
@@ -1339,6 +1336,7 @@
     /* ================= СОСТОЯНИЕ КОРЗИНЫ ================= */
     let cart = {};
     let isBonusApplied = false;
+    let cartPreviousScreen = 'catalogScreen'; // Запоминаем, откуда пользователь перешел в корзину
 
     function addToCart(name, price) {
         if (!cart[name]) {
@@ -1361,9 +1359,14 @@
         if (c2) c2.textContent = totalCount;
     }
 
-    function openCartScreen() {
+    function openCartScreen(fromScreen = 'catalogScreen') {
+        cartPreviousScreen = fromScreen;
         renderCartItems();
         showScreen('cartScreen');
+    }
+
+    function backFromCart() {
+        showScreen(cartPreviousScreen);
     }
 
     function changeCartQty(name, delta) {
