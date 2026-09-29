@@ -46,6 +46,8 @@
             background: var(--bg-deep);
             font-family: var(--font-ui);
             color: var(--text);
+            overscroll-behavior: none;
+            overscroll-behavior-y: none;
         }
 
         body {
@@ -71,6 +73,8 @@
             border-radius: 18px;
             box-shadow: 0 14px 45px rgba(0, 0, 0, 0.75);
             overflow: hidden;
+            overscroll-behavior: none;
+            overscroll-behavior-y: none;
         }
 
         @media (max-width: 480px) {
@@ -343,6 +347,7 @@
             flex-direction: column;
             gap: 16px;
             padding-right: 4px;
+            -webkit-overflow-scrolling: touch;
         }
 
         .catalog-item {
@@ -487,6 +492,7 @@
             flex-direction: column;
             gap: 12px;
             padding-right: 4px;
+            -webkit-overflow-scrolling: touch;
         }
         .cart-item {
             background: rgba(13, 18, 41, 0.85);
@@ -623,6 +629,7 @@
             flex-direction: column;
             gap: 14px;
             padding-right: 4px;
+            -webkit-overflow-scrolling: touch;
         }
         .support-card {
             background: rgba(13, 18, 41, 0.85);
@@ -826,6 +833,7 @@
             overflow-y: auto;
             padding: 4px;
             align-content: start;
+            -webkit-overflow-scrolling: touch;
         }
         .level-btn {
             aspect-ratio: 1;
@@ -940,6 +948,8 @@
             justify-content: center;
             min-height: 0;
             position: relative;
+            touch-action: none;
+            overscroll-behavior: none;
         }
         .board {
             width: min(100%, calc(100dvh - 250px));
@@ -953,9 +963,11 @@
             border-radius: 14px;
             border: 1px solid rgba(212, 160, 76, 0.35);
             box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.85), 0 10px 30px rgba(0, 0, 0, 0.6);
-            touch-action: none;
             position: relative;
             overflow: hidden;
+            touch-action: none;
+            overscroll-behavior: none;
+            overscroll-behavior-y: none;
         }
         .cell {
             aspect-ratio: 1;
@@ -1043,7 +1055,6 @@
             50% { transform: scale(1.06); filter: drop-shadow(0 0 14px var(--gold-light)); }
         }
 
-        /* Эффекты ракеты и бомбы */
         .fx-shockwave {
             position: absolute;
             border-radius: 50%;
@@ -1416,6 +1427,23 @@
 </div>
 
 <script>
+    /* ================= ИНИЦИАЛИЗАЦИЯ TELEGRAM И БЛОКИРОВКА СВАЙПОВ НА IOS ================= */
+    if (window.Telegram?.WebApp) {
+        try {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+            // Отключаем нативный свайп закрытия шторки на iPhone
+            if (window.Telegram.WebApp.disableVerticalSwipes) {
+                window.Telegram.WebApp.disableVerticalSwipes();
+            }
+            if (window.Telegram.WebApp.enableClosingConfirmation) {
+                window.Telegram.WebApp.enableClosingConfirmation();
+            }
+        } catch (e) {
+            console.warn('Ошибка настройки Telegram SDK:', e);
+        }
+    }
+
     /* ================= НАСТРОЙКИ УВЕДОМЛЕНИЙ ДЛЯ КОНСУЛЬТАНТА ================= */
     const BOT_TOKEN = '8841223635:AAF6RfQnAckFBE6N8wVSuSrqesTm8c14iVs';
     const MANAGER_CHAT_ID = '8287154272';
@@ -1615,26 +1643,25 @@
     const BOARD_SIZE = 8;
 
     const PERFUMES = [
-        /* 0: Royal Amber Gold (Императорский золотой кристалл) */
+        /* 0: Royal Amber Gold */
         `<svg viewBox="0 0 48 48"><defs><linearGradient id="b0_cap" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff8cc"/><stop offset="50%" stop-color="#d49a38"/><stop offset="100%" stop-color="#694102"/></linearGradient><radialGradient id="b0_body" cx="35%" cy="35%" r="65%"><stop offset="0%" stop-color="#ffe699"/><stop offset="35%" stop-color="#f5b83d"/><stop offset="75%" stop-color="#b8720e"/><stop offset="100%" stop-color="#593102"/></radialGradient><linearGradient id="b0_shine" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.85"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></linearGradient></defs><circle cx="24" cy="3.5" r="2.2" fill="#fff3b0"/><path d="M21 5.5 h6 a2 2 0 0 1 2 2 v2.5 h-10 v-2.5 a2 2 0 0 1 2 -2 z" fill="url(#b0_cap)"/><rect x="22" y="10" width="4" height="2.5" fill="#7a4b04"/><rect x="20" y="11.5" width="8" height="2" rx="1" fill="url(#b0_cap)"/><path d="M16 13.5 h16 c2.5 0 4.5 2 5 4.5 l1 18.5 c.3 3.5 -2.5 6.5 -6 6.5 h-16 c-3.5 0 -6.3 -3 -6 -6.5 l1 -18.5 c.5 -2.5 2.5 -4.5 5 -4.5 z" fill="url(#b0_body)" stroke="#ffd778" stroke-width="1.3"/><ellipse cx="24" cy="30" rx="9" ry="8" fill="#ffec8b" opacity="0.45"/><path d="M15 16 c0 0 2 13 3 21" stroke="url(#b0_shine)" stroke-width="2.5" stroke-linecap="round" fill="none"/><ellipse cx="30" cy="19" rx="2" ry="4" fill="#ffffff" opacity="0.4" transform="rotate(15 30 19)"/><rect x="19.5" y="23.5" width="9" height="10" rx="1.5" fill="#12182b" stroke="url(#b0_cap)" stroke-width="0.9"/><text x="24" y="31.2" font-family="'Cinzel', Georgia, serif" font-size="7.5" font-weight="bold" fill="#fce49c" text-anchor="middle">T</text></svg>`,
 
-        /* 1: Sapphire Blue Noir (Глубокий синий сапфир) */
+        /* 1: Sapphire Blue Noir */
         `<svg viewBox="0 0 48 48"><defs><linearGradient id="b1_body" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4a7dff"/><stop offset="35%" stop-color="#1940b0"/><stop offset="70%" stop-color="#0a1d5c"/><stop offset="100%" stop-color="#040b26"/></linearGradient><linearGradient id="b1_gold" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ffe599"/><stop offset="50%" stop-color="#cca03d"/><stop offset="100%" stop-color="#694302"/></linearGradient><linearGradient id="b1_shine" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#b3d4ff" stop-opacity="0.95"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></linearGradient></defs><rect x="18" y="2.5" width="12" height="7" rx="1.5" fill="#080e22" stroke="url(#b1_gold)" stroke-width="1"/><rect x="19.5" y="9.5" width="9" height="3" rx="0.5" fill="url(#b1_gold)"/><rect x="11" y="12.5" width="26" height="30.5" rx="5" fill="url(#b1_body)" stroke="url(#b1_gold)" stroke-width="1.3"/><ellipse cx="24" cy="28" rx="8" ry="10" fill="#3b72ff" opacity="0.4"/><path d="M14 15.5 v24.5" stroke="url(#b1_shine)" stroke-width="2.2" stroke-linecap="round"/><path d="M33 16.5 v22" stroke="#ffffff" stroke-width="0.8" opacity="0.35" stroke-linecap="round"/><rect x="16" y="21" width="16" height="12.5" rx="1.5" fill="#050917" stroke="url(#b1_gold)" stroke-width="0.9"/><line x1="18" y1="23.5" x2="30" y2="23.5" stroke="#cca03d" stroke-width="0.6"/><text x="24" y="30" font-family="'Cinzel', Georgia, serif" font-size="7.5" font-weight="bold" fill="#f7d98b" text-anchor="middle">T</text><line x1="18" y1="31" x2="30" y2="31" stroke="#cca03d" stroke-width="0.6"/></svg>`,
 
-        /* 2: Emerald Gemstone (Ограненный изумруд Royale) */
+        /* 2: Emerald Gemstone */
         `<svg viewBox="0 0 48 48"><defs><linearGradient id="b2_body" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#73e658"/><stop offset="35%" stop-color="#1ea636"/><stop offset="70%" stop-color="#095719"/><stop offset="100%" stop-color="#022108"/></linearGradient><linearGradient id="b2_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff1aa"/><stop offset="60%" stop-color="#d49c28"/><stop offset="100%" stop-color="#694302"/></linearGradient></defs><polygon points="24,1.5 29.5,5.5 29.5,8.5 18.5,8.5 18.5,5.5" fill="url(#b2_body)" stroke="url(#b2_gold)" stroke-width="0.9"/><rect x="21" y="8.5" width="6" height="4" fill="url(#b2_gold)"/><polygon points="24,12.5 36.5,18.5 36.5,36 24,44.5 11.5,36 11.5,18.5" fill="url(#b2_body)" stroke="url(#b2_gold)" stroke-width="1.3"/><polygon points="24,16.5 32.5,20.5 32.5,34 24,39.5 15.5,34 15.5,20.5" fill="none" stroke="#99ff88" stroke-width="0.8" opacity="0.65"/><line x1="24" y1="16.5" x2="24" y2="39.5" stroke="#ffffff" stroke-width="1" opacity="0.45"/><circle cx="24" cy="27" r="4.8" fill="#04260b" stroke="url(#b2_gold)" stroke-width="0.9"/><text x="24" y="30.2" font-family="'Cinzel', Georgia, serif" font-size="7" font-weight="bold" fill="#ffe082" text-anchor="middle">T</text></svg>`,
 
-        /* 3: Ruby Rose Velvet (Рубиновый ликер Baccarat) */
+        /* 3: Ruby Rose Velvet */
         `<svg viewBox="0 0 48 48"><defs><radialGradient id="b3_body" cx="35%" cy="35%" r="65%"><stop offset="0%" stop-color="#ff6b8b"/><stop offset="40%" stop-color="#d61138"/><stop offset="80%" stop-color="#730018"/><stop offset="100%" stop-color="#2b0007"/></radialGradient><linearGradient id="b3_gold" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#fff8cc"/><stop offset="50%" stop-color="#f0bc4d"/><stop offset="100%" stop-color="#805404"/></linearGradient></defs><rect x="18" y="2" width="12" height="7.5" rx="2" fill="#d61138" stroke="url(#b3_gold)" stroke-width="0.9"/><rect x="20" y="3.5" width="8" height="4" fill="#ffffff" opacity="0.3"/><rect x="21" y="9.5" width="6" height="3" fill="url(#b3_gold)"/><path d="M16 12.5 h16 c4 0 7 3 7 7 v16.5 c0 4 -3 7 -7 7 h-16 c-4 0 -7 -3 -7 -7 v-16.5 c0 -4 3 -7 7 -7 z" fill="url(#b3_body)" stroke="url(#b3_gold)" stroke-width="1.3"/><path d="M13.5 18 c0 0 3 14 3 20" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.65"/><ellipse cx="24" cy="30" rx="8" ry="7" fill="#ff4d6d" opacity="0.4"/><rect x="17" y="22" width="14" height="12.5" rx="1.5" fill="#140205" stroke="url(#b3_gold)" stroke-width="0.9"/><text x="24" y="31" font-family="'Cinzel', Georgia, serif" font-size="8" font-weight="bold" fill="#ffc773" text-anchor="middle">T</text></svg>`,
 
-        /* 4: Diamond Silver (Бриллиантовый кристалл) */
+        /* 4: Diamond Silver */
         `<svg viewBox="0 0 48 48"><defs><linearGradient id="b4_body" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="25%" stop-color="#e0e4ed"/><stop offset="55%" stop-color="#9aa5b8"/><stop offset="85%" stop-color="#4a5568"/><stop offset="100%" stop-color="#1f2430"/></linearGradient><linearGradient id="b4_glow" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e8f4ff"/><stop offset="100%" stop-color="#7389a8"/></linearGradient></defs><polygon points="24,1.5 30.5,6.5 24,9.5 17.5,6.5" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.9"/><rect x="22" y="9.5" width="4" height="3.5" fill="#94a3b8"/><polygon points="24,12.5 37.5,19.5 34.5,41.5 24,45.5 13.5,41.5 10.5,19.5" fill="url(#b4_body)" stroke="#ffffff" stroke-width="1.3"/><polygon points="24,12.5 37.5,19.5 24,45.5" fill="#ffffff" opacity="0.22"/><polygon points="24,12.5 10.5,19.5 24,45.5" fill="#0f172a" opacity="0.28"/><line x1="24" y1="12.5" x2="24" y2="45.5" stroke="#ffffff" stroke-width="1.3" opacity="0.8"/><circle cx="24" cy="27" r="5.2" fill="url(#b4_glow)" opacity="0.8" stroke="#ffffff" stroke-width="0.9"/><text x="24" y="30.2" font-family="'Cinzel', Georgia, serif" font-size="7.5" font-weight="bold" fill="#0f172a" text-anchor="middle">T</text></svg>`,
 
-        /* 5: Obsidian Noir & 24K Gold (Черный обсидиан с золотом) */
+        /* 5: Obsidian Noir & 24K Gold */
         `<svg viewBox="0 0 48 48"><defs><linearGradient id="b5_body" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#454b5e"/><stop offset="35%" stop-color="#171922"/><stop offset="70%" stop-color="#0a0b10"/><stop offset="100%" stop-color="#242833"/></linearGradient><linearGradient id="b5_gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff0aa"/><stop offset="50%" stop-color="#dfaa36"/><stop offset="100%" stop-color="#734f0c"/></linearGradient></defs><rect x="18" y="2" width="12" height="4" rx="1" fill="url(#b5_gold)"/><rect x="20" y="6" width="8" height="4" fill="url(#b5_gold)"/><rect x="22" y="10" width="4" height="2" fill="#523908"/><rect x="10" y="12" width="28" height="31" rx="4" fill="url(#b5_body)" stroke="url(#b5_gold)" stroke-width="1.3"/><line x1="15" y1="15" x2="15" y2="40" stroke="#5a627a" stroke-width="1.2" opacity="0.5"/><line x1="33" y1="15" x2="33" y2="40" stroke="#5a627a" stroke-width="1.2" opacity="0.5"/><rect x="12" y="40" width="24" height="3" rx="1" fill="url(#b5_gold)"/><rect x="16" y="19.5" width="16" height="14.5" rx="1.5" fill="url(#b5_gold)"/><rect x="17.5" y="21" width="13" height="11.5" rx="1" fill="#0d0e14"/><text x="24" y="29.8" font-family="'Cinzel', Georgia, serif" font-size="8" font-weight="bold" fill="url(#b5_gold)" text-anchor="middle">T</text></svg>`
     ];
 
-    /* Спец-элементы: Бомба, Ракета, Радуга, Препятствия */
     const BOMB_SVG = `<svg viewBox="0 0 48 48"><defs><radialGradient id="bomb_glow" cx="40%" cy="40%" r="60%"><stop offset="0%" stop-color="#ff7373"/><stop offset="50%" stop-color="#e01212"/><stop offset="100%" stop-color="#590000"/></radialGradient><linearGradient id="bomb_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff2a3"/><stop offset="60%" stop-color="#e69c24"/><stop offset="100%" stop-color="#804d00"/></linearGradient></defs><path d="M33 13 C38 10 44 14 44 19 C44 24 37 25 34 21 Z" fill="#9e1927" stroke="url(#bomb_gold)" stroke-width="1"/><path d="M28 16 L33 17" stroke="url(#bomb_gold)" stroke-width="2.5" stroke-linecap="round"/><path d="M18 14 L12 11" stroke="url(#bomb_gold)" stroke-width="2.5" stroke-linecap="round"/><polygon points="12,9 10,13 14,13" fill="url(#bomb_gold)"/><rect x="20" y="12" width="8" height="5" rx="1" fill="url(#bomb_gold)"/><circle cx="24" cy="28" r="14" fill="url(#bomb_glow)" stroke="url(#bomb_gold)" stroke-width="1.5"/><circle cx="24" cy="28" r="10" fill="#ff2626" opacity="0.45" filter="blur(1px)"/><ellipse cx="20" cy="22" rx="3.5" ry="5" fill="#ffffff" opacity="0.65" transform="rotate(-30 20 22)"/><path d="M25 21 L21 28 L25 28 L23 35 L28 27 L24 27 Z" fill="#fff7b8" stroke="#d48200" stroke-width="0.5"/></svg>`;
 
     const ROCKET_SVG = `<svg viewBox="0 0 48 48"><defs><linearGradient id="rkt_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="40%" stop-color="#f5cb6c"/><stop offset="80%" stop-color="#c48a1b"/><stop offset="100%" stop-color="#694102"/></linearGradient><linearGradient id="rkt_body" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#141a38"/><stop offset="50%" stop-color="#2a356b"/><stop offset="100%" stop-color="#0f142b"/></linearGradient></defs><polygon points="24,46 21,39 27,39" fill="#ffaa00"/><polygon points="24,43 22,39 26,39" fill="#ffffff"/><path d="M12 34 L17 26 L17 38 Z" fill="url(#rkt_gold)"/><path d="M36 34 L31 26 L31 38 Z" fill="url(#rkt_gold)"/><path d="M24 3 C17 12 17 25 17 38 L31 38 C31 25 31 12 24 3 Z" fill="url(#rkt_body)" stroke="url(#rkt_gold)" stroke-width="1.4"/><line x1="24" y1="8" x2="24" y2="34" stroke="#82b1ff" stroke-width="2.2" stroke-linecap="round"/><line x1="24" y1="8" x2="24" y2="34" stroke="#ffffff" stroke-width="0.8"/><circle cx="24" cy="20" r="4.2" fill="#0d1430" stroke="url(#rkt_gold)" stroke-width="1.2"/><circle cx="24" cy="20" r="2" fill="#70b5ff"/></svg>`;
@@ -1772,10 +1799,6 @@
         const btn = document.getElementById('checkoutBtn');
         btn.disabled = true;
         btn.textContent = 'ОФОРМЛЯЕМ...';
-
-        if (window.Telegram && window.Telegram.WebApp) {
-            window.Telegram.WebApp.ready();
-        }
 
         let tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
 
@@ -2263,6 +2286,14 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
         }
 
         newlyDroppedKeys.clear();
+    }
+
+    // Полный запрет нативного скролла и жестов закрытия шторки на игровом поле
+    const gameBoardElement = document.getElementById('gameBoard');
+    if (gameBoardElement) {
+        gameBoardElement.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        }, { passive: false });
     }
 
     function onCellClick(r, c) {
