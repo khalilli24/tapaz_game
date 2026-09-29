@@ -152,13 +152,26 @@
             justify-content: space-between;
             padding-bottom: 12px;
             border-bottom: 1px solid var(--line-gold);
-            margin-bottom: 18px;
+            margin-bottom: 10px;
         }
         .categories-title {
             font-family: var(--font-display);
             font-size: 20px;
             color: var(--gold-light);
             letter-spacing: 0.08em;
+            text-align: center;
+        }
+        .categories-subnote {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-dim);
+            line-height: 1.45;
+            padding: 0 10px;
+            margin-bottom: 14px;
+        }
+        .categories-subnote b {
+            color: var(--gold-light);
+            font-weight: 600;
         }
         .categories-list {
             flex: 1;
@@ -166,7 +179,7 @@
             flex-direction: column;
             gap: 16px;
             justify-content: center;
-            padding: 10px 0;
+            padding: 4px 0 10px;
         }
         .category-card {
             background: linear-gradient(135deg, rgba(19, 24, 56, 0.95) 0%, rgba(10, 14, 34, 0.95) 100%);
@@ -224,15 +237,24 @@
             justify-content: space-between;
             padding-bottom: 12px;
             border-bottom: 1px solid var(--line-gold);
-            margin-bottom: 12px;
+            margin-bottom: 10px;
+            gap: 8px;
         }
         .catalog-title {
             font-family: var(--font-display);
-            font-size: 18px;
+            font-size: 17px;
             color: var(--gold-light);
             letter-spacing: 0.05em;
             text-align: center;
             flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .catalog-header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         .cart-indicator {
             display: flex;
@@ -249,6 +271,70 @@
         }
         .cart-indicator:active { transform: scale(0.95); }
         .cart-indicator svg { width: 16px; height: 16px; fill: currentColor; }
+
+        .catalog-search-wrap {
+            margin-bottom: 12px;
+            animation: fadeInSearch 0.2s ease-out;
+        }
+        @keyframes fadeInSearch {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .catalog-search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: rgba(13, 18, 41, 0.9);
+            border: 1px solid var(--line-gold);
+            border-radius: 12px;
+            padding: 0 12px;
+            height: 40px;
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .catalog-search-box:focus-within {
+            border-color: var(--gold-light);
+            box-shadow: 0 0 10px rgba(212, 160, 76, 0.35);
+        }
+        .catalog-search-icon {
+            width: 18px;
+            height: 18px;
+            fill: var(--gold);
+            flex-shrink: 0;
+            margin-right: 8px;
+            opacity: 0.85;
+        }
+        .catalog-search-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text);
+            font-family: var(--font-ui);
+            font-size: 13px;
+        }
+        .catalog-search-input::placeholder {
+            color: var(--text-dim);
+            opacity: 0.65;
+        }
+        .catalog-search-clear {
+            background: transparent;
+            border: none;
+            color: var(--gold-light);
+            font-size: 18px;
+            line-height: 1;
+            padding: 0 4px;
+            cursor: pointer;
+            display: none;
+            opacity: 0.8;
+            transition: transform 0.1s ease;
+        }
+        .catalog-search-clear:active { transform: scale(1.15); }
+        .icon-btn.active {
+            background: var(--gold-grad);
+            color: #1a1205;
+            border-color: var(--gold-light);
+        }
 
         .catalog-list {
             flex: 1;
@@ -281,9 +367,7 @@
             transition: transform 0.15s ease;
             align-self: center;
         }
-        .catalog-bottle:active {
-            transform: scale(0.97);
-        }
+        .catalog-bottle:active { transform: scale(0.97); }
         .catalog-bottle img {
             width: 100%;
             height: 100%;
@@ -380,9 +464,7 @@
             padding: 20px;
             cursor: zoom-out;
         }
-        .image-modal.active {
-            display: flex;
-        }
+        .image-modal.active { display: flex; }
         .image-modal img {
             max-width: 90%;
             max-height: 80vh;
@@ -566,6 +648,47 @@
             line-height: 1.4;
         }
 
+        /* ================= МОДАЛКА ОТЗЫВА ================= */
+        .stars-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 6px 0 10px;
+        }
+        .star-icon {
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            fill: rgba(212, 160, 76, 0.2);
+            stroke: var(--gold);
+            stroke-width: 1.5;
+            transition: transform 0.15s ease, fill 0.15s ease, filter 0.15s ease;
+        }
+        .star-icon.active {
+            fill: var(--gold-light);
+            filter: drop-shadow(0 0 6px rgba(244, 207, 119, 0.6));
+        }
+        .star-icon:active { transform: scale(1.2); }
+        .review-textarea {
+            width: 100%;
+            height: 90px;
+            background: rgba(5, 8, 20, 0.85);
+            border: 1px solid var(--line-gold);
+            border-radius: 10px;
+            padding: 10px 12px;
+            color: var(--text);
+            font-family: var(--font-ui);
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .review-textarea:focus { border-color: var(--gold-light); }
+        .review-textarea::placeholder {
+            color: var(--text-dim);
+            opacity: 0.65;
+        }
+
         /* ================= ГЛАВНОЕ МЕНЮ TAPAZ ================= */
         .main-menu {
             align-items: center;
@@ -626,17 +749,13 @@
             gap: 4px;
             cursor: pointer;
         }
-        .nav-item svg {
-            width: 24px;
-            height: 24px;
-        }
+        .nav-item svg { width: 24px; height: 24px; }
         .nav-label {
             font-size: 10px;
             letter-spacing: 0.1em;
             font-weight: 600;
         }
 
-        /* Плашка корзины в нижней панели */
         .nav-cart-pill {
             display: inline-flex;
             align-items: center;
@@ -650,9 +769,7 @@
             color: var(--gold-light);
             transition: transform 0.1s ease;
         }
-        .nav-item:active .nav-cart-pill {
-            transform: scale(0.94);
-        }
+        .nav-item:active .nav-cart-pill { transform: scale(0.94); }
         .nav-cart-pill svg {
             width: 14px !important;
             height: 14px !important;
@@ -684,7 +801,9 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
         }
+        .icon-btn:active { transform: scale(0.95); }
         .icon-btn svg { width: 18px; height: 18px; fill: currentColor; }
 
         .arena-controls-row {
@@ -789,9 +908,9 @@
             font-size: 13px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
-        .task-text svg { width: 22px; height: 22px; vertical-align: middle; }
+        .task-text svg { width: 30px; height: 30px; vertical-align: middle; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5)); }
         .task-val {
             font-family: var(--font-ui);
             font-size: 18px;
@@ -820,6 +939,7 @@
             align-items: center;
             justify-content: center;
             min-height: 0;
+            position: relative;
         }
         .board {
             width: min(100%, calc(100dvh - 250px));
@@ -828,43 +948,50 @@
             display: grid;
             grid-template-columns: repeat(8, 1fr);
             gap: 4px;
-            background: rgba(3, 5, 15, 0.7);
+            background: radial-gradient(circle at 50% 50%, rgba(13, 18, 43, 0.92) 0%, rgba(3, 5, 14, 0.98) 100%);
             padding: 6px;
-            border-radius: 12px;
-            border: 1px solid rgba(212, 160, 76, 0.2);
-            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6);
+            border-radius: 14px;
+            border: 1px solid rgba(212, 160, 76, 0.35);
+            box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.85), 0 10px 30px rgba(0, 0, 0, 0.6);
+            touch-action: none;
+            position: relative;
+            overflow: hidden;
         }
         .cell {
             aspect-ratio: 1;
-            background: linear-gradient(145deg, #111633, #080c1d);
-            border: 1px solid rgba(212, 160, 76, 0.2);
-            border-radius: 6px;
+            background: radial-gradient(circle at 35% 30%, rgba(26, 35, 74, 0.65) 0%, rgba(9, 13, 31, 0.95) 100%);
+            border: 1px solid rgba(212, 160, 76, 0.22);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             position: relative;
-            transition: transform 0.15s, border-color 0.15s;
             overflow: hidden;
+            touch-action: none;
+            z-index: 1;
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.12), 0 3px 6px rgba(0, 0, 0, 0.35);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
         .cell.selected {
             border-color: var(--gold-light);
-            box-shadow: 0 0 12px var(--gold);
-            transform: scale(1.05);
-            z-index: 2;
+            box-shadow: 0 0 16px rgba(244, 207, 119, 0.8), inset 0 0 8px rgba(244, 207, 119, 0.4);
+            transform: scale(1.06);
+            z-index: 5;
         }
         .cell svg {
-            width: 82%;
-            height: 82%;
+            width: 86%;
+            height: 86%;
             pointer-events: none;
-            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
+            filter: drop-shadow(0 4px 7px rgba(0, 0, 0, 0.65));
+            transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        .cell.box { background: rgba(138, 106, 46, 0.6); border-color: #a8823a; }
-        .cell.bomb { background: radial-gradient(circle, #ff4444 0%, #a80000 100%); }
-        .cell.rainbow { background: linear-gradient(45deg, #f00, #ff8800, #ff0, #0f0, #00f, #8800ff); }
-        .cell.rocket { background: radial-gradient(circle, var(--gold) 0%, var(--brand-blue) 80%); }
-        .cell.iced { border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: inset 0 0 10px rgba(180, 210, 255, 0.5); }
+        .cell.box { background: rgba(94, 62, 23, 0.5); border-color: #ba8a38; }
+        .cell.bomb { background: radial-gradient(circle, #520909 0%, #170202 100%); animation: specialPulse 1.8s infinite ease-in-out; }
+        .cell.rainbow { background: radial-gradient(circle, #2d1847 0%, #0d0617 100%); animation: specialPulse 1.5s infinite ease-in-out; }
+        .cell.rocket { background: radial-gradient(circle, #192759 0%, #070c21 100%); animation: specialPulse 1.8s infinite ease-in-out; }
+        .cell.iced { border: 1.5px solid rgba(255, 255, 255, 0.7); box-shadow: inset 0 0 12px rgba(180, 220, 255, 0.65); }
 
         .ice-overlay {
             position: absolute;
@@ -873,11 +1000,89 @@
             align-items: center;
             justify-content: center;
             pointer-events: none;
+            backdrop-filter: blur(1px);
         }
         .ice-overlay svg {
-            width: 70%;
-            height: 70%;
-            opacity: 0.8;
+            width: 90%;
+            height: 90%;
+            opacity: 0.9;
+        }
+
+        /* ================= КЛЮЧЕВЫЕ АНИМАЦИИ МАТЧ-3 ================= */
+        @keyframes cellPop {
+            0% { transform: scale(1); filter: brightness(1); }
+            45% { transform: scale(1.3) rotate(6deg); filter: brightness(2) drop-shadow(0 0 14px var(--gold-light)); }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        .cell.pop-anim {
+            animation: cellPop 0.22s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+            z-index: 4;
+        }
+
+        @keyframes cellDrop {
+            0% { transform: translateY(-38px) scale(0.85); opacity: 0.4; }
+            70% { transform: translateY(4px) scale(1.04); opacity: 1; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        .cell.drop-anim {
+            animation: cellDrop 0.26s cubic-bezier(0.22, 1.25, 0.4, 1) forwards;
+        }
+
+        @keyframes cellShake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+        .cell.shake-anim {
+            animation: cellShake 0.2s ease-in-out !important;
+            z-index: 5;
+        }
+
+        @keyframes specialPulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 6px var(--gold)); }
+            50% { transform: scale(1.06); filter: drop-shadow(0 0 14px var(--gold-light)); }
+        }
+
+        /* Эффекты ракеты и бомбы */
+        .fx-shockwave {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            border: 4px solid var(--gold-light);
+            box-shadow: 0 0 20px #ff4444, inset 0 0 20px #ffbb00;
+            animation: shockwaveAnim 0.35s ease-out forwards;
+            z-index: 20;
+        }
+        @keyframes shockwaveAnim {
+            0% { width: 10px; height: 10px; opacity: 1; transform: translate(-50%, -50%) scale(0.3); }
+            100% { width: 180px; height: 180px; opacity: 0; transform: translate(-50%, -50%) scale(1.4); }
+        }
+
+        .fx-laser-row, .fx-laser-col {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, #fff, var(--gold-light), #fff, transparent);
+            pointer-events: none;
+            z-index: 20;
+            box-shadow: 0 0 15px var(--gold-light);
+            animation: laserFade 0.3s ease-out forwards;
+        }
+        .fx-laser-row {
+            height: 10px;
+            left: 0;
+            right: 0;
+            transform: translateY(-50%);
+        }
+        .fx-laser-col {
+            width: 10px;
+            top: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, transparent, #fff, var(--gold-light), #fff, transparent);
+            transform: translateX(-50%);
+        }
+        @keyframes laserFade {
+            0% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0; transform: scale(1); }
         }
 
         .overlay {
@@ -901,7 +1106,7 @@
             text-align: center;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
             box-shadow: 0 15px 40px rgba(0,0,0,0.8);
         }
         .overlay-title {
@@ -921,8 +1126,12 @@
     <div class="screen" id="categoriesScreen">
         <div class="categories-header">
             <button class="icon-btn" onclick="switchMainSection('menu')"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
-            <div class="categories-title">КАТЕГОРИИ АРОМАТОВ</div>
+            <div class="categories-title">КАТЕГОРИИ ТОВАРОВ</div>
             <div style="width:38px;"></div>
+        </div>
+
+        <div class="categories-subnote">
+            Уважаемые клиенты, в рамках нашего каталога могут быть не указаны определенные позиции духов, однако вы можете связаться с нашим менеджером через чат поддержки по конкретному запросу парфюма, где мы сможем вам точно подсказать их наличие в нашем магазине.
         </div>
 
         <div class="categories-list">
@@ -957,10 +1166,22 @@
         <div class="catalog-header">
             <button class="icon-btn" onclick="showScreen('categoriesScreen')"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
             <div class="catalog-title" id="catalogCategoryTitle">КАТАЛОГ</div>
-            <!-- Переход в корзину из каталога (возврат приведет назад в каталог) -->
-            <div class="cart-indicator" onclick="openCartScreen('catalogScreen')">
-                <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
-                <span id="cartCount">0</span>
+            <div class="catalog-header-right">
+                <button class="icon-btn" id="catalogSearchBtn" onclick="toggleCatalogSearch()" title="Поиск ароматов">
+                    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                </button>
+                <div class="cart-indicator" onclick="openCartScreen('catalogScreen')">
+                    <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    <span id="cartCount">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="catalog-search-wrap" id="catalogSearchWrap" style="display: none;">
+            <div class="catalog-search-box">
+                <svg class="catalog-search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                <input type="text" id="catalogSearchInput" class="catalog-search-input" placeholder="Поиск по названию или нотам..." oninput="handleCatalogSearch(this.value)">
+                <button class="catalog-search-clear" id="catalogSearchClearBtn" onclick="clearCatalogSearch()">&times;</button>
             </div>
         </div>
 
@@ -970,7 +1191,6 @@
     <!-- 1.1 ЭКРАН: КОРЗИНА С ВЫБРАННЫМИ ТОВАРАМИ -->
     <div class="screen" id="cartScreen">
         <div class="catalog-header">
-            <!-- Кнопка назад возвращает на экран, с которого зашли (главное меню или каталог) -->
             <button class="icon-btn" onclick="backFromCart()"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
             <div class="catalog-title">КОРЗИНА</div>
             <div style="width:38px;"></div>
@@ -1006,34 +1226,66 @@
     <div class="screen" id="supportScreen">
         <div class="support-header">
             <button class="icon-btn" onclick="switchMainSection('menu')"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
-            <div class="support-title">СЛУЖБА ПОДДЕРЖКИ</div>
+            <div class="support-title">О НАС</div>
             <div style="width:38px;"></div>
         </div>
 
         <div class="support-body">
             <div class="support-card">
                 <div class="support-card-title">
+                    <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    Обратная связь
+                </div>
+                <div class="support-card-desc">Для улучшения нашего обслуживания вы можете оставить обратную связь, которая очень важна для нашего развития</div>
+                <button class="btn btn-gold" style="min-height: 40px; font-size: 13px;" onclick="openReviewModal()">ОСТАВИТЬ ОТЗЫВ</button>
+            </div>
+
+            <div class="support-card">
+                <div class="support-card-title">
                     <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
                     Чат с консультантом
                 </div>
-                <div class="support-card-desc">Поможем подобрать аромат под ваш вкус, проконсультируем по заказу и доставке в Telegram.</div>
+                <div class="support-card-desc">Сориентируем по наличию ароматов, которых нет в каталоге; проконсультируем по деталям заказа и по выбранным ароматам; ответим на интересующие вопросы.</div>
                 <button class="btn btn-gold" style="min-height: 40px; font-size: 13px;" onclick="window.Telegram?.WebApp ? Telegram.WebApp.openTelegramLink('https://t.me/tamaz_9') : window.open('https://t.me/tamaz_9', '_blank')">НАПИСАТЬ МЕНЕДЖЕРУ</button>
             </div>
 
             <div class="support-card">
                 <div class="support-card-title">
                     <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                    Бонусы арены
+                    Бонусы игровой арены
                 </div>
-                <div class="support-card-desc">Побеждайте на Арене TAPAZ, проходите уровни и обменивайте заработанные очки на промокоды и скидки на парфюм. (Это тестовый текст. Можно будет поменять после согласования с Тамазом)</div>
+                <div class="support-card-desc">Зарабатывайте бонусы на Tapaz арене для дальнейшего их обмена на скидки и получение лимитированных призов.</div>
             </div>
 
             <div class="support-card">
                 <div class="support-card-title">
                     <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                    Доставка и оплата
+                    Доставка
                 </div>
-                <div class="support-card-desc">Доставляем курьером и службами СДЭК/Boxberry по всей России. Оплата картой или СБП при получении. (Это тестовый текст. Можно будет поменять после согласования с Тамазом)</div>
+                <div class="support-card-desc">Доставка осуществляется по всей России через логистические компании СДЭК, Boxberry, Почта России, где половину стоимости доставки компенсируем мы. Доставка по Москве бесплатная через курьера.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО: ОСТАВИТЬ ОТЗЫВ -->
+    <div class="overlay" id="reviewModal">
+        <div class="overlay-panel">
+            <div class="overlay-title" style="font-size: 21px;">ОСТАВИТЬ ОТЗЫВ</div>
+            <div style="font-size: 13px; color: var(--text-dim);">Поставьте оценку (1-5 звезд):</div>
+            
+            <div class="stars-container" id="starsContainer">
+                <svg class="star-icon active" data-val="1" onclick="setRating(1)" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="star-icon active" data-val="2" onclick="setRating(2)" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="star-icon active" data-val="3" onclick="setRating(3)" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="star-icon active" data-val="4" onclick="setRating(4)" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="star-icon active" data-val="5" onclick="setRating(5)" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+            </div>
+
+            <textarea class="review-textarea" id="reviewComment" placeholder="Ваш комментарий (необязательно)..."></textarea>
+
+            <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                <button class="btn btn-gold" id="sendReviewBtn" onclick="submitReview()">ОТПРАВИТЬ</button>
+                <button class="btn btn-outline" onclick="closeReviewModal()">ОТМЕНА</button>
             </div>
         </div>
     </div>
@@ -1041,7 +1293,6 @@
     <!-- 3. ГЛАВНОЕ МЕНЮ (СТАРТ) -->
     <div class="screen main-menu active" id="mainMenu">
         <div class="menu-logo">
-            <!-- ВЫВЕРЕННЫЙ ТОЧНЫЙ ЛОГОТИП TAPAZ ПО ФОТО -->
             <svg viewBox="0 0 345 340" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <linearGradient id="logoGold" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -1051,48 +1302,15 @@
                         <stop offset="100%" stop-color="#8a5a08"/>
                     </linearGradient>
                 </defs>
-
-                <!-- 1. Верхний шпиль с вырезом-полумесяцем справа -->
                 <path d="M 163 64 L 163 38 L 188 38 A 13 13 0 0 0 188 64 Z" fill="url(#logoGold)"/>
-
-                <!-- 2. Буква T с тонкими антиквенными пропорциями и острыми засечками -->
-                <path d="M 111 72
-                         L 234 72
-                         L 231 104
-                         Q 222 81 180 78
-                         L 180 184
-                         Q 180 196 193 198
-                         L 152 198
-                         Q 165 196 165 184
-                         L 165 78
-                         Q 123 81 114 104
-                         Z" fill="url(#logoGold)"/>
-
-                <!-- 3. Нижняя чаша-скоба с поднятыми заострёнными рожками -->
-                <path d="M 124 192
-                         Q 126 203 138 206
-                         L 207 206
-                         Q 219 203 221 192
-                         L 223 210
-                         L 122 210
-                         Z" fill="url(#logoGold)"/>
-
-                <!-- 4. Название бренда TAPAZ (без слова perfume) -->
-                <text x="172.5" y="306" 
-                      font-family="'Cinzel', 'Times New Roman', Georgia, serif" 
-                      font-size="62" 
-                      font-weight="bold" 
-                      fill="url(#logoGold)" 
-                      text-anchor="middle" 
-                      letter-spacing="10">TAPAZ</text>
+                <path d="M 111 72 L 234 72 L 231 104 Q 222 81 180 78 L 180 184 Q 180 196 193 198 L 152 198 Q 165 196 165 184 L 165 78 Q 123 81 114 104 Z" fill="url(#logoGold)"/>
+                <path d="M 124 192 Q 126 203 138 206 L 207 206 Q 219 203 221 192 L 223 210 L 122 210 Z" fill="url(#logoGold)"/>
+                <text x="172.5" y="306" font-family="'Cinzel', 'Times New Roman', Georgia, serif" font-size="62" font-weight="bold" fill="url(#logoGold)" text-anchor="middle" letter-spacing="10">TAPAZ</text>
             </svg>
         </div>
 
         <div class="menu-actions">
-            <!-- КНОПКА 1: ПЕРЕХОД К ВЫБОРУ КАТЕГОРИЙ -->
             <button class="btn btn-gold btn-action-main" onclick="showScreen('categoriesScreen')">КАТАЛОГ ТОВАРОВ</button>
-
-            <!-- КНОПКА 2: ИГРОВАЯ АРЕНА TAPAZ -->
             <button class="btn btn-gold btn-action-main" id="playBtn" onclick="showScreen('levelsScreen')">ИГРОВАЯ АРЕНА TAPAZ</button>
         </div>
     </div>
@@ -1160,14 +1378,13 @@
         </div>
     </div>
 
-    <!-- 3 РАЗДЕЛА В НИЖНЕЙ НАВИГАЦИИ (С КОРЗИНОЙ ПО ЦЕНТРУ) -->
+    <!-- 3 РАЗДЕЛА В НИЖНЕЙ НАВИГАЦИИ -->
     <div class="main-nav">
         <button class="nav-item active" id="navMenuBtn" onclick="switchMainSection('menu')">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 18h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1zm0-5h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1zM3 7c0 .55.45 1 1 1h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1z"/></svg>
             <span class="nav-label">МЕНЮ</span>
         </button>
 
-        <!-- КОРЗИНА ПО ЦЕНТРУ: передает 'mainMenu' для возврата на главный экран -->
         <button class="nav-item" id="navCartBtn" onclick="openCartScreen('mainMenu')">
             <div class="nav-cart-pill">
                 <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
@@ -1186,7 +1403,7 @@
                 <path d="M18.5 16.5C17.8 18 16.3 19 14.5 19H13.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
                 <circle cx="13.3" cy="19" r="1" fill="currentColor"/>
             </svg>
-            <span class="nav-label">ПОДДЕРЖКА</span>
+            <span class="nav-label">СПРАВОЧНИК</span>
         </button>
     </div>
 
@@ -1208,7 +1425,7 @@
         { 
             name: 'Creed Aventus', 
             volume: '100 ml',
-            img: 'CreedAventus.jpg', 
+            img: 'img/CreedAventus.jpg', 
             desc: '<b>Верхние ноты:</b> бергамот, черная смородина, лимон, розовый перец, яблоко. <b>Средние ноты:</b> пачули, ананас, жасмин. <b>Базовые ноты:</b> мускус, амброксан, дубовый мох, кедр, берёза. Создан для уверенных в себе, харизматичных и целеустремленных мужчин.', 
             price: 8200, 
             category: 'male' 
@@ -1216,7 +1433,7 @@
         { 
             name: 'Louis Vuitton Imagination', 
             volume: '100 ml',
-            img: 'LVImaination.jpg', 
+            img: 'img/LVImaination.jpg', 
             desc: '<b>Верхние ноты:</b> цитрон (цедрат), калабрийский бергамот и сицилийский апельсин. <b>Средние ноты:</b> тунисский нероли, нигерийский имбирь и цейлонская корица. <b>Базовые ноты:</b> китайский черный чай, амброксан, гваяковое дерево и олибанум. Транслирует спокойную уверенность, внутреннюю силу и безупречный вкус.', 
             price: 9500, 
             category: 'male' 
@@ -1224,7 +1441,7 @@
         { 
             name: 'Tom Ford Lost Cherry', 
             volume: '50 ml',
-            img: 'TomFordLostCherry.jpg', 
+            img: 'img/TomFordLostCherry.jpg', 
             desc: '<b>Верхние ноты:</b> черешня, масло горького миндаля. <b>Средние ноты:</b> турецкая роза. <b>Базовые ноты:</b> перуанский бальзам, сандаловое дерево, ветивер, кедр. Композиция балансирует на грани невинности и провокации, подчеркивая чувственность и магнетизм.', 
             price: 8200, 
             category: 'unisex' 
@@ -1232,7 +1449,7 @@
         { 
             name: 'Tom Ford Tobacco Vanille', 
             volume: '100 ml',
-            img: 'TomFordTobaccoVanille.jpg', 
+            img: 'img/TomFordTobaccoVanille.jpg', 
             desc: '<b>Верхние ноты:</b> табачный лист, специи. <b>Средние ноты:</b> бобы тонка, цветок табака, ваниль, какао. <b>Базовые ноты:</b> сухофрукты. Аромат для сильной, чувственной и доминантной личности, транслирующей миру уверенность и статус.', 
             price: 9500, 
             category: 'unisex' 
@@ -1240,7 +1457,7 @@
         { 
             name: 'Kilian Angel’s Share', 
             volume: '50 ml',
-            img: 'KilianAngelsShare.jpg', 
+            img: 'img/KilianAngelsShare.jpg', 
             desc: '<b>Верхние ноты:</b> коньяк. <b>Средние ноты:</b> корица, бобы тонка, дуб. <b>Базовые ноты:</b> пралине, ваниль, сандал. Глубокий алкогольно-гурманский аромат, передающий атмосферу роскошного вечера и дубовых винных погребов.', 
             price: 7200, 
             category: 'unisex' 
@@ -1248,12 +1465,74 @@
     ];
 
     let currentCategoryKey = 'all';
+    let currentSearchQuery = '';
+
+    function triggerHaptic(style = 'light') {
+        try {
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                if (style === 'light' || style === 'medium' || style === 'heavy') {
+                    window.Telegram.WebApp.HapticFeedback.impactOccurred(style);
+                } else if (style === 'success' || style === 'warning') {
+                    window.Telegram.WebApp.HapticFeedback.notificationOccurred(style);
+                }
+            }
+        } catch (e) {}
+    }
 
     function openCategory(categoryKey, titleText) {
         currentCategoryKey = categoryKey;
+        currentSearchQuery = '';
+
+        const searchInput = document.getElementById('catalogSearchInput');
+        if (searchInput) searchInput.value = '';
+        const searchClear = document.getElementById('catalogSearchClearBtn');
+        if (searchClear) searchClear.style.display = 'none';
+        const searchWrap = document.getElementById('catalogSearchWrap');
+        if (searchWrap) searchWrap.style.display = 'none';
+        const searchBtn = document.getElementById('catalogSearchBtn');
+        if (searchBtn) searchBtn.classList.remove('active');
+
         document.getElementById('catalogCategoryTitle').textContent = titleText.toUpperCase();
         renderCatalogByCategory(categoryKey);
         showScreen('catalogScreen');
+    }
+
+    /* ================= ЛОГИКА ПОИСКОВИКА В КАТАЛОГЕ ================= */
+    function toggleCatalogSearch() {
+        const wrap = document.getElementById('catalogSearchWrap');
+        const btn = document.getElementById('catalogSearchBtn');
+        const input = document.getElementById('catalogSearchInput');
+        if (!wrap) return;
+
+        const isHidden = (wrap.style.display === 'none' || !wrap.style.display);
+        if (isHidden) {
+            wrap.style.display = 'block';
+            if (btn) btn.classList.add('active');
+            if (input) setTimeout(() => input.focus(), 100);
+        } else {
+            wrap.style.display = 'none';
+            if (btn) btn.classList.remove('active');
+            clearCatalogSearch();
+        }
+    }
+
+    function handleCatalogSearch(val) {
+        currentSearchQuery = val.trim();
+        const clearBtn = document.getElementById('catalogSearchClearBtn');
+        if (clearBtn) clearBtn.style.display = currentSearchQuery ? 'block' : 'none';
+        renderCatalogByCategory(currentCategoryKey);
+    }
+
+    function clearCatalogSearch() {
+        currentSearchQuery = '';
+        const input = document.getElementById('catalogSearchInput');
+        if (input) {
+            input.value = '';
+            input.focus();
+        }
+        const clearBtn = document.getElementById('catalogSearchClearBtn');
+        if (clearBtn) clearBtn.style.display = 'none';
+        renderCatalogByCategory(currentCategoryKey);
     }
 
     function renderCatalogByCategory(categoryKey) {
@@ -1261,18 +1540,35 @@
         if (!container) return;
         container.innerHTML = '';
 
+        const query = currentSearchQuery.toLowerCase();
+
         const filtered = BASE_PRODUCTS.filter(item => {
-            if (categoryKey === 'all') return true;
-            return item.category === categoryKey;
+            const matchesCategory = (categoryKey === 'all') || (item.category === categoryKey);
+            if (!matchesCategory) return false;
+            if (!query) return true;
+
+            const nameMatch = item.name.toLowerCase().includes(query);
+            const descClean = item.desc ? item.desc.replace(/<[^>]*>/g, '').toLowerCase() : '';
+            const descMatch = descClean.includes(query);
+            return nameMatch || descMatch;
         });
 
         if (filtered.length === 0) {
-            container.innerHTML = `
-                <div class="catalog-empty-state">
-                    В этой категории пока нет товаров.<br>
-                    Они скоро появятся!
-                </div>
-            `;
+            if (query) {
+                container.innerHTML = `
+                    <div class="catalog-empty-state">
+                        По запросу «${currentSearchQuery.replace(/</g, '&lt;').replace(/>/g, '&gt;')}» ничего не найдено.<br>
+                        Попробуйте ввести другое название или ноту.
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="catalog-empty-state">
+                        В этой категории пока нет товаров.<br>
+                        Они скоро появятся!
+                    </div>
+                `;
+            }
             return;
         }
 
@@ -1315,28 +1611,44 @@
         document.getElementById('imageModal').classList.remove('active');
     }
 
-    /* ================= СВГ ФЛАКОНЫ ================= */
+    /* ================= ПРЕМИАЛЬНЫЕ СОЧНЫЕ СВГ ФЛАКОНЫ И БОНУСЫ ================= */
     const BOARD_SIZE = 8;
 
     const PERFUMES = [
-        `<svg viewBox="0 0 40 40"><defs><radialGradient id="p0" cx="40%" cy="40%" r="60%"><stop offset="0%" stop-color="#ffe58f"/><stop offset="60%" stop-color="#d49a38"/><stop offset="100%" stop-color="#613b02"/></radialGradient></defs><rect x="17" y="3" width="6" height="5" rx="1.5" fill="#f4cf77"/><rect x="18.5" y="8" width="3" height="3" fill="#a0721c"/><circle cx="20" cy="24" r="13" fill="url(#p0)" stroke="#f4cf77" stroke-width="1.2"/><ellipse cx="16" cy="19" rx="3.5" ry="5" fill="#fff" opacity="0.35" transform="rotate(-25 16 19)"/><circle cx="20" cy="24" r="4.5" fill="#131838" stroke="#f4cf77" stroke-width="0.8"/><text x="18" y="27" font-family="Georgia" font-size="7" fill="#f4cf77" font-weight="bold">T</text></svg>`,
-        `<svg viewBox="0 0 40 40"><defs><linearGradient id="p1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3d5a9d"/><stop offset="50%" stop-color="#182b54"/><stop offset="100%" stop-color="#081024"/></linearGradient></defs><rect x="16" y="2" width="8" height="6" rx="1" fill="#f4cf77"/><rect x="10" y="10" width="20" height="26" rx="3" fill="url(#p1)" stroke="#f4cf77" stroke-width="1.2"/><path d="M13 13 L13 33" stroke="#fff" stroke-width="0.8" opacity="0.4"/><rect x="14" y="18" width="12" height="11" rx="1" fill="#fdf6e2" opacity="0.9"/><text x="17.5" y="26" font-family="Georgia" font-size="8" fill="#182b54" font-weight="bold">T</text></svg>`,
-        `<svg viewBox="0 0 40 40"><defs><linearGradient id="p2" x1="20%" y1="0%" x2="80%" y2="100%"><stop offset="0%" stop-color="#52c41a"/><stop offset="60%" stop-color="#135200"/><stop offset="100%" stop-color="#051c00"/></linearGradient></defs><polygon points="20,2 24,7 16,7" fill="#f4cf77"/><rect x="18" y="7" width="4" height="3" fill="#a0721c"/><polygon points="12,12 28,12 32,24 20,37 8,24" fill="url(#p2)" stroke="#f4cf77" stroke-width="1.2"/><line x1="20" y1="12" x2="20" y2="37" stroke="#fff" stroke-width="0.8" opacity="0.35"/><circle cx="20" cy="22" r="4" fill="#fdf6e2" opacity="0.9"/><text x="18" y="25" font-family="Georgia" font-size="6" fill="#135200" font-weight="bold">T</text></svg>`,
-        `<svg viewBox="0 0 40 40"><defs><radialGradient id="p3" cx="35%" cy="35%" r="65%"><stop offset="0%" stop-color="#ff7875"/><stop offset="60%" stop-color="#a8071a"/><stop offset="100%" stop-color="#3f0006"/></radialGradient></defs><rect x="17" y="2" width="6" height="6" rx="2" fill="#f4cf77"/><path d="M15 10 L25 10 L29 17 L29 32 C29 35 25 36 20 36 C15 36 11 35 11 32 L11 17 Z" fill="url(#p3)" stroke="#f4cf77" stroke-width="1.2"/><ellipse cx="16" cy="22" rx="2.5" ry="5" fill="#fff" opacity="0.3" transform="rotate(-15 16 22)"/><rect x="15" y="20" width="10" height="9" rx="1.5" fill="#111" stroke="#f4cf77" stroke-width="0.7"/><text x="17.5" y="27" font-family="Georgia" font-size="7" fill="#f4cf77" font-weight="bold">T</text></svg>`,
-        `<svg viewBox="0 0 40 40"><defs><linearGradient id="p4" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#e8e8e8"/><stop offset="50%" stop-color="#8c8c8c"/><stop offset="100%" stop-color="#434343"/></linearGradient></defs><rect x="16" y="3" width="8" height="5" fill="#d9d9d9" stroke="#595959" stroke-width="0.8"/><polygon points="9,11 31,11 33,28 20,36 7,28" fill="url(#p4)" stroke="#f4cf77" stroke-width="1.2"/><line x1="20" y1="11" x2="20" y2="36" stroke="#fff" stroke-width="1" opacity="0.4"/><circle cx="20" cy="21" r="5" fill="#1f1f1f" stroke="#f4cf77" stroke-width="0.8"/><text x="18" y="24.5" font-family="Georgia" font-size="7" fill="#f4cf77" font-weight="bold">T</text></svg>`,
-        `<svg viewBox="0 0 40 40"><defs><linearGradient id="p5" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#303648"/><stop offset="60%" stop-color="#121520"/><stop offset="100%" stop-color="#05060a"/></linearGradient></defs><rect x="15" y="2" width="10" height="6" rx="1.5" fill="#f4cf77"/><rect x="18" y="8" width="4" height="2" fill="#a0721c"/><rect x="9" y="11" width="22" height="25" rx="3" fill="url(#p5)" stroke="#f4cf77" stroke-width="1.3"/><line x1="12" y1="14" x2="12" y2="33" stroke="#f4cf77" stroke-width="0.8" opacity="0.5"/><line x1="28" y1="14" x2="28" y2="33" stroke="#f4cf77" stroke-width="0.8" opacity="0.5"/><rect x="14" y="18" width="12" height="12" rx="1" fill="#f4cf77"/><text x="17" y="26.5" font-family="Georgia" font-size="8" fill="#121520" font-weight="bold">T</text></svg>`
+        /* 0: Royal Amber Gold (Императорский золотой кристалл) */
+        `<svg viewBox="0 0 48 48"><defs><linearGradient id="b0_cap" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff8cc"/><stop offset="50%" stop-color="#d49a38"/><stop offset="100%" stop-color="#694102"/></linearGradient><radialGradient id="b0_body" cx="35%" cy="35%" r="65%"><stop offset="0%" stop-color="#ffe699"/><stop offset="35%" stop-color="#f5b83d"/><stop offset="75%" stop-color="#b8720e"/><stop offset="100%" stop-color="#593102"/></radialGradient><linearGradient id="b0_shine" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.85"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></linearGradient></defs><circle cx="24" cy="3.5" r="2.2" fill="#fff3b0"/><path d="M21 5.5 h6 a2 2 0 0 1 2 2 v2.5 h-10 v-2.5 a2 2 0 0 1 2 -2 z" fill="url(#b0_cap)"/><rect x="22" y="10" width="4" height="2.5" fill="#7a4b04"/><rect x="20" y="11.5" width="8" height="2" rx="1" fill="url(#b0_cap)"/><path d="M16 13.5 h16 c2.5 0 4.5 2 5 4.5 l1 18.5 c.3 3.5 -2.5 6.5 -6 6.5 h-16 c-3.5 0 -6.3 -3 -6 -6.5 l1 -18.5 c.5 -2.5 2.5 -4.5 5 -4.5 z" fill="url(#b0_body)" stroke="#ffd778" stroke-width="1.3"/><ellipse cx="24" cy="30" rx="9" ry="8" fill="#ffec8b" opacity="0.45"/><path d="M15 16 c0 0 2 13 3 21" stroke="url(#b0_shine)" stroke-width="2.5" stroke-linecap="round" fill="none"/><ellipse cx="30" cy="19" rx="2" ry="4" fill="#ffffff" opacity="0.4" transform="rotate(15 30 19)"/><rect x="19.5" y="23.5" width="9" height="10" rx="1.5" fill="#12182b" stroke="url(#b0_cap)" stroke-width="0.9"/><text x="24" y="31.2" font-family="'Cinzel', Georgia, serif" font-size="7.5" font-weight="bold" fill="#fce49c" text-anchor="middle">T</text></svg>`,
+
+        /* 1: Sapphire Blue Noir (Глубокий синий сапфир) */
+        `<svg viewBox="0 0 48 48"><defs><linearGradient id="b1_body" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4a7dff"/><stop offset="35%" stop-color="#1940b0"/><stop offset="70%" stop-color="#0a1d5c"/><stop offset="100%" stop-color="#040b26"/></linearGradient><linearGradient id="b1_gold" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ffe599"/><stop offset="50%" stop-color="#cca03d"/><stop offset="100%" stop-color="#694302"/></linearGradient><linearGradient id="b1_shine" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#b3d4ff" stop-opacity="0.95"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></linearGradient></defs><rect x="18" y="2.5" width="12" height="7" rx="1.5" fill="#080e22" stroke="url(#b1_gold)" stroke-width="1"/><rect x="19.5" y="9.5" width="9" height="3" rx="0.5" fill="url(#b1_gold)"/><rect x="11" y="12.5" width="26" height="30.5" rx="5" fill="url(#b1_body)" stroke="url(#b1_gold)" stroke-width="1.3"/><ellipse cx="24" cy="28" rx="8" ry="10" fill="#3b72ff" opacity="0.4"/><path d="M14 15.5 v24.5" stroke="url(#b1_shine)" stroke-width="2.2" stroke-linecap="round"/><path d="M33 16.5 v22" stroke="#ffffff" stroke-width="0.8" opacity="0.35" stroke-linecap="round"/><rect x="16" y="21" width="16" height="12.5" rx="1.5" fill="#050917" stroke="url(#b1_gold)" stroke-width="0.9"/><line x1="18" y1="23.5" x2="30" y2="23.5" stroke="#cca03d" stroke-width="0.6"/><text x="24" y="30" font-family="'Cinzel', Georgia, serif" font-size="7.5" font-weight="bold" fill="#f7d98b" text-anchor="middle">T</text><line x1="18" y1="31" x2="30" y2="31" stroke="#cca03d" stroke-width="0.6"/></svg>`,
+
+        /* 2: Emerald Gemstone (Ограненный изумруд Royale) */
+        `<svg viewBox="0 0 48 48"><defs><linearGradient id="b2_body" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#73e658"/><stop offset="35%" stop-color="#1ea636"/><stop offset="70%" stop-color="#095719"/><stop offset="100%" stop-color="#022108"/></linearGradient><linearGradient id="b2_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff1aa"/><stop offset="60%" stop-color="#d49c28"/><stop offset="100%" stop-color="#694302"/></linearGradient></defs><polygon points="24,1.5 29.5,5.5 29.5,8.5 18.5,8.5 18.5,5.5" fill="url(#b2_body)" stroke="url(#b2_gold)" stroke-width="0.9"/><rect x="21" y="8.5" width="6" height="4" fill="url(#b2_gold)"/><polygon points="24,12.5 36.5,18.5 36.5,36 24,44.5 11.5,36 11.5,18.5" fill="url(#b2_body)" stroke="url(#b2_gold)" stroke-width="1.3"/><polygon points="24,16.5 32.5,20.5 32.5,34 24,39.5 15.5,34 15.5,20.5" fill="none" stroke="#99ff88" stroke-width="0.8" opacity="0.65"/><line x1="24" y1="16.5" x2="24" y2="39.5" stroke="#ffffff" stroke-width="1" opacity="0.45"/><circle cx="24" cy="27" r="4.8" fill="#04260b" stroke="url(#b2_gold)" stroke-width="0.9"/><text x="24" y="30.2" font-family="'Cinzel', Georgia, serif" font-size="7" font-weight="bold" fill="#ffe082" text-anchor="middle">T</text></svg>`,
+
+        /* 3: Ruby Rose Velvet (Рубиновый ликер Baccarat) */
+        `<svg viewBox="0 0 48 48"><defs><radialGradient id="b3_body" cx="35%" cy="35%" r="65%"><stop offset="0%" stop-color="#ff6b8b"/><stop offset="40%" stop-color="#d61138"/><stop offset="80%" stop-color="#730018"/><stop offset="100%" stop-color="#2b0007"/></radialGradient><linearGradient id="b3_gold" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#fff8cc"/><stop offset="50%" stop-color="#f0bc4d"/><stop offset="100%" stop-color="#805404"/></linearGradient></defs><rect x="18" y="2" width="12" height="7.5" rx="2" fill="#d61138" stroke="url(#b3_gold)" stroke-width="0.9"/><rect x="20" y="3.5" width="8" height="4" fill="#ffffff" opacity="0.3"/><rect x="21" y="9.5" width="6" height="3" fill="url(#b3_gold)"/><path d="M16 12.5 h16 c4 0 7 3 7 7 v16.5 c0 4 -3 7 -7 7 h-16 c-4 0 -7 -3 -7 -7 v-16.5 c0 -4 3 -7 7 -7 z" fill="url(#b3_body)" stroke="url(#b3_gold)" stroke-width="1.3"/><path d="M13.5 18 c0 0 3 14 3 20" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.65"/><ellipse cx="24" cy="30" rx="8" ry="7" fill="#ff4d6d" opacity="0.4"/><rect x="17" y="22" width="14" height="12.5" rx="1.5" fill="#140205" stroke="url(#b3_gold)" stroke-width="0.9"/><text x="24" y="31" font-family="'Cinzel', Georgia, serif" font-size="8" font-weight="bold" fill="#ffc773" text-anchor="middle">T</text></svg>`,
+
+        /* 4: Diamond Silver (Бриллиантовый кристалл) */
+        `<svg viewBox="0 0 48 48"><defs><linearGradient id="b4_body" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="25%" stop-color="#e0e4ed"/><stop offset="55%" stop-color="#9aa5b8"/><stop offset="85%" stop-color="#4a5568"/><stop offset="100%" stop-color="#1f2430"/></linearGradient><linearGradient id="b4_glow" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e8f4ff"/><stop offset="100%" stop-color="#7389a8"/></linearGradient></defs><polygon points="24,1.5 30.5,6.5 24,9.5 17.5,6.5" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.9"/><rect x="22" y="9.5" width="4" height="3.5" fill="#94a3b8"/><polygon points="24,12.5 37.5,19.5 34.5,41.5 24,45.5 13.5,41.5 10.5,19.5" fill="url(#b4_body)" stroke="#ffffff" stroke-width="1.3"/><polygon points="24,12.5 37.5,19.5 24,45.5" fill="#ffffff" opacity="0.22"/><polygon points="24,12.5 10.5,19.5 24,45.5" fill="#0f172a" opacity="0.28"/><line x1="24" y1="12.5" x2="24" y2="45.5" stroke="#ffffff" stroke-width="1.3" opacity="0.8"/><circle cx="24" cy="27" r="5.2" fill="url(#b4_glow)" opacity="0.8" stroke="#ffffff" stroke-width="0.9"/><text x="24" y="30.2" font-family="'Cinzel', Georgia, serif" font-size="7.5" font-weight="bold" fill="#0f172a" text-anchor="middle">T</text></svg>`,
+
+        /* 5: Obsidian Noir & 24K Gold (Черный обсидиан с золотом) */
+        `<svg viewBox="0 0 48 48"><defs><linearGradient id="b5_body" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#454b5e"/><stop offset="35%" stop-color="#171922"/><stop offset="70%" stop-color="#0a0b10"/><stop offset="100%" stop-color="#242833"/></linearGradient><linearGradient id="b5_gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff0aa"/><stop offset="50%" stop-color="#dfaa36"/><stop offset="100%" stop-color="#734f0c"/></linearGradient></defs><rect x="18" y="2" width="12" height="4" rx="1" fill="url(#b5_gold)"/><rect x="20" y="6" width="8" height="4" fill="url(#b5_gold)"/><rect x="22" y="10" width="4" height="2" fill="#523908"/><rect x="10" y="12" width="28" height="31" rx="4" fill="url(#b5_body)" stroke="url(#b5_gold)" stroke-width="1.3"/><line x1="15" y1="15" x2="15" y2="40" stroke="#5a627a" stroke-width="1.2" opacity="0.5"/><line x1="33" y1="15" x2="33" y2="40" stroke="#5a627a" stroke-width="1.2" opacity="0.5"/><rect x="12" y="40" width="24" height="3" rx="1" fill="url(#b5_gold)"/><rect x="16" y="19.5" width="16" height="14.5" rx="1.5" fill="url(#b5_gold)"/><rect x="17.5" y="21" width="13" height="11.5" rx="1" fill="#0d0e14"/><text x="24" y="29.8" font-family="'Cinzel', Georgia, serif" font-size="8" font-weight="bold" fill="url(#b5_gold)" text-anchor="middle">T</text></svg>`
     ];
 
-    const BOMB_SVG = `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#1a1a1a" stroke="#ff4d4f" stroke-width="1.5"/><circle cx="9" cy="9" r="2.5" fill="#ff7875"/><path d="M16 6 L20 2" stroke="#ffa39e" stroke-width="2" stroke-linecap="round"/></svg>`;
-    const RAINBOW_SVG = `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="#fff" opacity="0.2"/><path d="M4 17 A8 8 0 0 1 20 17" stroke="#ff4d4f" stroke-width="2" fill="none"/><path d="M6.5 17 A5.5 5.5 0 0 1 17.5 17" stroke="#ffc53d" stroke-width="2" fill="none"/><path d="M9 17 A3 3 0 0 1 15 17" stroke="#40a9ff" stroke-width="2" fill="none"/></svg>`;
-    const ROCKET_SVG = `<svg viewBox="0 0 24 24"><path d="M12 2 C15 6 16 11 16 16 L8 16 C8 11 9 6 12 2Z" fill="#131838" stroke="#f4cf77" stroke-width="1.2"/><circle cx="12" cy="10" r="2.5" fill="#f4cf77"/><path d="M9 16 L6 21 L12 19 L18 21 L15 16 Z" fill="#f4cf77"/></svg>`;
-    const BOX_SVG = `<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="15" rx="2" fill="#8c6828" stroke="#f4cf77" stroke-width="1"/><line x1="3" y1="13" x2="21" y2="13" stroke="#f4cf77" stroke-width="1"/><line x1="12" y1="6" x2="12" y2="21" stroke="#f4cf77" stroke-width="1"/></svg>`;
-    const ICE_SVG = `<svg viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="22" stroke="#e6f7ff" stroke-width="1.5"/><line x1="2" y1="12" x2="22" y2="12" stroke="#e6f7ff" stroke-width="1.5"/><line x1="5" y1="5" x2="19" y2="19" stroke="#e6f7ff" stroke-width="1.5"/><line x1="19" y1="5" x2="5" y2="19" stroke="#e6f7ff" stroke-width="1.5"/></svg>`;
+    /* Спец-элементы: Бомба, Ракета, Радуга, Препятствия */
+    const BOMB_SVG = `<svg viewBox="0 0 48 48"><defs><radialGradient id="bomb_glow" cx="40%" cy="40%" r="60%"><stop offset="0%" stop-color="#ff7373"/><stop offset="50%" stop-color="#e01212"/><stop offset="100%" stop-color="#590000"/></radialGradient><linearGradient id="bomb_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff2a3"/><stop offset="60%" stop-color="#e69c24"/><stop offset="100%" stop-color="#804d00"/></linearGradient></defs><path d="M33 13 C38 10 44 14 44 19 C44 24 37 25 34 21 Z" fill="#9e1927" stroke="url(#bomb_gold)" stroke-width="1"/><path d="M28 16 L33 17" stroke="url(#bomb_gold)" stroke-width="2.5" stroke-linecap="round"/><path d="M18 14 L12 11" stroke="url(#bomb_gold)" stroke-width="2.5" stroke-linecap="round"/><polygon points="12,9 10,13 14,13" fill="url(#bomb_gold)"/><rect x="20" y="12" width="8" height="5" rx="1" fill="url(#bomb_gold)"/><circle cx="24" cy="28" r="14" fill="url(#bomb_glow)" stroke="url(#bomb_gold)" stroke-width="1.5"/><circle cx="24" cy="28" r="10" fill="#ff2626" opacity="0.45" filter="blur(1px)"/><ellipse cx="20" cy="22" rx="3.5" ry="5" fill="#ffffff" opacity="0.65" transform="rotate(-30 20 22)"/><path d="M25 21 L21 28 L25 28 L23 35 L28 27 L24 27 Z" fill="#fff7b8" stroke="#d48200" stroke-width="0.5"/></svg>`;
+
+    const ROCKET_SVG = `<svg viewBox="0 0 48 48"><defs><linearGradient id="rkt_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="40%" stop-color="#f5cb6c"/><stop offset="80%" stop-color="#c48a1b"/><stop offset="100%" stop-color="#694102"/></linearGradient><linearGradient id="rkt_body" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#141a38"/><stop offset="50%" stop-color="#2a356b"/><stop offset="100%" stop-color="#0f142b"/></linearGradient></defs><polygon points="24,46 21,39 27,39" fill="#ffaa00"/><polygon points="24,43 22,39 26,39" fill="#ffffff"/><path d="M12 34 L17 26 L17 38 Z" fill="url(#rkt_gold)"/><path d="M36 34 L31 26 L31 38 Z" fill="url(#rkt_gold)"/><path d="M24 3 C17 12 17 25 17 38 L31 38 C31 25 31 12 24 3 Z" fill="url(#rkt_body)" stroke="url(#rkt_gold)" stroke-width="1.4"/><line x1="24" y1="8" x2="24" y2="34" stroke="#82b1ff" stroke-width="2.2" stroke-linecap="round"/><line x1="24" y1="8" x2="24" y2="34" stroke="#ffffff" stroke-width="0.8"/><circle cx="24" cy="20" r="4.2" fill="#0d1430" stroke="url(#rkt_gold)" stroke-width="1.2"/><circle cx="24" cy="20" r="2" fill="#70b5ff"/></svg>`;
+
+    const RAINBOW_SVG = `<svg viewBox="0 0 48 48"><defs><radialGradient id="rb_core" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffffff"/><stop offset="35%" stop-color="#fff176"/><stop offset="70%" stop-color="#ff4081"/><stop offset="100%" stop-color="#7c4dff"/></radialGradient><linearGradient id="rb_spec" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ff1744"/><stop offset="20%" stop-color="#ff9100"/><stop offset="40%" stop-color="#ffea00"/><stop offset="60%" stop-color="#00e676"/><stop offset="80%" stop-color="#00b0ff"/><stop offset="100%" stop-color="#d500f9"/></linearGradient></defs><polygon points="24,1.5 29,6.5 24,9.5 19,6.5" fill="#ffffff" stroke="url(#rb_spec)" stroke-width="1.1"/><polygon points="24,10.5 39,19.5 34,42 24,46 14,42 9,19.5" fill="url(#rb_core)" stroke="url(#rb_spec)" stroke-width="1.6"/><polygon points="24,10.5 39,19.5 24,30" fill="#ffffff" opacity="0.38"/><polygon points="24,10.5 9,19.5 24,30" fill="#00e5ff" opacity="0.32"/><polygon points="9,19.5 14,42 24,30" fill="#76ff03" opacity="0.28"/><polygon points="39,19.5 34,42 24,30" fill="#d500f9" opacity="0.32"/><polygon points="14,42 24,46 24,30" fill="#ff1744" opacity="0.38"/><polygon points="34,42 24,46 24,30" fill="#ffea00" opacity="0.38"/><polygon points="24,24 25.5,28 29.5,29.5 25.5,31 24,35 22.5,31 18.5,29.5 22.5,28" fill="#ffffff"/></svg>`;
+
+    const BOX_SVG = `<svg viewBox="0 0 48 48"><defs><linearGradient id="box_wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a06a28"/><stop offset="50%" stop-color="#694011"/><stop offset="100%" stop-color="#3d2204"/></linearGradient><linearGradient id="box_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff5b8"/><stop offset="60%" stop-color="#d49a32"/><stop offset="100%" stop-color="#734f0c"/></linearGradient></defs><rect x="4" y="6" width="40" height="36" rx="4" fill="url(#box_wood)" stroke="url(#box_gold)" stroke-width="1.4"/><polygon points="4,6 12,6 4,14" fill="url(#box_gold)"/><polygon points="44,6 36,6 44,14" fill="url(#box_gold)"/><polygon points="4,42 12,42 4,34" fill="url(#box_gold)"/><polygon points="44,42 36,42 44,34" fill="url(#box_gold)"/><line x1="4" y1="20" x2="44" y2="20" stroke="url(#box_gold)" stroke-width="1.8"/><line x1="24" y1="6" x2="24" y2="42" stroke="url(#box_gold)" stroke-width="1.8"/><rect x="20" y="16" width="8" height="8" rx="1.5" fill="url(#box_gold)"/><circle cx="24" cy="20" r="1.5" fill="#3d2204"/></svg>`;
+
+    const ICE_SVG = `<svg viewBox="0 0 48 48"><defs><linearGradient id="ice_shine" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/><stop offset="40%" stop-color="#c2edff" stop-opacity="0.7"/><stop offset="100%" stop-color="#40bfff" stop-opacity="0.3"/></linearGradient></defs><polygon points="6,6 20,4 26,12 40,7 44,22 36,28 42,42 27,39 20,44 7,37 12,24" fill="url(#ice_shine)" stroke="#ffffff" stroke-width="1.3"/><line x1="14" y1="12" x2="32" y2="34" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/><line x1="32" y1="34" x2="24" y2="40" stroke="#e0f4ff" stroke-width="1.1"/><line x1="22" y1="22" x2="38" y2="16" stroke="#ffffff" stroke-width="1.3"/><line x1="22" y1="22" x2="10" y2="30" stroke="#ffffff" stroke-width="1.3"/><circle cx="15" cy="13" r="1.6" fill="#ffffff"/><circle cx="33" cy="31" r="1.3" fill="#ffffff"/></svg>`;
 
     /* ================= СОСТОЯНИЕ КОРЗИНЫ ================= */
     let cart = {};
     let isBonusApplied = false;
-    let cartPreviousScreen = 'catalogScreen'; // Запоминаем, откуда пользователь перешел в корзину
+    let cartPreviousScreen = 'catalogScreen';
 
     function addToCart(name, price) {
         if (!cart[name]) {
@@ -1529,7 +1841,7 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
 
             if (isBonusApplied && discount > 0) {
                 bonusPoints = Math.max(0, bonusPoints - discount);
-                localStorage.setItem('tapaz_bonus', bonusPoints.toString());
+                saveStorageItem('tapaz_bonus', bonusPoints);
                 updateBonusUI();
             }
 
@@ -1560,6 +1872,94 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
         }
     }
 
+    /* ================= ФУНКЦИОНАЛ ОТЗЫВОВ ================= */
+    let currentRating = 5;
+
+    function openReviewModal() {
+        setRating(5);
+        const comment = document.getElementById('reviewComment');
+        if (comment) comment.value = '';
+        document.getElementById('reviewModal').classList.add('active');
+    }
+
+    function closeReviewModal() {
+        document.getElementById('reviewModal').classList.remove('active');
+    }
+
+    function setRating(val) {
+        currentRating = val;
+        const stars = document.querySelectorAll('#starsContainer .star-icon');
+        stars.forEach((star, index) => {
+            if (index < val) {
+                star.classList.add('active');
+            } else {
+                star.classList.remove('active');
+            }
+        });
+    }
+
+    async function submitReview() {
+        const btn = document.getElementById('sendReviewBtn');
+        btn.disabled = true;
+        btn.textContent = 'ОТПРАВЛЯЕМ...';
+
+        let tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        if (!tgUser && window.Telegram?.WebApp?.initData) {
+            try {
+                const params = new URLSearchParams(window.Telegram.WebApp.initData);
+                const userRaw = params.get('user');
+                if (userRaw) tgUser = JSON.parse(userRaw);
+            } catch (e) {
+                console.error("Ошибка парсинга initData:", e);
+            }
+        }
+
+        const userName = tgUser?.first_name 
+            ? `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() 
+            : 'Анонимный клиент';
+        const userNick = tgUser?.username ? `@${tgUser.username}` : 'Ник скрыт';
+        const userId = tgUser?.id ? tgUser.id : 'Не определён';
+        const userContactLink = tgUser?.username 
+            ? `https://t.me/${tgUser.username}` 
+            : (tgUser?.id ? `tg://user?id=${tgUser.id}` : 'https://t.me/tamaz_9');
+
+        const comment = document.getElementById('reviewComment').value.trim();
+        const starsEmoji = '⭐️'.repeat(currentRating);
+
+        const reviewMessage = 
+`🌟 <b>НОВЫЙ ОТЗЫВ В TAPAZ!</b>
+
+👤 <b>Клиент:</b> ${userName} (${userNick})
+🆔 <b>Telegram ID:</b> <code>${userId}</code>
+🔗 <b>Диалог:</b> <a href="${userContactLink}">Открыть чат</a>
+
+⭐️ <b>Оценка:</b> ${starsEmoji} (${currentRating}/5)
+💬 <b>Комментарий:</b> ${comment ? comment : '<i>(без комментария)</i>'}`;
+
+        try {
+            if (BOT_TOKEN !== '123456789:ABCdefGhIJKlmNoPQRstuVWXyz') {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: MANAGER_CHAT_ID,
+                        text: reviewMessage,
+                        parse_mode: 'HTML',
+                        disable_web_page_preview: true
+                    })
+                });
+            }
+            showToast('✅ Спасибо за ваш отзыв!');
+            closeReviewModal();
+        } catch (err) {
+            console.error(err);
+            showToast('Ошибка при отправке отзыва');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'ОТПРАВИТЬ';
+        }
+    }
+
     function switchMainSection(section) {
         document.getElementById('navMenuBtn').classList.toggle('active', section === 'menu');
         document.getElementById('navSupportBtn').classList.toggle('active', section === 'support');
@@ -1571,7 +1971,7 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
         }
     }
 
-    /* ================= СОСТОЯНИЕ ИГРЫ И БОНУСЫ ================= */
+    /* ================= СОСТОЯНИЕ ИГРЫ И ОБЛАЧНЫЕ БОНУСЫ ================= */
     let board = [];
     let boxes = new Set();
     let specialCells = new Map();
@@ -1589,14 +1989,58 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
     let taskProgress = 0;
     let targetIcon = 0;
 
-    const prog = localStorage.getItem('tapaz_progress');
-    if (prog) unlockedLevel = Math.max(1, parseInt(prog, 10));
+    let newlyDroppedKeys = new Set();
 
-    const savedBonus = localStorage.getItem('tapaz_bonus');
-    if (savedBonus) {
-        bonusPoints = parseInt(savedBonus, 10);
-    } else {
-        bonusPoints = Math.max(0, (unlockedLevel - 1) * 25);
+    function loadStorageItem(key) {
+        return new Promise((resolve) => {
+            if (window.Telegram?.WebApp?.CloudStorage) {
+                try {
+                    Telegram.WebApp.CloudStorage.getItem(key, (err, val) => {
+                        if (!err && val !== undefined && val !== null && val !== '') {
+                            resolve(val);
+                            return;
+                        }
+                        resolve(localStorage.getItem(key));
+                    });
+                    return;
+                } catch (e) {
+                    console.warn('Ошибка CloudStorage getItem:', e);
+                }
+            }
+            resolve(localStorage.getItem(key));
+        });
+    }
+
+    function saveStorageItem(key, value) {
+        const strVal = value.toString();
+        try {
+            localStorage.setItem(key, strVal);
+        } catch (e) {}
+
+        if (window.Telegram?.WebApp?.CloudStorage) {
+            try {
+                Telegram.WebApp.CloudStorage.setItem(key, strVal, (err) => {
+                    if (err) console.warn(`CloudStorage save failed for ${key}:`, err);
+                });
+            } catch (e) {
+                console.warn('Ошибка CloudStorage setItem:', e);
+            }
+        }
+    }
+
+    async function initUserProgress() {
+        const prog = await loadStorageItem('tapaz_progress');
+        if (prog) unlockedLevel = Math.max(1, parseInt(prog, 10));
+
+        const savedBonus = await loadStorageItem('tapaz_bonus');
+        if (savedBonus) {
+            bonusPoints = parseInt(savedBonus, 10);
+        } else {
+            bonusPoints = Math.max(0, (unlockedLevel - 1) * 25);
+        }
+
+        updateBonusUI();
+        renderLevelsGrid();
     }
 
     function updateBonusUI() {
@@ -1658,7 +2102,7 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
     }
 
     /* ================= ИГРОВАЯ МЕХАНИКА АРЕНЫ ================= */
-    function startGame(level) {
+    async function startGame(level) {
         currentLevel = level;
         currentScore = 0;
         taskProgress = 0;
@@ -1668,6 +2112,7 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
         boxes.clear();
         specialCells.clear();
         ice.clear();
+        newlyDroppedKeys.clear();
 
         movesLeft = Math.max(12, 22 - Math.floor(level / 3));
         if (level % 3 === 1) {
@@ -1698,6 +2143,7 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
         }
 
         initBoard();
+        await checkAndShuffle(false);
         showScreen('gameScreen');
         updateGameUI();
     }
@@ -1723,6 +2169,10 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
         renderBoard();
     }
 
+    function getCellElement(r, c) {
+        return document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+    }
+
     function renderBoard() {
         const el = document.getElementById('gameBoard');
         el.innerHTML = '';
@@ -1731,6 +2181,8 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
             for (let c = 0; c < BOARD_SIZE; c++) {
                 const cell = document.createElement('div');
                 cell.className = 'cell';
+                cell.setAttribute('data-r', r);
+                cell.setAttribute('data-c', c);
                 const key = `${r}-${c}`;
 
                 if (boxes.has(key)) {
@@ -1742,7 +2194,7 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
                     if (sp === 'bomb') cell.innerHTML = BOMB_SVG;
                     else if (sp === 'rainbow') cell.innerHTML = RAINBOW_SVG;
                     else if (sp === 'rocket') cell.innerHTML = ROCKET_SVG;
-                } else if (board[r][c] !== -1 && PERFUMES[board[r][c]]) {
+                } else if (board[r][c] !== -1 && board[r][c] !== -2 && PERFUMES[board[r][c]]) {
                     cell.innerHTML = PERFUMES[board[r][c]];
                     if (ice.has(key)) {
                         cell.classList.add('iced');
@@ -1756,10 +2208,61 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
                     cell.classList.add('selected');
                 }
 
-                cell.onclick = () => onCellClick(r, c);
+                if (newlyDroppedKeys.has(key)) {
+                    cell.classList.add('drop-anim');
+                }
+
+                let startX = 0, startY = 0;
+                let isTracking = false;
+
+                cell.addEventListener('pointerdown', (e) => {
+                    if (isProcessing || movesLeft <= 0) return;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    isTracking = true;
+                    try { cell.setPointerCapture(e.pointerId); } catch (err) {}
+                });
+
+                cell.addEventListener('pointerup', (e) => {
+                    if (!isTracking) return;
+                    isTracking = false;
+                    try { cell.releasePointerCapture(e.pointerId); } catch (err) {}
+
+                    const deltaX = e.clientX - startX;
+                    const deltaY = e.clientY - startY;
+                    const dist = Math.hypot(deltaX, deltaY);
+
+                    if (dist > 25) {
+                        let targetR = r, targetC = c;
+                        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                            targetC += (deltaX > 0 ? 1 : -1);
+                        } else {
+                            targetR += (deltaY > 0 ? 1 : -1);
+                        }
+
+                        if (targetR >= 0 && targetR < BOARD_SIZE && targetC >= 0 && targetC < BOARD_SIZE) {
+                            const sourceKey = `${r}-${c}`;
+                            const targetKey = `${targetR}-${targetC}`;
+                            if (!boxes.has(sourceKey) && !ice.has(sourceKey) && !boxes.has(targetKey) && !ice.has(targetKey)) {
+                                selectedCell = null;
+                                executeMove(r, c, targetR, targetC);
+                                return;
+                            }
+                        }
+                    } else if (dist <= 10) {
+                        onCellClick(r, c);
+                    }
+                });
+
+                cell.addEventListener('pointercancel', () => {
+                    isTracking = false;
+                });
+
                 el.appendChild(cell);
             }
         }
+
+        newlyDroppedKeys.clear();
     }
 
     function onCellClick(r, c) {
@@ -1767,14 +2270,21 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
         const key = `${r}-${c}`;
         if (boxes.has(key) || ice.has(key)) return;
 
-        if (!selectedCell) {
-            selectedCell = { r, c };
+        if (selectedCell && selectedCell.r === r && selectedCell.c === c) {
+            if (specialCells.has(key)) {
+                selectedCell = null;
+                renderBoard();
+                executeMove(r, c, r, c);
+                return;
+            }
+            selectedCell = null;
             renderBoard();
             return;
         }
 
-        if (selectedCell.r === r && selectedCell.c === c) {
-            selectedCell = null;
+        if (!selectedCell) {
+            selectedCell = { r, c };
+            triggerHaptic('light');
             renderBoard();
             return;
         }
@@ -1782,6 +2292,7 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
         const isNeighbor = Math.abs(selectedCell.r - r) + Math.abs(selectedCell.c - c) === 1;
         if (!isNeighbor) {
             selectedCell = { r, c };
+            triggerHaptic('light');
             renderBoard();
             return;
         }
@@ -1789,37 +2300,96 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
         const r1 = selectedCell.r, c1 = selectedCell.c;
         const r2 = r, c2 = c;
         selectedCell = null;
-        renderBoard();
 
         executeMove(r1, c1, r2, c2);
+    }
+
+    async function animateSlide(r1, c1, r2, c2) {
+        const el1 = getCellElement(r1, c1);
+        const el2 = getCellElement(r2, c2);
+        if (!el1 || !el2) return;
+
+        const rect1 = el1.getBoundingClientRect();
+        const rect2 = el2.getBoundingClientRect();
+        const dx = rect2.left - rect1.left;
+        const dy = rect2.top - rect1.top;
+
+        el1.style.zIndex = '10';
+        el2.style.zIndex = '10';
+        el1.style.transition = 'transform 0.18s cubic-bezier(0.25, 1, 0.5, 1)';
+        el2.style.transition = 'transform 0.18s cubic-bezier(0.25, 1, 0.5, 1)';
+
+        el1.style.transform = `translate(${dx}px, ${dy}px)`;
+        el2.style.transform = `translate(${-dx}px, ${-dy}px)`;
+
+        await sleep(180);
+    }
+
+    async function animateBounceBack(r1, c1, r2, c2) {
+        const el1 = getCellElement(r1, c1);
+        const el2 = getCellElement(r2, c2);
+        if (!el1 || !el2) return;
+
+        el1.classList.add('shake-anim');
+        el2.classList.add('shake-anim');
+        triggerHaptic('warning');
+        await sleep(200);
+
+        el1.style.transition = 'transform 0.15s ease-out';
+        el2.style.transition = 'transform 0.15s ease-out';
+        el1.style.transform = 'translate(0, 0)';
+        el2.style.transform = 'translate(0, 0)';
+        await sleep(150);
     }
 
     async function executeMove(r1, c1, r2, c2) {
         isProcessing = true;
         const key1 = `${r1}-${c1}`, key2 = `${r2}-${c2}`;
 
+        if (r1 === r2 && c1 === c2) {
+            if (specialCells.has(key1)) {
+                movesLeft--;
+                triggerHaptic('medium');
+                await triggerSpecials(r1, c1, r1, c1);
+                await dropAndFill();
+                updateGameUI();
+                await processCascades();
+                await checkAndShuffle();
+                checkGameStatus();
+            }
+            isProcessing = false;
+            return;
+        }
+
+        await animateSlide(r1, c1, r2, c2);
+
         if (specialCells.has(key1) || specialCells.has(key2)) {
             movesLeft--;
+            triggerHaptic('medium');
             await triggerSpecials(r1, c1, r2, c2);
             await dropAndFill();
             updateGameUI();
+            await processCascades();
+            await checkAndShuffle();
             checkGameStatus();
             isProcessing = false;
             return;
         }
 
         swap(r1, c1, r2, c2);
-        renderBoard();
-
         const matches = checkMatchesOnly();
+
         if (matches.length > 0) {
             movesLeft--;
+            triggerHaptic('light');
+            renderBoard();
             updateGameUI();
-            await processCascades();
+            await processCascades({ r: r2, c: c2 });
+            await checkAndShuffle();
             checkGameStatus();
         } else {
-            await sleep(200);
             swap(r1, c1, r2, c2);
+            await animateBounceBack(r1, c1, r2, c2);
             renderBoard();
         }
         isProcessing = false;
@@ -1831,42 +2401,160 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
         board[r2][c2] = t;
     }
 
-    function checkMatchesOnly() {
-        const matched = new Set();
-        for (let r = 0; r < BOARD_SIZE; r++) {
-            for (let c = 0; c < BOARD_SIZE - 2; c++) {
-                const val = board[r][c];
-                if (val === -1 || isBlocked(r, c)) continue;
-                if (val === board[r][c+1] && val === board[r][c+2] && !isBlocked(r, c+1) && !isBlocked(r, c+2)) {
-                    matched.add(`${r}-${c}`);
-                    matched.add(`${r}-${c+1}`);
-                    matched.add(`${r}-${c+2}`);
-                }
-            }
-        }
-        for (let c = 0; c < BOARD_SIZE; c++) {
-            for (let r = 0; r < BOARD_SIZE - 2; r++) {
-                const val = board[r][c];
-                if (val === -1 || isBlocked(r, c)) continue;
-                if (val === board[r+1][c] && val === board[r+2][c] && !isBlocked(r+1, c) && !isBlocked(r+2, c)) {
-                    matched.add(`${r}-${c}`);
-                    matched.add(`${r+1}-${c}`);
-                    matched.add(`${r+2}-${c}`);
-                }
-            }
-        }
-        return Array.from(matched).map(s => s.split('-').map(Number));
-    }
-
     function isBlocked(r, c) {
         const k = `${r}-${c}`;
         return boxes.has(k) || ice.has(k);
     }
 
-    async function processCascades() {
-        let matches = checkMatchesOnly();
-        while (matches.length > 0) {
-            matches.forEach(([r, c]) => {
+    function getMatchClusters() {
+        const horizontalRuns = [];
+        const verticalRuns = [];
+
+        for (let r = 0; r < BOARD_SIZE; r++) {
+            let len = 1;
+            for (let c = 0; c < BOARD_SIZE; c++) {
+                let matchesNext = false;
+                if (c < BOARD_SIZE - 1) {
+                    const cur = board[r][c];
+                    const nxt = board[r][c+1];
+                    if (cur !== -1 && cur !== -2 && !isBlocked(r, c) && cur === nxt && !isBlocked(r, c+1)) {
+                        matchesNext = true;
+                    }
+                }
+                if (matchesNext) {
+                    len++;
+                } else {
+                    if (len >= 3) {
+                        const cells = [];
+                        for (let k = c - len + 1; k <= c; k++) cells.push({ r, c: k });
+                        horizontalRuns.push({ cells, len, icon: board[r][c] });
+                    }
+                    len = 1;
+                }
+            }
+        }
+
+        for (let c = 0; c < BOARD_SIZE; c++) {
+            let len = 1;
+            for (let r = 0; r < BOARD_SIZE; r++) {
+                let matchesNext = false;
+                if (r < BOARD_SIZE - 1) {
+                    const cur = board[r][c];
+                    const nxt = board[r+1][c];
+                    if (cur !== -1 && cur !== -2 && !isBlocked(r, c) && cur === nxt && !isBlocked(r+1, c)) {
+                        matchesNext = true;
+                    }
+                }
+                if (matchesNext) {
+                    len++;
+                } else {
+                    if (len >= 3) {
+                        const cells = [];
+                        for (let k = r - len + 1; k <= r; k++) cells.push({ r: k, c });
+                        verticalRuns.push({ cells, len, icon: board[r][c] });
+                    }
+                    len = 1;
+                }
+            }
+        }
+
+        return { horizontalRuns, verticalRuns };
+    }
+
+    function checkMatchesOnly() {
+        const { horizontalRuns, verticalRuns } = getMatchClusters();
+        const matched = new Set();
+        horizontalRuns.forEach(h => h.cells.forEach(c => matched.add(`${c.r}-${c.c}`)));
+        verticalRuns.forEach(v => v.cells.forEach(c => matched.add(`${c.r}-${c.c}`)));
+        return Array.from(matched).map(s => s.split('-').map(Number));
+    }
+
+    function getMatchResolution(lastCoord) {
+        const { horizontalRuns, verticalRuns } = getMatchClusters();
+        if (horizontalRuns.length === 0 && verticalRuns.length === 0) return null;
+
+        const matchedKeys = new Set();
+        const spawns = [];
+        const handledRuns = new Set();
+
+        horizontalRuns.forEach(h => {
+            verticalRuns.forEach(v => {
+                if (h.icon === v.icon) {
+                    const intersection = h.cells.find(hc => v.cells.some(vc => vc.r === hc.r && vc.c === hc.c));
+                    if (intersection) {
+                        spawns.push({ r: intersection.r, c: intersection.c, type: 'bomb' });
+                        handledRuns.add(h);
+                        handledRuns.add(v);
+                        h.cells.forEach(c => matchedKeys.add(`${c.r}-${c.c}`));
+                        v.cells.forEach(c => matchedKeys.add(`${c.r}-${c.c}`));
+                    }
+                }
+            });
+        });
+
+        horizontalRuns.forEach(h => {
+            h.cells.forEach(c => matchedKeys.add(`${c.r}-${c.c}`));
+            if (handledRuns.has(h)) return;
+
+            if (h.len >= 5) {
+                let spawnCell = h.cells[Math.floor(h.len / 2)];
+                if (lastCoord) {
+                    const found = h.cells.find(c => c.r === lastCoord.r && c.c === lastCoord.c);
+                    if (found) spawnCell = found;
+                }
+                spawns.push({ r: spawnCell.r, c: spawnCell.c, type: 'rainbow' });
+            } else if (h.len === 4) {
+                let spawnCell = h.cells[1];
+                if (lastCoord) {
+                    const found = h.cells.find(c => c.r === lastCoord.r && c.c === lastCoord.c);
+                    if (found) spawnCell = found;
+                }
+                spawns.push({ r: spawnCell.r, c: spawnCell.c, type: 'rocket' });
+            }
+        });
+
+        verticalRuns.forEach(v => {
+            v.cells.forEach(c => matchedKeys.add(`${c.r}-${c.c}`));
+            if (handledRuns.has(v)) return;
+
+            if (v.len >= 5) {
+                let spawnCell = v.cells[Math.floor(v.len / 2)];
+                if (lastCoord) {
+                    const found = v.cells.find(c => c.r === lastCoord.r && c.c === lastCoord.c);
+                    if (found) spawnCell = found;
+                }
+                spawns.push({ r: spawnCell.r, c: spawnCell.c, type: 'rainbow' });
+            } else if (v.len === 4) {
+                let spawnCell = v.cells[1];
+                if (lastCoord) {
+                    const found = v.cells.find(c => c.r === lastCoord.r && c.c === lastCoord.c);
+                    if (found) spawnCell = found;
+                }
+                spawns.push({ r: spawnCell.r, c: spawnCell.c, type: 'rocket' });
+            }
+        });
+
+        return { matchedKeys, spawns };
+    }
+
+    async function processCascades(initialCoord = null) {
+        let coord = initialCoord;
+        let resolution = getMatchResolution(coord);
+
+        while (resolution) {
+            const { matchedKeys, spawns } = resolution;
+
+            matchedKeys.forEach(k => {
+                const [r, c] = k.split('-').map(Number);
+                const el = getCellElement(r, c);
+                if (el) el.classList.add('pop-anim');
+            });
+
+            triggerHaptic('light');
+            await sleep(220);
+
+            matchedKeys.forEach(k => {
+                const [r, c] = k.split('-').map(Number);
                 const icon = board[r][c];
                 if (taskType === 'collect' && icon === targetIcon) taskProgress++;
                 currentScore += 10;
@@ -1874,12 +2562,17 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
                 board[r][c] = -1;
             });
 
-            renderBoard();
-            await sleep(250);
+            spawns.forEach(sp => {
+                const k = `${sp.r}-${sp.c}`;
+                specialCells.set(k, sp.type);
+                board[sp.r][sp.c] = -2;
+            });
 
             await dropAndFill();
             updateGameUI();
-            matches = checkMatchesOnly();
+
+            coord = null;
+            resolution = getMatchResolution(null);
         }
     }
 
@@ -1902,33 +2595,119 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
         });
     }
 
+    function showShockwaveFx(r, c) {
+        const boardEl = document.getElementById('gameBoard');
+        const target = getCellElement(r, c);
+        if (!boardEl || !target) return;
+
+        const wave = document.createElement('div');
+        wave.className = 'fx-shockwave';
+        wave.style.left = `${target.offsetLeft + target.offsetWidth / 2}px`;
+        wave.style.top = `${target.offsetTop + target.offsetHeight / 2}px`;
+        boardEl.appendChild(wave);
+        setTimeout(() => wave.remove(), 360);
+    }
+
+    function showLaserFx(r, c) {
+        const boardEl = document.getElementById('gameBoard');
+        const target = getCellElement(r, c);
+        if (!boardEl || !target) return;
+
+        const rowBeam = document.createElement('div');
+        rowBeam.className = 'fx-laser-row';
+        rowBeam.style.top = `${target.offsetTop + target.offsetHeight / 2}px`;
+
+        const colBeam = document.createElement('div');
+        colBeam.className = 'fx-laser-col';
+        colBeam.style.left = `${target.offsetLeft + target.offsetWidth / 2}px`;
+
+        boardEl.appendChild(rowBeam);
+        boardEl.appendChild(colBeam);
+        setTimeout(() => { rowBeam.remove(); colBeam.remove(); }, 320);
+    }
+
     async function triggerSpecials(r1, c1, r2, c2) {
         const k1 = `${r1}-${c1}`, k2 = `${r2}-${c2}`;
-        const type = specialCells.get(k1) || specialCells.get(k2);
+        const type1 = specialCells.get(k1);
+        const type2 = specialCells.get(k2);
+
         specialCells.delete(k1);
         specialCells.delete(k2);
+        board[r1][c1] = -1;
+        board[r2][c2] = -1;
 
-        if (type === 'bomb') {
-            for (let r = Math.max(0, r2-1); r <= Math.min(BOARD_SIZE-1, r2+1); r++) {
-                for (let c = Math.max(0, c2-1); c <= Math.min(BOARD_SIZE-1, c2+1); c++) {
+        if (type1 === 'rainbow' && type2 === 'rainbow') {
+            showShockwaveFx(r2, c2);
+            triggerHaptic('heavy');
+            for (let r = 0; r < BOARD_SIZE; r++) {
+                for (let c = 0; c < BOARD_SIZE; c++) {
                     destroyCell(r, c);
                 }
             }
-        } else if (type === 'rocket') {
-            for (let i = 0; i < BOARD_SIZE; i++) {
-                destroyCell(r2, i);
-                destroyCell(i, c2);
-            }
-        } else if (type === 'rainbow') {
-            const targetColor = board[r1][c1] !== -1 ? board[r1][c1] : 0;
+        } else if ((type1 === 'rainbow' || type2 === 'rainbow') && (type1 && type2)) {
+            const other = type1 === 'rainbow' ? type2 : type1;
+            const pickColor = Math.floor(Math.random() * PERFUMES.length);
             for (let r = 0; r < BOARD_SIZE; r++) {
                 for (let c = 0; c < BOARD_SIZE; c++) {
-                    if (board[r][c] === targetColor) destroyCell(r, c);
+                    if (board[r][c] === pickColor) {
+                        specialCells.set(`${r}-${c}`, other);
+                        destroyCell(r, c);
+                    }
+                }
+            }
+        } else if ((type1 === 'bomb' && type2 === 'rocket') || (type1 === 'rocket' && type2 === 'bomb')) {
+            showShockwaveFx(r2, c2);
+            showLaserFx(r2, c2);
+            triggerHaptic('heavy');
+            for (let ro = -1; ro <= 1; ro++) {
+                for (let c = 0; c < BOARD_SIZE; c++) {
+                    const rr = r2 + ro;
+                    if (rr >= 0 && rr < BOARD_SIZE) destroyCell(rr, c);
+                }
+            }
+            for (let co = -1; co <= 1; co++) {
+                for (let r = 0; r < BOARD_SIZE; r++) {
+                    const cc = c2 + co;
+                    if (cc >= 0 && cc < BOARD_SIZE) destroyCell(r, cc);
+                }
+            }
+        } else {
+            const type = type1 || type2;
+            if (type === 'bomb') {
+                showShockwaveFx(r2, c2);
+                triggerHaptic('medium');
+                for (let r = Math.max(0, r2-1); r <= Math.min(BOARD_SIZE-1, r2+1); r++) {
+                    for (let c = Math.max(0, c2-1); c <= Math.min(BOARD_SIZE-1, c2+1); c++) {
+                        destroyCell(r, c);
+                    }
+                }
+            } else if (type === 'rocket') {
+                showLaserFx(r2, c2);
+                triggerHaptic('medium');
+                for (let i = 0; i < BOARD_SIZE; i++) {
+                    destroyCell(r2, i);
+                    destroyCell(i, c2);
+                }
+            } else if (type === 'rainbow') {
+                triggerHaptic('medium');
+                let targetColor = 0;
+                if (type1 === 'rainbow' && board[r2][c2] >= 0) {
+                    targetColor = board[r2][c2];
+                } else if (type2 === 'rainbow' && board[r1][c1] >= 0) {
+                    targetColor = board[r1][c1];
+                } else {
+                    targetColor = Math.floor(Math.random() * PERFUMES.length);
+                }
+                for (let r = 0; r < BOARD_SIZE; r++) {
+                    for (let c = 0; c < BOARD_SIZE; c++) {
+                        if (board[r][c] === targetColor) destroyCell(r, c);
+                    }
                 }
             }
         }
+
         renderBoard();
-        await sleep(250);
+        await sleep(220);
     }
 
     function destroyCell(r, c) {
@@ -1945,6 +2724,9 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
     }
 
     async function dropAndFill() {
+        const newSpecialCells = new Map();
+        newlyDroppedKeys.clear();
+
         for (let c = 0; c < BOARD_SIZE; c++) {
             let emptyIdx = BOARD_SIZE - 1;
             for (let r = BOARD_SIZE - 1; r >= 0; r--) {
@@ -1954,8 +2736,19 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
                     continue;
                 }
                 if (board[r][c] !== -1) {
-                    board[emptyIdx][c] = board[r][c];
-                    if (emptyIdx !== r) board[r][c] = -1;
+                    const currentVal = board[r][c];
+                    const hasSpecial = specialCells.has(k);
+                    const specialType = specialCells.get(k);
+
+                    board[emptyIdx][c] = currentVal;
+                    if (hasSpecial) {
+                        newSpecialCells.set(`${emptyIdx}-${c}`, specialType);
+                    }
+
+                    if (emptyIdx !== r) {
+                        board[r][c] = -1;
+                        newlyDroppedKeys.add(`${emptyIdx}-${c}`);
+                    }
                     emptyIdx--;
                 }
             }
@@ -1963,11 +2756,103 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
                 const k = `${r}-${c}`;
                 if (!boxes.has(k) && !ice.has(k)) {
                     board[r][c] = Math.floor(Math.random() * PERFUMES.length);
+                    newlyDroppedKeys.add(`${r}-${c}`);
                 }
             }
         }
+
+        specialCells = newSpecialCells;
         renderBoard();
-        await sleep(200);
+        await sleep(250);
+    }
+
+    function hasPossibleMoves() {
+        for (let r = 0; r < BOARD_SIZE; r++) {
+            for (let c = 0; c < BOARD_SIZE; c++) {
+                const k = `${r}-${c}`;
+                if (specialCells.has(k) && !isBlocked(r, c)) {
+                    const deltas = [[0,1],[1,0],[0,-1],[-1,0]];
+                    for (const [dr, dc] of deltas) {
+                        const nr = r + dr, nc = c + dc;
+                        if (nr >= 0 && nr < BOARD_SIZE && nc >= 0 && nc < BOARD_SIZE && !isBlocked(nr, nc)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        for (let r = 0; r < BOARD_SIZE; r++) {
+            for (let c = 0; c < BOARD_SIZE; c++) {
+                if (isBlocked(r, c) || board[r][c] === -1 || board[r][c] === -2) continue;
+
+                if (c < BOARD_SIZE - 1 && !isBlocked(r, c+1) && board[r][c+1] !== -1 && board[r][c+1] !== -2) {
+                    swap(r, c, r, c+1);
+                    const matches = checkMatchesOnly();
+                    swap(r, c, r, c+1);
+                    if (matches.length > 0) return true;
+                }
+
+                if (r < BOARD_SIZE - 1 && !isBlocked(r+1, c) && board[r+1][c] !== -1 && board[r+1][c] !== -2) {
+                    swap(r, c, r+1, c);
+                    const matches = checkMatchesOnly();
+                    swap(r, c, r+1, c);
+                    if (matches.length > 0) return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    async function checkAndShuffle(withToast = true) {
+        if (hasPossibleMoves()) return;
+
+        if (withToast) {
+            showToast('Нет ходов! Перемешивание фишек...');
+            triggerHaptic('warning');
+            await sleep(500);
+        }
+
+        let attempts = 0;
+        while (!hasPossibleMoves() && attempts < 100) {
+            const positions = [];
+            const values = [];
+
+            for (let r = 0; r < BOARD_SIZE; r++) {
+                for (let c = 0; c < BOARD_SIZE; c++) {
+                    const k = `${r}-${c}`;
+                    if (!boxes.has(k) && !ice.has(k) && !specialCells.has(k) && board[r][c] >= 0) {
+                        positions.push({ r, c });
+                        values.push(board[r][c]);
+                    }
+                }
+            }
+
+            for (let i = values.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [values[i], values[j]] = [values[j], values[i]];
+            }
+
+            positions.forEach((pos, idx) => {
+                board[pos.r][pos.c] = values[idx];
+            });
+
+            let innerAttempts = 0;
+            while (checkMatchesOnly().length > 0 && innerAttempts < 30) {
+                for (let i = values.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [values[i], values[j]] = [values[j], values[i]];
+                }
+                positions.forEach((pos, idx) => {
+                    board[pos.r][pos.c] = values[idx];
+                });
+                innerAttempts++;
+            }
+
+            attempts++;
+        }
+
+        renderBoard();
     }
 
     function updateGameUI() {
@@ -1998,16 +2883,18 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
         if ((taskType === 'collect' || taskType === 'boxes') && taskProgress >= taskTarget) isWin = true;
 
         if (isWin) {
+            triggerHaptic('success');
             document.getElementById('winScoreText').textContent = `Счет: ${currentScore}`;
             document.getElementById('winOverlay').classList.add('active');
             
             if (currentLevel >= unlockedLevel) {
                 unlockedLevel = currentLevel + 1;
                 bonusPoints += 25;
-                localStorage.setItem('tapaz_progress', unlockedLevel.toString());
-                localStorage.setItem('tapaz_bonus', bonusPoints.toString());
+                saveStorageItem('tapaz_progress', unlockedLevel);
+                saveStorageItem('tapaz_bonus', bonusPoints);
             }
         } else if (movesLeft <= 0) {
+            triggerHaptic('warning');
             document.getElementById('retryBtn').style.display = 'block';
             document.getElementById('failMsg').textContent = 'Попробуйте еще раз!';
             document.getElementById('failOverlay').classList.add('active');
@@ -2021,6 +2908,8 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
     function sleep(ms) {
         return new Promise(res => setTimeout(res, ms));
     }
+
+    initUserProgress();
 </script>
 
 </body>
