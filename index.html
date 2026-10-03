@@ -6,6 +6,8 @@
     <title>TAPAZ — Telegram Mini App</title>
     <!-- Подключаем Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Подключаем официальную библиотеку Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Подключение шрифта для логотипа -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1432,7 +1434,6 @@
         try {
             window.Telegram.WebApp.ready();
             window.Telegram.WebApp.expand();
-            // Отключаем нативный свайп закрытия шторки на iPhone
             if (window.Telegram.WebApp.disableVerticalSwipes) {
                 window.Telegram.WebApp.disableVerticalSwipes();
             }
@@ -1444,12 +1445,25 @@
         }
     }
 
+    /* ================= ИНИЦИАЛИЗАЦИЯ SUPABASE ================= */
+    const SUPABASE_URL = 'https://okekwmzfzwrqcwkvvfhi.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_ba2J36Y3Ob6vOaLpqX3rxg_I9QBEJq2';
+    let supabaseClient = null;
+
+    if (window.supabase) {
+        try {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch (e) {
+            console.warn('Не удалось создать клиент Supabase:', e);
+        }
+    }
+
     /* ================= НАСТРОЙКИ УВЕДОМЛЕНИЙ ДЛЯ КОНСУЛЬТАНТА ================= */
     const BOT_TOKEN = '8841223635:AAF6RfQnAckFBE6N8wVSuSrqesTm8c14iVs';
     const MANAGER_CHAT_ID = '8287154272';
 
-    /* ================= БАЗА ТОВАРОВ КАТАЛОГА ================= */
-    const BASE_PRODUCTS = [
+    /* ================= БАЗА ТОВАРОВ КАТАЛОГА (С РЕЗЕРВНЫМ НАБОРОМ) ================= */
+    let BASE_PRODUCTS = [
         { 
             name: 'Creed Aventus', 
             volume: '100 ml',
@@ -1495,6 +1509,32 @@
     let currentCategoryKey = 'all';
     let currentSearchQuery = '';
 
+    /* Подгрузка каталога из Supabase */
+    async function loadProductsFromSupabase() {
+        if (!supabaseClient) return;
+        try {
+            const { data, error } = await supabaseClient
+                .from('products')
+                .select('*')
+                .eq('in_stock', true)
+                .order('id', { ascending: true });
+
+            if (error) {
+                console.warn('Ошибка запроса в Supabase:', error);
+                return;
+            }
+
+            if (data && data.length > 0) {
+                BASE_PRODUCTS = data;
+                if (document.getElementById('catalogScreen').classList.contains('active')) {
+                    renderCatalogByCategory(currentCategoryKey);
+                }
+            }
+        } catch (err) {
+            console.warn('Сбой подключения к Supabase:', err);
+        }
+    }
+
     function triggerHaptic(style = 'light') {
         try {
             if (window.Telegram?.WebApp?.HapticFeedback) {
@@ -1523,6 +1563,8 @@
         document.getElementById('catalogCategoryTitle').textContent = titleText.toUpperCase();
         renderCatalogByCategory(categoryKey);
         showScreen('catalogScreen');
+
+        loadProductsFromSupabase();
     }
 
     /* ================= ЛОГИКА ПОИСКОВИКА В КАТАЛОГЕ ================= */
@@ -1618,7 +1660,7 @@
                         ${volumeHtml}
                     </div>
                     <div class="item-desc">${item.desc}</div>
-                    <div class="item-price">${item.price.toLocaleString('ru-RU')} ₽</div>
+                    <div class="item-price">${Number(item.price).toLocaleString('ru-RU')} ₽</div>
                     <button class="btn btn-gold item-btn" onclick="addToCart('${cartItemName.replace(/'/g, "\\'")}', ${item.price})">В КОРЗИНУ</button>
                 </div>
             `;
@@ -1791,7 +1833,7 @@
         summary.style.display = 'flex';
     }
 
-    /* ================= ОТПРАВКА ЗАКАЗА КОНСУЛЬТАНТУ ================= */
+    /* ================= ОТПРАВКА И СОХРАНЕНИЕ ЗАКАЗА В SUPABASE И TELEGRAM ================= */
     async function checkoutInTelegram() {
         const keys = Object.keys(cart);
         if (keys.length === 0) return;
@@ -1816,18 +1858,27 @@
             ? `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() 
             : 'Анонимный клиент';
         const userNick = tgUser?.username ? `@${tgUser.username}` : 'Ник скрыт';
-        const userId = tgUser?.id ? tgUser.id : 'Не определён';
+        const userId = tgUser?.id ? String(tgUser.id) : 'Не определён';
         const userContactLink = tgUser?.username 
             ? `https://t.me/${tgUser.username}` 
             : (tgUser?.id ? `tg://user?id=${tgUser.id}` : 'https://t.me/tamaz_9');
 
         let subtotal = 0;
         let itemsText = '';
+        const orderItems = [];
+
         keys.forEach(name => {
             const item = cart[name];
             const sum = item.price * item.qty;
             subtotal += sum;
             itemsText += `• ${name} — ${item.qty} шт. (${sum.toLocaleString('ru-RU')} ₽)\n`;
+
+            orderItems.push({
+                name: name,
+                price: item.price,
+                quantity: item.qty,
+                total: sum
+            });
         });
 
         let discount = 0;
@@ -1836,8 +1887,43 @@
         }
         const finalTotal = Math.max(0, subtotal - discount);
 
+        let createdOrderId = null;
+
+        // 1. Сохранение в Supabase
+        if (supabaseClient) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('orders')
+                    .insert([
+                        {
+                            telegram_id: userId,
+                            client_name: userName,
+                            client_username: tgUser?.username ? tgUser.username : null,
+                            items: orderItems,
+                            subtotal: subtotal,
+                            discount: discount,
+                            total_amount: finalTotal,
+                            bonus_spent: discount,
+                            status: 'new'
+                        }
+                    ])
+                    .select('id')
+                    .single();
+
+                if (error) {
+                    console.error('Ошибка записи заказа в Supabase:', error);
+                } else if (data) {
+                    createdOrderId = data.id;
+                }
+            } catch (err) {
+                console.error('Сбой отправки в Supabase:', err);
+            }
+        }
+
+        // 2. Отправка менеджеру в Telegram
+        const orderNumberStr = createdOrderId ? ` (Заказ #${createdOrderId})` : '';
         const managerMessage = 
-`🔔 <b>НОВЫЙ ЗАКАЗ В TAPAZ!</b>
+`🔔 <b>НОВЫЙ ЗАКАЗ В TAPAZ!${orderNumberStr}</b>
 
 👤 <b>Клиент:</b> ${userName} (${userNick})
 🆔 <b>Telegram ID:</b> <code>${userId}</code>
@@ -1849,7 +1935,7 @@ ${itemsText}
 ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` : ''}💵 <b>ИТОГО К ОПЛАТЕ: ${finalTotal.toLocaleString('ru-RU')} ₽</b>`;
 
         try {
-            if (BOT_TOKEN !== '123456789:ABCdefGhIJKlmNoPQRstuVWXyz') {
+            if (BOT_TOKEN && BOT_TOKEN !== '123456789:ABCdefGhIJKlmNoPQRstuVWXyz') {
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1872,17 +1958,20 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
             updateCartCount();
             renderCartItems();
 
-            showToast('✅ Заказ оформлен! Консультант скоро свяжется с вами.');
+            showToast(createdOrderId 
+                ? `✅ Заказ #${createdOrderId} оформлен! Консультант свяжется с вами.`
+                : '✅ Заказ оформлен! Консультант свяжется с вами.'
+            );
 
             setTimeout(() => {
                 if (window.Telegram?.WebApp?.close) {
                     Telegram.WebApp.close();
                 }
-            }, 2000);
+            }, 2200);
 
         } catch (e) {
             console.error(e);
-            const fallbackText = `Здравствуйте! Хочу оформить заказ:\n\n${itemsText}\nИтого к оплате: ${finalTotal.toLocaleString('ru-RU')} ₽`;
+            const fallbackText = `Здравствуйте! Хочу оформить заказ${orderNumberStr}:\n\n${itemsText}\nИтого к оплате: ${finalTotal.toLocaleString('ru-RU')} ₽`;
             const tgLink = `https://t.me/tamaz_9?text=${encodeURIComponent(fallbackText)}`;
             if (window.Telegram?.WebApp) {
                 Telegram.WebApp.openTelegramLink(tgLink);
@@ -1960,7 +2049,7 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
 💬 <b>Комментарий:</b> ${comment ? comment : '<i>(без комментария)</i>'}`;
 
         try {
-            if (BOT_TOKEN !== '123456789:ABCdefGhIJKlmNoPQRstuVWXyz') {
+            if (BOT_TOKEN && BOT_TOKEN !== '123456789:ABCdefGhIJKlmNoPQRstuVWXyz') {
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2064,6 +2153,8 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
 
         updateBonusUI();
         renderLevelsGrid();
+
+        loadProductsFromSupabase();
     }
 
     function updateBonusUI() {
@@ -2288,7 +2379,6 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
         newlyDroppedKeys.clear();
     }
 
-    // Полный запрет нативного скролла и жестов закрытия шторки на игровом поле
     const gameBoardElement = document.getElementById('gameBoard');
     if (gameBoardElement) {
         gameBoardElement.addEventListener('touchmove', (e) => {
