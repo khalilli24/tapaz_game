@@ -802,18 +802,32 @@
         .icon-btn {
             width: 38px;
             height: 38px;
+            min-width: 38px;
+            min-height: 38px;
+            max-width: 38px;
+            max-height: 38px;
+            flex-shrink: 0;
             border-radius: 50%;
             background: rgba(14, 19, 43, 0.6);
             border: 1px solid var(--line-gold);
             color: var(--gold);
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+            box-sizing: border-box;
         }
         .icon-btn:active { transform: scale(0.95); }
-        .icon-btn svg { width: 18px; height: 18px; fill: currentColor; }
+        .icon-btn svg {
+            width: 18px;
+            height: 18px;
+            min-width: 18px;
+            min-height: 18px;
+            flex-shrink: 0;
+            display: block;
+            fill: currentColor;
+        }
 
         .arena-controls-row {
             display: flex;
@@ -876,7 +890,11 @@
             margin-bottom: 8px;
             align-items: center;
         }
-        .hud-back { grid-row: 1 / 3; }
+        .hud-back {
+            grid-row: 1 / 3;
+            align-self: center;
+            justify-self: start;
+        }
         .hud-level {
             font-family: var(--font-ui);
             font-weight: 700;
@@ -887,6 +905,7 @@
         .hud-chips {
             display: flex;
             gap: 8px;
+            grid-column: 2 / -1;
         }
         .hud-chip {
             background: rgba(13, 18, 41, 0.85);
@@ -1192,7 +1211,7 @@
 
         <div class="catalog-search-wrap" id="catalogSearchWrap" style="display: none;">
             <div class="catalog-search-box">
-                <svg class="catalog-search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                <svg class="catalog-search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 14z"/></svg>
                 <input type="text" id="catalogSearchInput" class="catalog-search-input" placeholder="Поиск по названию или нотам..." oninput="handleCatalogSearch(this.value)">
                 <button class="catalog-search-clear" id="catalogSearchClearBtn" onclick="clearCatalogSearch()">&times;</button>
             </div>
@@ -1564,6 +1583,7 @@
         renderCatalogByCategory(categoryKey);
         showScreen('catalogScreen');
 
+        // Фоновое обновление из Supabase для актуальных цен и остатков
         loadProductsFromSupabase();
     }
 
@@ -1833,7 +1853,7 @@
         summary.style.display = 'flex';
     }
 
-    /* ================= ОТПРАВКА И СОХРАНЕНИЕ ЗАКАЗА В SUPABASE И TELEGRAM ================= */
+    /* ================= ОТПРАВКА ЗАКАЗА КОНСУЛЬТАНТУ ================= */
     async function checkoutInTelegram() {
         const keys = Object.keys(cart);
         if (keys.length === 0) return;
@@ -1858,27 +1878,18 @@
             ? `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() 
             : 'Анонимный клиент';
         const userNick = tgUser?.username ? `@${tgUser.username}` : 'Ник скрыт';
-        const userId = tgUser?.id ? String(tgUser.id) : 'Не определён';
+        const userId = tgUser?.id ? tgUser.id : 'Не определён';
         const userContactLink = tgUser?.username 
             ? `https://t.me/${tgUser.username}` 
             : (tgUser?.id ? `tg://user?id=${tgUser.id}` : 'https://t.me/tamaz_9');
 
         let subtotal = 0;
         let itemsText = '';
-        const orderItems = [];
-
         keys.forEach(name => {
             const item = cart[name];
             const sum = item.price * item.qty;
             subtotal += sum;
             itemsText += `• ${name} — ${item.qty} шт. (${sum.toLocaleString('ru-RU')} ₽)\n`;
-
-            orderItems.push({
-                name: name,
-                price: item.price,
-                quantity: item.qty,
-                total: sum
-            });
         });
 
         let discount = 0;
@@ -1887,43 +1898,8 @@
         }
         const finalTotal = Math.max(0, subtotal - discount);
 
-        let createdOrderId = null;
-
-        // 1. Сохранение в Supabase
-        if (supabaseClient) {
-            try {
-                const { data, error } = await supabaseClient
-                    .from('orders')
-                    .insert([
-                        {
-                            telegram_id: userId,
-                            client_name: userName,
-                            client_username: tgUser?.username ? tgUser.username : null,
-                            items: orderItems,
-                            subtotal: subtotal,
-                            discount: discount,
-                            total_amount: finalTotal,
-                            bonus_spent: discount,
-                            status: 'new'
-                        }
-                    ])
-                    .select('id')
-                    .single();
-
-                if (error) {
-                    console.error('Ошибка записи заказа в Supabase:', error);
-                } else if (data) {
-                    createdOrderId = data.id;
-                }
-            } catch (err) {
-                console.error('Сбой отправки в Supabase:', err);
-            }
-        }
-
-        // 2. Отправка менеджеру в Telegram
-        const orderNumberStr = createdOrderId ? ` (Заказ #${createdOrderId})` : '';
         const managerMessage = 
-`🔔 <b>НОВЫЙ ЗАКАЗ В TAPAZ!${orderNumberStr}</b>
+`🔔 <b>НОВЫЙ ЗАКАЗ В TAPAZ!</b>
 
 👤 <b>Клиент:</b> ${userName} (${userNick})
 🆔 <b>Telegram ID:</b> <code>${userId}</code>
@@ -1935,7 +1911,7 @@ ${itemsText}
 ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` : ''}💵 <b>ИТОГО К ОПЛАТЕ: ${finalTotal.toLocaleString('ru-RU')} ₽</b>`;
 
         try {
-            if (BOT_TOKEN && BOT_TOKEN !== '123456789:ABCdefGhIJKlmNoPQRstuVWXyz') {
+            if (BOT_TOKEN !== '123456789:ABCdefGhIJKlmNoPQRstuVWXyz') {
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1945,37 +1921,40 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
                         parse_mode: 'HTML',
                         disable_web_page_preview: true
                     })
-                }).catch(e => console.warn('Отправка через Bot API заблокирована браузером (CORS):', e));
+                });
             }
+
+            if (isBonusApplied && discount > 0) {
+                bonusPoints = Math.max(0, bonusPoints - discount);
+                saveStorageItem('tapaz_bonus', bonusPoints);
+                updateBonusUI();
+            }
+
+            cart = {};
+            updateCartCount();
+            renderCartItems();
+
+            showToast('✅ Заказ оформлен! Консультант скоро свяжется с вами.');
+
+            setTimeout(() => {
+                if (window.Telegram?.WebApp?.close) {
+                    Telegram.WebApp.close();
+                }
+            }, 2000);
+
         } catch (e) {
-            console.warn('Ошибка при отправке уведомления:', e);
-        }
-
-        // 3. Обновление баланса бонусов
-        if (isBonusApplied && discount > 0) {
-            bonusPoints = Math.max(0, bonusPoints - discount);
-            saveStorageItem('tapaz_bonus', bonusPoints);
-            updateBonusUI();
-        }
-
-        // 4. Очистка корзины и интерфейса
-        cart = {};
-        isBonusApplied = false;
-        updateCartCount();
-        renderCartItems();
-
-        triggerHaptic('success');
-        showToast(createdOrderId 
-            ? `✅ Заказ #${createdOrderId} оформлен! Менеджер свяжется с вами.`
-            : '✅ Заказ оформлен! Менеджер свяжется с вами.'
-        );
-
-        // Плавно переключаем на меню, приложение не закрывается
-        setTimeout(() => {
-            switchMainSection('menu');
+            console.error(e);
+            const fallbackText = `Здравствуйте! Хочу оформить заказ:\n\n${itemsText}\nИтого к оплате: ${finalTotal.toLocaleString('ru-RU')} ₽`;
+            const tgLink = `https://t.me/tamaz_9?text=${encodeURIComponent(fallbackText)}`;
+            if (window.Telegram?.WebApp) {
+                Telegram.WebApp.openTelegramLink(tgLink);
+            } else {
+                window.open(tgLink, '_blank');
+            }
+        } finally {
             btn.disabled = false;
             btn.textContent = 'ОФОРМИТЬ ЗАКАЗ';
-        }, 1200);
+        }
     }
 
     /* ================= ФУНКЦИОНАЛ ОТЗЫВОВ ================= */
@@ -2024,7 +2003,7 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
             ? `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() 
             : 'Анонимный клиент';
         const userNick = tgUser?.username ? `@${tgUser.username}` : 'Ник скрыт';
-        const userId = tgUser?.id ? String(tgUser.id) : 'Не определён';
+        const userId = tgUser?.id ? tgUser.id : 'Не определён';
         const userContactLink = tgUser?.username 
             ? `https://t.me/${tgUser.username}` 
             : (tgUser?.id ? `tg://user?id=${tgUser.id}` : 'https://t.me/tamaz_9');
@@ -2043,7 +2022,7 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
 💬 <b>Комментарий:</b> ${comment ? comment : '<i>(без комментария)</i>'}`;
 
         try {
-            if (BOT_TOKEN && BOT_TOKEN !== '123456789:ABCdefGhIJKlmNoPQRstuVWXyz') {
+            if (BOT_TOKEN !== '123456789:ABCdefGhIJKlmNoPQRstuVWXyz') {
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2053,7 +2032,7 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
                         parse_mode: 'HTML',
                         disable_web_page_preview: true
                     })
-                }).catch(e => console.warn('Отправка отзыва заблокирована (CORS):', e));
+                });
             }
             showToast('✅ Спасибо за ваш отзыв!');
             closeReviewModal();
@@ -2148,6 +2127,7 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
         updateBonusUI();
         renderLevelsGrid();
 
+        // Запуск загрузки товаров из Supabase при старте
         loadProductsFromSupabase();
     }
 
