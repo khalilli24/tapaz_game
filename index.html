@@ -1945,43 +1945,37 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
                         parse_mode: 'HTML',
                         disable_web_page_preview: true
                     })
-                });
+                }).catch(e => console.warn('Отправка через Bot API заблокирована браузером (CORS):', e));
             }
-
-            if (isBonusApplied && discount > 0) {
-                bonusPoints = Math.max(0, bonusPoints - discount);
-                saveStorageItem('tapaz_bonus', bonusPoints);
-                updateBonusUI();
-            }
-
-            cart = {};
-            updateCartCount();
-            renderCartItems();
-
-            showToast(createdOrderId 
-                ? `✅ Заказ #${createdOrderId} оформлен! Консультант свяжется с вами.`
-                : '✅ Заказ оформлен! Консультант свяжется с вами.'
-            );
-
-            setTimeout(() => {
-                if (window.Telegram?.WebApp?.close) {
-                    Telegram.WebApp.close();
-                }
-            }, 2200);
-
         } catch (e) {
-            console.error(e);
-            const fallbackText = `Здравствуйте! Хочу оформить заказ${orderNumberStr}:\n\n${itemsText}\nИтого к оплате: ${finalTotal.toLocaleString('ru-RU')} ₽`;
-            const tgLink = `https://t.me/tamaz_9?text=${encodeURIComponent(fallbackText)}`;
-            if (window.Telegram?.WebApp) {
-                Telegram.WebApp.openTelegramLink(tgLink);
-            } else {
-                window.open(tgLink, '_blank');
-            }
-        } finally {
+            console.warn('Ошибка при отправке уведомления:', e);
+        }
+
+        // 3. Обновление баланса бонусов
+        if (isBonusApplied && discount > 0) {
+            bonusPoints = Math.max(0, bonusPoints - discount);
+            saveStorageItem('tapaz_bonus', bonusPoints);
+            updateBonusUI();
+        }
+
+        // 4. Очистка корзины и интерфейса
+        cart = {};
+        isBonusApplied = false;
+        updateCartCount();
+        renderCartItems();
+
+        triggerHaptic('success');
+        showToast(createdOrderId 
+            ? `✅ Заказ #${createdOrderId} оформлен! Менеджер свяжется с вами.`
+            : '✅ Заказ оформлен! Менеджер свяжется с вами.'
+        );
+
+        // Плавно переключаем на меню, приложение не закрывается
+        setTimeout(() => {
+            switchMainSection('menu');
             btn.disabled = false;
             btn.textContent = 'ОФОРМИТЬ ЗАКАЗ';
-        }
+        }, 1200);
     }
 
     /* ================= ФУНКЦИОНАЛ ОТЗЫВОВ ================= */
@@ -2030,7 +2024,7 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
             ? `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() 
             : 'Анонимный клиент';
         const userNick = tgUser?.username ? `@${tgUser.username}` : 'Ник скрыт';
-        const userId = tgUser?.id ? tgUser.id : 'Не определён';
+        const userId = tgUser?.id ? String(tgUser.id) : 'Не определён';
         const userContactLink = tgUser?.username 
             ? `https://t.me/${tgUser.username}` 
             : (tgUser?.id ? `tg://user?id=${tgUser.id}` : 'https://t.me/tamaz_9');
@@ -2059,7 +2053,7 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
                         parse_mode: 'HTML',
                         disable_web_page_preview: true
                     })
-                });
+                }).catch(e => console.warn('Отправка отзыва заблокирована (CORS):', e));
             }
             showToast('✅ Спасибо за ваш отзыв!');
             closeReviewModal();
