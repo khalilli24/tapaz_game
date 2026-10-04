@@ -236,7 +236,90 @@
             fill: currentColor;
         }
 
-        /* ================= КАТАЛОГ ТОВАРОВ ================= */
+        /* ================= ЭКРАН ИИ-КОНСУЛЬТАНТА TAPAZ AI ================= */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 10px 4px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .chat-msg {
+            max-width: 85%;
+            padding: 12px 14px;
+            border-radius: 14px;
+            font-size: 13px;
+            line-height: 1.45;
+            animation: fadeInSearch 0.2s ease-out;
+        }
+        .chat-msg.bot {
+            align-self: flex-start;
+            background: rgba(14, 19, 43, 0.9);
+            border: 1px solid var(--line-gold);
+            color: var(--text);
+        }
+        .chat-msg.user {
+            align-self: flex-end;
+            background: var(--gold-grad);
+            color: #171004;
+            font-weight: 600;
+        }
+        .chat-quick-replies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .quick-chip {
+            background: rgba(212, 160, 76, 0.15);
+            border: 1px solid var(--line-gold);
+            color: var(--gold-light);
+            border-radius: 16px;
+            padding: 6px 12px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        .quick-chip:active { transform: scale(0.95); }
+        .chat-product-btn {
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 9px 14px;
+            font-size: 12px;
+            border-radius: 10px;
+        }
+        .chat-input-row {
+            display: flex;
+            gap: 8px;
+            padding-top: 10px;
+            border-top: 1px solid var(--line-gold);
+        }
+        .chat-input {
+            flex: 1;
+            background: rgba(13, 18, 41, 0.9);
+            border: 1px solid var(--line-gold);
+            border-radius: 12px;
+            padding: 10px 14px;
+            color: var(--text);
+            outline: none;
+            font-family: var(--font-ui);
+            font-size: 13px;
+        }
+        .chat-input:focus { border-color: var(--gold-light); }
+
+        /* ================= КАТАЛОГ ТОВАРОВ (КОМПАКТНЫЕ КАРТОЧКИ) ================= */
         .catalog-header {
             display: flex;
             align-items: center;
@@ -277,6 +360,25 @@
         }
         .cart-indicator:active { transform: scale(0.95); }
         .cart-indicator svg { width: 16px; height: 16px; fill: currentColor; }
+
+        .nav-fav-badge {
+            position: absolute;
+            top: -4px;
+            right: -6px;
+            background: var(--gold-grad);
+            color: #171004;
+            font-size: 10px;
+            font-weight: 800;
+            border-radius: 10px;
+            padding: 1px 4px;
+            min-width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(13, 18, 41, 0.8);
+        }
 
         .catalog-search-wrap {
             margin-bottom: 12px;
@@ -347,7 +449,7 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 12px;
             padding-right: 4px;
             -webkit-overflow-scrolling: touch;
         }
@@ -356,38 +458,42 @@
             background: rgba(13, 18, 41, 0.9);
             border: 1px solid var(--line-gold);
             border-radius: 16px;
-            padding: 16px;
+            padding: 12px 14px;
             display: flex;
-            gap: 16px;
+            gap: 14px;
             align-items: center;
             position: relative;
+            cursor: pointer;
+            transition: transform 0.12s ease, border-color 0.2s ease;
+        }
+        .catalog-item:active {
+            transform: scale(0.99);
+            border-color: var(--gold-light);
         }
 
         .catalog-bottle {
-            width: 110px;
-            height: 140px;
+            width: 85px;
+            height: 105px;
             flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: zoom-in;
-            transition: transform 0.15s ease;
             align-self: center;
         }
-        .catalog-bottle:active { transform: scale(0.97); }
         .catalog-bottle img {
             width: 100%;
             height: 100%;
             object-fit: contain;
             border-radius: 8px;
-            transform: scale(1.08);
+            transform: scale(1.04);
+            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
         }
 
         .catalog-info {
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 5px;
             min-width: 0;
         }
         
@@ -401,33 +507,24 @@
         .item-name {
             font-family: var(--font-ui);
             font-weight: 700;
-            font-size: 17px;
+            font-size: 16px;
             color: var(--gold-light);
             letter-spacing: 0.02em;
             word-break: break-word;
+            line-height: 1.25;
         }
 
         .item-volume {
             font-family: var(--font-ui);
             font-weight: 700;
-            font-size: 14px;
+            font-size: 12px;
             color: var(--gold-light);
             white-space: nowrap;
             letter-spacing: 0.03em;
             background: rgba(212, 160, 76, 0.12);
-            padding: 2px 7px;
+            padding: 2px 6px;
             border-radius: 6px;
             border: 1px solid rgba(212, 160, 76, 0.35);
-        }
-
-        .item-desc {
-            font-size: 12px;
-            color: var(--text-dim);
-            line-height: 1.45;
-        }
-        .item-desc b {
-            color: var(--gold-light);
-            font-weight: 700;
         }
 
         .item-price {
@@ -435,15 +532,66 @@
             font-size: 17px;
             color: #fff;
             font-weight: bold;
-            margin-top: 2px;
+            margin-top: 1px;
         }
-        .item-btn {
-            padding: 9px 16px;
-            font-size: 12px;
+
+        .catalog-card-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 4px;
+            align-items: center;
+        }
+        .btn-card-more {
+            flex: 1;
+            padding: 7px 6px;
+            font-size: 11px;
             border-radius: 8px;
-            margin-top: 6px;
-            align-self: flex-start;
+            letter-spacing: 0.03em;
+            white-space: nowrap;
         }
+        .btn-card-buy {
+            flex: 1.2;
+            padding: 7px 8px;
+            font-size: 11px;
+            border-radius: 8px;
+            letter-spacing: 0.03em;
+            white-space: nowrap;
+        }
+        .btn-card-fav {
+            width: 33px;
+            height: 33px;
+            padding: 0;
+            flex-shrink: 0;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+            border: 1px solid var(--line-gold);
+            background: rgba(14, 19, 43, 0.6);
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }
+        .btn-card-fav:active { transform: scale(0.9); }
+        .btn-card-fav svg {
+            width: 17px;
+            height: 17px;
+            stroke: currentColor;
+            fill: transparent;
+            transition: all 0.15s ease;
+        }
+        .btn-card-fav.active {
+            color: var(--gold-light);
+            border-color: var(--gold-light);
+            background: rgba(212, 160, 76, 0.2);
+            box-shadow: 0 0 8px rgba(244, 207, 119, 0.5);
+        }
+        .btn-card-fav.active svg {
+            fill: var(--gold-light);
+            stroke: var(--gold-light);
+            transform: scale(1.1);
+        }
+
         .catalog-empty-state {
             display: flex;
             flex-direction: column;
@@ -455,6 +603,152 @@
             font-size: 14px;
             line-height: 1.6;
             padding: 20px;
+        }
+
+        /* ================= МОДАЛЬНОЕ ОКНО: ДЕТАЛЬНАЯ КАРТОЧКА ТОВАРА ================= */
+        .product-modal-panel {
+            width: 100%;
+            max-width: 380px;
+            max-height: 86vh;
+            background: linear-gradient(165deg, #131838 0%, #070b1c 100%);
+            border: 1px solid var(--gold);
+            border-radius: 20px;
+            padding: 20px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 16px 50px rgba(0,0,0,0.85);
+            overflow-y: auto;
+            position: relative;
+            animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            -webkit-overflow-scrolling: touch;
+        }
+        @keyframes modalSlideUp {
+            from { opacity: 0; transform: translateY(30px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .product-modal-close {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--line-gold);
+            color: var(--gold-light);
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 5;
+            transition: transform 0.1s ease;
+        }
+        .product-modal-close:active { transform: scale(0.92); }
+
+        .product-modal-img-wrap {
+            width: 100%;
+            height: 190px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at 50% 50%, rgba(212, 160, 76, 0.12) 0%, transparent 70%);
+            border-radius: 12px;
+            margin-top: 6px;
+            cursor: zoom-in;
+        }
+        .product-modal-img-wrap img {
+            max-width: 100%;
+            max-height: 180px;
+            object-fit: contain;
+            filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.7));
+            transition: transform 0.15s ease;
+        }
+        .product-modal-img-wrap:active img { transform: scale(0.98); }
+
+        .product-modal-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .product-modal-name {
+            font-family: var(--font-ui);
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--gold-light);
+            line-height: 1.3;
+        }
+        .product-modal-volume {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--gold-light);
+            background: rgba(212, 160, 76, 0.15);
+            border: 1px solid var(--line-gold);
+            padding: 3px 8px;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+        .product-modal-price {
+            font-family: var(--font-ui);
+            font-size: 21px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+        .product-modal-desc {
+            background: rgba(5, 8, 20, 0.65);
+            border: 1px solid rgba(212, 160, 76, 0.25);
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 12.5px;
+            line-height: 1.55;
+            color: var(--text-dim);
+        }
+        .product-modal-desc b {
+            color: var(--gold-light);
+            font-weight: 700;
+        }
+        .product-modal-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+            align-items: center;
+        }
+        .product-modal-fav-btn, .product-modal-share-btn {
+            width: 48px;
+            height: 48px;
+            min-height: 48px;
+            padding: 0;
+            flex-shrink: 0;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+            border: 1px solid var(--line-gold);
+            background: rgba(14, 19, 43, 0.8);
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }
+        .product-modal-fav-btn:active, .product-modal-share-btn:active { transform: scale(0.92); }
+        .product-modal-fav-btn svg, .product-modal-share-btn svg {
+            width: 22px;
+            height: 22px;
+            stroke: currentColor;
+            fill: transparent;
+            transition: all 0.15s ease;
+        }
+        .product-modal-fav-btn.active {
+            color: var(--gold-light);
+            border-color: var(--gold-light);
+            background: rgba(212, 160, 76, 0.2);
+            box-shadow: 0 0 10px rgba(244, 207, 119, 0.5);
+        }
+        .product-modal-fav-btn.active svg {
+            fill: var(--gold-light);
+            stroke: var(--gold-light);
+            transform: scale(1.1);
         }
 
         /* ================= МОДАЛЬНОЕ ОКНО ДЛЯ ПРОСМОТРА КАРТИНКИ ================= */
@@ -609,7 +903,7 @@
             color: var(--text-dim);
         }
 
-        /* ================= РАЗДЕЛ ПОДДЕРЖКИ ================= */
+        /* ================= РАЗДЕЛ ПОДДЕРЖКИ / СПРАВОЧНИК ================= */
         .support-header {
             display: flex;
             align-items: center;
@@ -740,11 +1034,12 @@
         .main-nav {
             width: calc(100% + 32px);
             margin: 10px -16px calc(-10px - env(safe-area-inset-bottom));
-            height: 62px;
+            height: 64px;
             display: flex;
             background: #080c1f;
             border-top: 1px solid var(--line-gold);
             flex-shrink: 0;
+            padding-bottom: env(safe-area-inset-bottom);
         }
         .nav-item {
             flex: 1;
@@ -757,32 +1052,90 @@
             color: var(--gold-light);
             gap: 4px;
             cursor: pointer;
+            transition: color 0.18s ease, opacity 0.18s ease, transform 0.1s ease;
+            opacity: 0.7;
+            padding: 4px 0;
         }
-        .nav-item svg { width: 24px; height: 24px; }
-        .nav-label {
-            font-size: 10px;
-            letter-spacing: 0.1em;
-            font-weight: 600;
+        .nav-item:active { transform: scale(0.96); }
+
+        .nav-icon-wrap {
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+            display: block;
         }
 
-        .nav-cart-pill {
-            display: inline-flex;
+        /* Увеличенный значок TAPAZ AI */
+        .nav-ai-icon-wrap {
+            width: 32px;
+            height: 32px;
+            display: flex;
             align-items: center;
-            gap: 6px;
-            background: rgba(14, 19, 43, 0.85);
-            border: 1px solid var(--line-gold);
-            border-radius: 14px;
-            padding: 3px 10px;
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--gold-light);
-            transition: transform 0.1s ease;
+            justify-content: center;
+            position: relative;
+            margin-top: -2px;
+            margin-bottom: -2px;
         }
-        .nav-item:active .nav-cart-pill { transform: scale(0.94); }
-        .nav-cart-pill svg {
-            width: 14px !important;
-            height: 14px !important;
-            fill: currentColor;
+        .nav-ai-icon-wrap svg {
+            width: 32px !important;
+            height: 32px !important;
+            display: block;
+        }
+
+        /* Активное состояние — чисто белый цвет со свечением */
+        .nav-item.active {
+            opacity: 1;
+            color: #ffffff !important;
+        }
+        .nav-item.active .nav-icon-wrap,
+        .nav-item.active .nav-ai-icon-wrap {
+            filter: drop-shadow(0 0 7px rgba(255, 255, 255, 0.85));
+        }
+        .nav-item.active .nav-label {
+            color: #ffffff;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+        }
+
+        .nav-label {
+            font-size: 9.5px;
+            letter-spacing: 0.08em;
+            font-weight: 700;
+            color: inherit;
+            line-height: 1;
+        }
+
+        /* Плашка количества товаров над корзиной */
+        .nav-cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background: var(--gold-grad);
+            color: #171004;
+            font-size: 10px;
+            font-weight: 800;
+            border-radius: 10px;
+            padding: 1px 5px;
+            min-width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(13, 18, 41, 0.8);
+            transition: transform 0.15s ease, background 0.18s ease, color 0.18s ease;
+        }
+        .nav-item.active .nav-cart-badge {
+            background: #ffffff;
+            color: #080c1f;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
         }
 
         /* ================= ЭКРАН ВЫБОРА УРОВНЯ АРЕНЫ ================= */
@@ -817,6 +1170,7 @@
             cursor: pointer;
             transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
             box-sizing: border-box;
+            position: relative;
         }
         .icon-btn:active { transform: scale(0.95); }
         .icon-btn svg {
@@ -1193,15 +1547,53 @@
         </div>
     </div>
 
+    <!-- 0.1 ЭКРАН: ИИ-КОНСУЛЬТАНТ TAPAZ AI -->
+    <div class="screen" id="consultantScreen">
+        <div class="categories-header">
+            <button class="icon-btn" onclick="switchMainSection('menu')"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+            <div class="categories-title">TAPAZ AI</div>
+            <div style="width:38px;"></div>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-msg bot">
+                    Здравствуйте, уважаемый покупатель! Я ИИ-консультант TAPAZ и помогу вам подобрать идеальный аромат.<br><br>
+                    Подскажите, какие ноты или образы вам ближе?
+                    <div class="chat-quick-replies">
+                        <button class="quick-chip" onclick="sendQuickMessage('Ищу стойкие древесные и кожаные ноты')">Древесные и кожа</button>
+                        <button class="quick-chip" onclick="sendQuickMessage('Что-то свежее цитрусовое на каждый день')">Свежие цитрусовые</button>
+                        <button class="quick-chip" onclick="sendQuickMessage('Сладкий пряный вечерний аромат')">Сладкие и пряные</button>
+                        <button class="quick-chip" onclick="sendQuickMessage('Посоветуй главный хит из наличия')">Главный хит</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-row">
+                <input type="text" id="consultantInput" class="chat-input" placeholder="Напишите пожелания к аромату..." onkeydown="if(event.key==='Enter') sendConsultantMessage()">
+                <button class="btn btn-gold" style="padding: 10px 16px;" onclick="sendConsultantMessage()">➤</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 1. РАЗДЕЛ: КАТАЛОГ ТОВАРОВ ВЫБРАННОЙ КАТЕГОРИИ -->
     <div class="screen" id="catalogScreen">
         <div class="catalog-header">
             <button class="icon-btn" onclick="showScreen('categoriesScreen')"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
             <div class="catalog-title" id="catalogCategoryTitle">КАТАЛОГ</div>
             <div class="catalog-header-right">
+                <!-- Поиск -->
                 <button class="icon-btn" id="catalogSearchBtn" onclick="toggleCatalogSearch()" title="Поиск ароматов">
                     <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
                 </button>
+                <!-- Избранное -->
+                <button class="icon-btn" id="catalogFavBtn" onclick="toggleFavoritesFilter()" title="Избранное">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <span class="nav-fav-badge" id="catalogFavBadge" style="display: none;">0</span>
+                </button>
+                <!-- Корзина -->
                 <div class="cart-indicator" onclick="openCartScreen('catalogScreen')">
                     <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
                     <span id="cartCount">0</span>
@@ -1211,13 +1603,76 @@
 
         <div class="catalog-search-wrap" id="catalogSearchWrap" style="display: none;">
             <div class="catalog-search-box">
-                <svg class="catalog-search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 14z"/></svg>
+                <svg class="catalog-search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
                 <input type="text" id="catalogSearchInput" class="catalog-search-input" placeholder="Поиск по названию или нотам..." oninput="handleCatalogSearch(this.value)">
                 <button class="catalog-search-clear" id="catalogSearchClearBtn" onclick="clearCatalogSearch()">&times;</button>
             </div>
         </div>
 
         <div class="catalog-list" id="catalogListContainer"></div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО: ДЕТАЛЬНАЯ КАРТОЧКА ТОВАРА -->
+    <div class="overlay" id="productModal" onclick="if(event.target===this) closeProductModal()">
+        <div class="product-modal-panel">
+            <button class="product-modal-close" onclick="closeProductModal()">&times;</button>
+            
+            <div class="product-modal-img-wrap" onclick="openImageModal(document.getElementById('productModalImg').src)">
+                <img id="productModalImg" src="" alt="TAPAZ Perfume">
+            </div>
+
+            <div class="product-modal-header">
+                <div class="product-modal-name" id="productModalName">Creed Aventus</div>
+                <div class="product-modal-volume" id="productModalVolume">100 ml</div>
+            </div>
+
+            <div class="product-modal-price" id="productModalPrice">8 200 ₽</div>
+
+            <div class="product-modal-desc" id="productModalDesc">
+                <b>Верхние ноты:</b> бергамот, черная смородина...
+            </div>
+
+            <div class="product-modal-actions">
+                <button class="btn btn-gold" id="productModalBuyBtn" style="flex: 1; min-height: 48px; font-size: 14px;">ДОБАВИТЬ В КОРЗИНУ</button>
+                <button class="product-modal-fav-btn" id="productModalFavBtn" title="В избранное">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                </button>
+                <!-- Кнопка вызова меню «Поделиться» -->
+                <button class="product-modal-share-btn" id="productModalShareBtn" title="Поделиться парфюмом" onclick="openShareModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="18" cy="5" r="3"/>
+                        <circle cx="6" cy="12" r="3"/>
+                        <circle cx="18" cy="19" r="3"/>
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- МИНИ-МОДАЛКА: МЕНЮ ВЫБОРА «ПОДЕЛИТЬСЯ» -->
+    <div class="overlay" id="shareModal" onclick="if(event.target===this) closeShareModal()" style="z-index: 60;">
+        <div class="overlay-panel" style="max-width: 320px; gap: 10px; padding: 22px 18px;">
+            <div class="overlay-title" style="font-size: 20px;">ПОДЕЛИТЬСЯ</div>
+            <div style="font-size: 13px; color: var(--gold-light); font-weight: 600;" id="shareModalProdName">Аромат</div>
+            
+            <button class="btn btn-gold" style="width: 100%; font-size: 13px; gap: 8px; margin-top: 6px;" onclick="actionShareTg()">
+                <svg style="width: 18px; height: 18px; fill: currentColor;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.52 2.77-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .34z"/></svg>
+                <span>Отправить в Telegram</span>
+            </button>
+
+            <button class="btn btn-outline" style="width: 100%; font-size: 13px; gap: 8px;" onclick="actionCopyLink()">
+                <svg style="width: 18px; height: 18px; fill: currentColor;" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                <span>Скопировать ссылку</span>
+            </button>
+
+            <button class="btn btn-outline" style="width: 100%; font-size: 12px; border-color: transparent; opacity: 0.7; padding: 6px;" onclick="closeShareModal()">
+                Отмена
+            </button>
+        </div>
     </div>
 
     <!-- 1.1 ЭКРАН: КОРЗИНА С ВЫБРАННЫМИ ТОВАРАМИ -->
@@ -1254,7 +1709,7 @@
         </div>
     </div>
 
-    <!-- 2. РАЗДЕЛ: ПОДДЕРЖКА -->
+    <!-- 2. РАЗДЕЛ: ПОДДЕРЖКА / СПРАВОЧНИК -->
     <div class="screen" id="supportScreen">
         <div class="support-header">
             <button class="icon-btn" onclick="switchMainSection('menu')"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
@@ -1410,31 +1865,107 @@
         </div>
     </div>
 
-    <!-- 3 РАЗДЕЛА В НИЖНЕЙ НАВИГАЦИИ -->
+    <!-- 4 РАЗДЕЛА В НИЖНЕЙ НАВИГАЦИИ -->
     <div class="main-nav">
+        <!-- 1. МЕНЮ -->
         <button class="nav-item active" id="navMenuBtn" onclick="switchMainSection('menu')">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 18h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1zm0-5h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1zM3 7c0 .55.45 1 1 1h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1z"/></svg>
+            <div class="nav-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                    <line x1="3.5" y1="6" x2="20.5" y2="6"/>
+                    <line x1="3.5" y1="12" x2="20.5" y2="12"/>
+                    <line x1="3.5" y1="18" x2="20.5" y2="18"/>
+                </svg>
+            </div>
             <span class="nav-label">МЕНЮ</span>
         </button>
 
-        <button class="nav-item" id="navCartBtn" onclick="openCartScreen('mainMenu')">
-            <div class="nav-cart-pill">
-                <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
-                <span id="navCartCount">0</span>
+        <!-- 2. КОРЗИНА -->
+        <button class="nav-item" id="navCartBtn" onclick="switchMainSection('cart')">
+            <div class="nav-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+                </svg>
+                <span class="nav-cart-badge" id="navCartCount">0</span>
             </div>
             <span class="nav-label">КОРЗИНА</span>
         </button>
 
+        <!-- 3. TAPAZ AI (Увеличенный золотой 3D-значок) -->
+        <button class="nav-item" id="navAiBtn" onclick="switchMainSection('ai')">
+            <div class="nav-ai-icon-wrap">
+                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="aiOrbGrad1" x1="15%" y1="15%" x2="85%" y2="85%">
+                            <stop offset="0%" stop-color="#fff8d4"/>
+                            <stop offset="28%" stop-color="#f8cf6a"/>
+                            <stop offset="60%" stop-color="#8a5308"/>
+                            <stop offset="82%" stop-color="#f3cb65"/>
+                            <stop offset="100%" stop-color="#b87b18"/>
+                        </linearGradient>
+
+                        <linearGradient id="aiOrbGrad2" x1="85%" y1="15%" x2="15%" y2="85%">
+                            <stop offset="0%" stop-color="#fff5ba"/>
+                            <stop offset="30%" stop-color="#d69b26"/>
+                            <stop offset="62%" stop-color="#693c02"/>
+                            <stop offset="84%" stop-color="#f7d472"/>
+                            <stop offset="100%" stop-color="#ba7e1a"/>
+                        </linearGradient>
+
+                        <linearGradient id="starFacetLight" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#ffffff"/>
+                            <stop offset="50%" stop-color="#f8d575"/>
+                            <stop offset="100%" stop-color="#cf9424"/>
+                        </linearGradient>
+                        <linearGradient id="starFacetDark" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#e0a32e"/>
+                            <stop offset="50%" stop-color="#915606"/>
+                            <stop offset="100%" stop-color="#543000"/>
+                        </linearGradient>
+
+                        <radialGradient id="starGlowHalo" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#ffea9f" stop-opacity="0.85"/>
+                            <stop offset="60%" stop-color="#d49a32" stop-opacity="0.25"/>
+                            <stop offset="100%" stop-color="#d49a32" stop-opacity="0"/>
+                        </radialGradient>
+
+                        <clipPath id="aiOverlapClip">
+                            <rect x="0" y="44" width="54" height="56"/>
+                        </clipPath>
+                    </defs>
+
+                    <ellipse cx="50" cy="51.5" rx="36" ry="19" transform="rotate(36 50 50)" stroke="#000000" stroke-width="7.5" opacity="0.45"/>
+                    <ellipse cx="50" cy="51.5" rx="36" ry="19" transform="rotate(-36 50 50)" stroke="#000000" stroke-width="7.5" opacity="0.45"/>
+
+                    <ellipse cx="50" cy="50" rx="36" ry="19" transform="rotate(36 50 50)" stroke="url(#aiOrbGrad2)" stroke-width="7.5"/>
+                    <ellipse cx="50" cy="50" rx="36" ry="19" transform="rotate(-36 50 50)" stroke="url(#aiOrbGrad1)" stroke-width="7.5"/>
+
+                    <ellipse cx="50" cy="50" rx="36" ry="19" transform="rotate(36 50 50)" stroke="#030614" stroke-width="10.5" opacity="0.75" clip-path="url(#aiOverlapClip)"/>
+                    <ellipse cx="50" cy="50" rx="36" ry="19" transform="rotate(36 50 50)" stroke="url(#aiOrbGrad2)" stroke-width="7.5" clip-path="url(#aiOverlapClip)"/>
+
+                    <circle cx="50" cy="50" r="17" fill="url(#starGlowHalo)"/>
+
+                    <path d="M 50 33 Q 51.5 48.5 67 50 L 50 50 L 33 50 Q 48.5 48.5 50 33 Z" fill="url(#starFacetLight)"/>
+                    <path d="M 67 50 Q 51.5 51.5 50 67 Q 48.5 51.5 33 50 L 50 50 Z" fill="url(#starFacetDark)"/>
+
+                    <circle cx="50" cy="50" r="2.4" fill="#ffffff"/>
+                </svg>
+            </div>
+            <span class="nav-label">TAPAZ AI</span>
+        </button>
+
+        <!-- 4. СПРАВОЧНИК -->
         <button class="nav-item" id="navSupportBtn" onclick="switchMainSection('support')">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4 13V11C4 6.58 7.58 3 12 3C16.42 3 20 6.58 20 11V13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                <rect x="2.5" y="11" width="3" height="6" rx="1.5" fill="currentColor"/>
-                <rect x="18.5" y="11" width="3" height="6" rx="1.5" fill="currentColor"/>
-                <circle cx="12" cy="10.5" r="3.1" stroke="currentColor" stroke-width="1.6"/>
-                <path d="M6.5 21C6.5 17.9 8.95 15.5 12 15.5C15.05 15.5 17.5 17.9 17.5 21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                <path d="M18.5 16.5C17.8 18 16.3 19 14.5 19H13.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                <circle cx="13.3" cy="19" r="1" fill="currentColor"/>
-            </svg>
+            <div class="nav-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 13V11C4 6.58 7.58 3 12 3C16.42 3 20 6.58 20 11V13" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+                    <rect x="2.5" y="11" width="3.2" height="6.2" rx="1.6" fill="currentColor"/>
+                    <rect x="18.3" y="11" width="3.2" height="6.2" rx="1.6" fill="currentColor"/>
+                    <circle cx="12" cy="10.5" r="3.2" stroke="currentColor" stroke-width="1.8"/>
+                    <path d="M6.5 21C6.5 17.9 8.95 15.5 12 15.5C15.05 15.5 17.5 17.9 17.5 21" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+                    <path d="M18.5 16.5C17.8 18 16.3 19 14.5 19H13.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <circle cx="13.3" cy="19" r="1.1" fill="currentColor"/>
+                </svg>
+            </div>
             <span class="nav-label">СПРАВОЧНИК</span>
         </button>
     </div>
@@ -1477,11 +2008,12 @@
         }
     }
 
-    /* ================= НАСТРОЙКИ УВЕДОМЛЕНИЙ ДЛЯ КОНСУЛЬТАНТА ================= */
+    /* ================= НАСТРОЙКИ УВЕДОМЛЕНИЙ И ШЕРИНГА ================= */
     const BOT_TOKEN = '8841223635:AAF6RfQnAckFBE6N8wVSuSrqesTm8c14iVs';
     const MANAGER_CHAT_ID = '8287154272';
+    const BOT_USERNAME = 'tapaz_official_bot'; 
 
-    /* ================= БАЗА ТОВАРОВ КАТАЛОГА (С РЕЗЕРВНЫМ НАБОРОМ) ================= */
+    /* ================= БАЗА ТОВАРОВ КАТАЛОГА ================= */
     let BASE_PRODUCTS = [
         { 
             name: 'Creed Aventus', 
@@ -1526,7 +2058,11 @@
     ];
 
     let currentCategoryKey = 'all';
+    let currentCategoryTitle = 'КАТАЛОГ';
     let currentSearchQuery = '';
+    let isFavoritesFilter = false;
+    let favorites = new Set();
+    let currentModalProduct = null;
 
     /* Подгрузка каталога из Supabase */
     async function loadProductsFromSupabase() {
@@ -1548,6 +2084,7 @@
                 if (document.getElementById('catalogScreen').classList.contains('active')) {
                     renderCatalogByCategory(currentCategoryKey);
                 }
+                checkDeepLink();
             }
         } catch (err) {
             console.warn('Сбой подключения к Supabase:', err);
@@ -1566,9 +2103,173 @@
         } catch (e) {}
     }
 
+    /* ================= ЛОГИКА ДИПЛИНКИНГА И МЕНЮ «ПОДЕЛИТЬСЯ» ================= */
+    function getProductSlug(name) {
+        return name.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+    }
+
+    function findProductBySlug(slug) {
+        if (!slug) return null;
+        const cleanSlug = slug.toLowerCase().trim();
+        return BASE_PRODUCTS.find(p => getProductSlug(p.name) === cleanSlug);
+    }
+
+    function openShareModal() {
+        if (!currentModalProduct) return;
+        document.getElementById('shareModalProdName').textContent = currentModalProduct.name;
+        document.getElementById('shareModal').classList.add('active');
+        triggerHaptic('light');
+    }
+
+    function closeShareModal() {
+        document.getElementById('shareModal').classList.remove('active');
+    }
+
+    function actionShareTg() {
+        if (!currentModalProduct) return;
+        const slug = getProductSlug(currentModalProduct.name);
+        const appLink = `https://t.me/${BOT_USERNAME}?startapp=${slug}`;
+        const shareText = `Взгляни на этот аромат в TAPAZ: ${currentModalProduct.name} (${Number(currentModalProduct.price).toLocaleString('ru-RU')} ₽)! ✨`;
+        const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(appLink)}&text=${encodeURIComponent(shareText)}`;
+
+        triggerHaptic('medium');
+        closeShareModal();
+
+        if (window.Telegram?.WebApp?.openTelegramLink) {
+            Telegram.WebApp.openTelegramLink(shareUrl);
+        } else {
+            window.open(shareUrl, '_blank');
+        }
+    }
+
+    function actionCopyLink() {
+        if (!currentModalProduct) return;
+        const slug = getProductSlug(currentModalProduct.name);
+        const appLink = `https://t.me/${BOT_USERNAME}?startapp=${slug}`;
+
+        triggerHaptic('success');
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(appLink)
+                .then(() => {
+                    showToast('Ссылка скопирована в буфер обмена! 📋');
+                })
+                .catch(() => {
+                    copyFallback(appLink);
+                });
+        } else {
+            copyFallback(appLink);
+        }
+        closeShareModal();
+    }
+
+    function copyFallback(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+            document.execCommand('copy');
+            showToast('Ссылка скопирована в буфер обмена! 📋');
+        } catch (e) {
+            showToast('Не удалось скопировать ссылку');
+        }
+        document.body.removeChild(ta);
+    }
+
+    function checkDeepLink() {
+        const startParam = window.Telegram?.WebApp?.initDataUnsafe?.start_param 
+            || new URLSearchParams(window.location.search).get('tgWebAppStartParam');
+        
+        if (startParam) {
+            const found = findProductBySlug(startParam);
+            if (found) {
+                const titles = { female: 'Женские ароматы', male: 'Мужские ароматы', unisex: 'Унисекс' };
+                openCategory(found.category, titles[found.category] || 'Каталог');
+                setTimeout(() => {
+                    openProductModal(found);
+                }, 250);
+            }
+        }
+    }
+
+    /* ================= ЛОГИКА ИЗБРАННОГО ================= */
+    async function initFavorites() {
+        const saved = await loadStorageItem('tapaz_favorites');
+        if (saved) {
+            try {
+                const arr = JSON.parse(saved);
+                if (Array.isArray(arr)) favorites = new Set(arr);
+            } catch (e) {}
+        }
+        updateFavoritesBadge();
+    }
+
+    function saveFavorites() {
+        saveStorageItem('tapaz_favorites', JSON.stringify(Array.from(favorites)));
+    }
+
+    function updateFavoritesBadge() {
+        const badge = document.getElementById('catalogFavBadge');
+        if (!badge) return;
+        const count = favorites.size;
+        if (count > 0) {
+            badge.textContent = count;
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+
+    function toggleFavorite(productName) {
+        if (favorites.has(productName)) {
+            favorites.delete(productName);
+            showToast('Удалено из избранного');
+        } else {
+            favorites.add(productName);
+            showToast('Добавлено в избранное ❤️');
+        }
+        triggerHaptic('medium');
+        saveFavorites();
+        updateFavoritesBadge();
+
+        if (currentModalProduct && currentModalProduct.name === productName) {
+            const modalFavBtn = document.getElementById('productModalFavBtn');
+            if (modalFavBtn) {
+                modalFavBtn.classList.toggle('active', favorites.has(productName));
+            }
+        }
+
+        renderCatalogByCategory(currentCategoryKey);
+    }
+
+    function toggleFavoritesFilter() {
+        isFavoritesFilter = !isFavoritesFilter;
+        const favBtn = document.getElementById('catalogFavBtn');
+        const titleEl = document.getElementById('catalogCategoryTitle');
+
+        if (isFavoritesFilter) {
+            favBtn.classList.add('active');
+            titleEl.textContent = 'ИЗБРАННОЕ';
+            triggerHaptic('light');
+        } else {
+            favBtn.classList.remove('active');
+            titleEl.textContent = currentCategoryTitle.toUpperCase();
+        }
+
+        renderCatalogByCategory(currentCategoryKey);
+    }
+
     function openCategory(categoryKey, titleText) {
         currentCategoryKey = categoryKey;
+        currentCategoryTitle = titleText;
         currentSearchQuery = '';
+        isFavoritesFilter = false;
+
+        const favBtn = document.getElementById('catalogFavBtn');
+        if (favBtn) favBtn.classList.remove('active');
 
         const searchInput = document.getElementById('catalogSearchInput');
         if (searchInput) searchInput.value = '';
@@ -1583,7 +2284,6 @@
         renderCatalogByCategory(categoryKey);
         showScreen('catalogScreen');
 
-        // Фоновое обновление из Supabase для актуальных цен и остатков
         loadProductsFromSupabase();
     }
 
@@ -1625,6 +2325,7 @@
         renderCatalogByCategory(currentCategoryKey);
     }
 
+    /* Отрисовка компактных карточек товаров */
     function renderCatalogByCategory(categoryKey) {
         const container = document.getElementById('catalogListContainer');
         if (!container) return;
@@ -1633,7 +2334,11 @@
         const query = currentSearchQuery.toLowerCase();
 
         const filtered = BASE_PRODUCTS.filter(item => {
-            const matchesCategory = (categoryKey === 'all') || (item.category === categoryKey);
+            if (isFavoritesFilter && !favorites.has(item.name)) {
+                return false;
+            }
+
+            const matchesCategory = isFavoritesFilter || (categoryKey === 'all') || (item.category === categoryKey);
             if (!matchesCategory) return false;
             if (!query) return true;
 
@@ -1644,7 +2349,14 @@
         });
 
         if (filtered.length === 0) {
-            if (query) {
+            if (isFavoritesFilter) {
+                container.innerHTML = `
+                    <div class="catalog-empty-state">
+                        В избранном пока пусто.<br>
+                        Нажмите сердечко ♡ на карточке аромата, чтобы сохранить его сюда!
+                    </div>
+                `;
+            } else if (query) {
                 container.innerHTML = `
                     <div class="catalog-empty-state">
                         По запросу «${currentSearchQuery.replace(/</g, '&lt;').replace(/>/g, '&gt;')}» ничего не найдено.<br>
@@ -1667,11 +2379,18 @@
             const div = document.createElement('div');
             div.className = 'catalog-item';
             
+            div.onclick = (e) => {
+                if (!e.target.closest('.btn-card-buy') && !e.target.closest('.btn-card-fav')) {
+                    openProductModal(item);
+                }
+            };
+            
             const volumeHtml = item.volume ? `<div class="item-volume">${item.volume}</div>` : '';
             const cartItemName = item.volume ? `${item.name} (${item.volume})` : item.name;
+            const isFav = favorites.has(item.name);
 
             div.innerHTML = `
-                <div class="catalog-bottle" onclick="openImageModal('${item.img}')">
+                <div class="catalog-bottle">
                     <img src="${item.img}" loading="lazy" alt="TAPAZ Perfume">
                 </div>
                 <div class="catalog-info">
@@ -1679,14 +2398,168 @@
                         <div class="item-name">${item.name}</div>
                         ${volumeHtml}
                     </div>
-                    <div class="item-desc">${item.desc}</div>
                     <div class="item-price">${Number(item.price).toLocaleString('ru-RU')} ₽</div>
-                    <button class="btn btn-gold item-btn" onclick="addToCart('${cartItemName.replace(/'/g, "\\'")}', ${item.price})">В КОРЗИНУ</button>
+                    <div class="catalog-card-actions">
+                        <button class="btn btn-outline btn-card-more">О ТОВАРЕ</button>
+                        <button class="btn btn-gold btn-card-buy" onclick="event.stopPropagation(); addToCart('${cartItemName.replace(/'/g, "\\'")}', ${item.price})">В КОРЗИНУ</button>
+                        <button class="btn-card-fav ${isFav ? 'active' : ''}" title="В избранное" onclick="event.stopPropagation(); toggleFavorite('${item.name.replace(/'/g, "\\'")}')">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             `;
             fragment.appendChild(div);
         });
         container.appendChild(fragment);
+    }
+
+    /* ================= ФУНКЦИИ МОДАЛЬНОГО ОКНА ТОВАРА ================= */
+    function openProductModal(product) {
+        if (!product) return;
+        currentModalProduct = product;
+
+        document.getElementById('productModalImg').src = product.img;
+        document.getElementById('productModalName').textContent = product.name;
+        
+        const volEl = document.getElementById('productModalVolume');
+        if (product.volume) {
+            volEl.textContent = product.volume;
+            volEl.style.display = 'block';
+        } else {
+            volEl.style.display = 'none';
+        }
+
+        document.getElementById('productModalPrice').textContent = Number(product.price).toLocaleString('ru-RU') + ' ₽';
+        document.getElementById('productModalDesc').innerHTML = product.desc;
+        
+        // Синхронизация кнопки избранного
+        const modalFavBtn = document.getElementById('productModalFavBtn');
+        modalFavBtn.classList.toggle('active', favorites.has(product.name));
+        modalFavBtn.onclick = () => {
+            toggleFavorite(product.name);
+        };
+
+        const buyBtn = document.getElementById('productModalBuyBtn');
+        const cartItemName = product.volume ? `${product.name} (${product.volume})` : product.name;
+        
+        buyBtn.onclick = () => {
+            addToCart(cartItemName, product.price);
+            triggerHaptic('success');
+            closeProductModal();
+        };
+
+        document.getElementById('productModal').classList.add('active');
+        triggerHaptic('light');
+    }
+
+    function closeProductModal() {
+        document.getElementById('productModal').classList.remove('active');
+        currentModalProduct = null;
+    }
+
+    /* ================= ЛОГИКА ИИ-КОНСУЛЬТАНТА TAPAZ AI ================= */
+    async function sendQuickMessage(text) {
+        const input = document.getElementById('consultantInput');
+        input.value = text;
+        await sendConsultantMessage();
+    }
+
+    function viewProductFromChat(productName) {
+        const product = BASE_PRODUCTS.find(p => p.name.toLowerCase().includes(productName.toLowerCase()));
+        
+        if (product) {
+            const titles = {
+                female: 'Женские ароматы',
+                male: 'Мужские ароматы',
+                unisex: 'Унисекс'
+            };
+            const title = titles[product.category] || 'Каталог';
+
+            openCategory(product.category, title);
+
+            const searchWrap = document.getElementById('catalogSearchWrap');
+            const searchInput = document.getElementById('catalogSearchInput');
+            const searchBtn = document.getElementById('catalogSearchBtn');
+            const clearBtn = document.getElementById('catalogSearchClearBtn');
+
+            if (searchWrap) searchWrap.style.display = 'block';
+            if (searchBtn) searchBtn.classList.add('active');
+            if (searchInput) searchInput.value = product.name;
+            if (clearBtn) clearBtn.style.display = 'block';
+
+            currentSearchQuery = product.name;
+            renderCatalogByCategory(product.category);
+
+            setTimeout(() => {
+                openProductModal(product);
+            }, 180);
+        } else {
+            showScreen('categoriesScreen');
+        }
+    }
+
+    async function sendConsultantMessage() {
+        const input = document.getElementById('consultantInput');
+        const msg = input.value.trim();
+        if (!msg) return;
+
+        const chat = document.getElementById('chatMessages');
+        input.value = '';
+
+        const userBubble = document.createElement('div');
+        userBubble.className = 'chat-msg user';
+        userBubble.textContent = msg;
+        chat.appendChild(userBubble);
+
+        const botBubble = document.createElement('div');
+        botBubble.className = 'chat-msg bot';
+        botBubble.innerHTML = '<i>Подбираю идеальный аромат...</i>';
+        chat.appendChild(botBubble);
+        chat.scrollTop = chat.scrollHeight;
+
+        try {
+            if (!supabaseClient) throw new Error("Supabase не инициализирован");
+
+            const { data, error } = await supabaseClient.functions.invoke('consultant', {
+                body: { 
+                    message: msg,
+                    products: BASE_PRODUCTS 
+                }
+            });
+
+            if (error) throw error;
+
+            let replyText = data.reply || "Не удалось получить ответ.";
+
+            const productMatch = replyText.match(/\[\[(.*?)\]\]/);
+            let buttonHtml = '';
+
+            if (productMatch) {
+                const prodName = productMatch[1];
+                replyText = replyText.replace(/\[\[.*?\]\]/g, `<b>${prodName}</b>`);
+                
+                const foundProduct = BASE_PRODUCTS.find(p => p.name.toLowerCase().includes(prodName.toLowerCase()));
+
+                if (foundProduct) {
+                    buttonHtml = `
+                        <button class="btn btn-gold chat-product-btn" onclick="viewProductFromChat('${foundProduct.name.replace(/'/g, "\\'")}')">
+                            <span>🔍 Посмотреть ${foundProduct.name}</span>
+                            <span>${foundProduct.price.toLocaleString('ru-RU')} ₽ ➔</span>
+                        </button>
+                    `;
+                }
+            }
+
+            botBubble.innerHTML = replyText + buttonHtml;
+
+        } catch (err) {
+            console.error(err);
+            botBubble.textContent = 'Извините, возникла заминка при связи с сервером. Попробуйте еще раз!';
+        }
+
+        chat.scrollTop = chat.scrollHeight;
     }
 
     /* ================= ФУНКЦИИ ПРОСМОТРА ФОТО ================= */
@@ -1709,13 +2582,13 @@
         `<svg viewBox="0 0 48 48"><defs><linearGradient id="b0_cap" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff8cc"/><stop offset="50%" stop-color="#d49a38"/><stop offset="100%" stop-color="#694102"/></linearGradient><radialGradient id="b0_body" cx="35%" cy="35%" r="65%"><stop offset="0%" stop-color="#ffe699"/><stop offset="35%" stop-color="#f5b83d"/><stop offset="75%" stop-color="#b8720e"/><stop offset="100%" stop-color="#593102"/></radialGradient><linearGradient id="b0_shine" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.85"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></linearGradient></defs><circle cx="24" cy="3.5" r="2.2" fill="#fff3b0"/><path d="M21 5.5 h6 a2 2 0 0 1 2 2 v2.5 h-10 v-2.5 a2 2 0 0 1 2 -2 z" fill="url(#b0_cap)"/><rect x="22" y="10" width="4" height="2.5" fill="#7a4b04"/><rect x="20" y="11.5" width="8" height="2" rx="1" fill="url(#b0_cap)"/><path d="M16 13.5 h16 c2.5 0 4.5 2 5 4.5 l1 18.5 c.3 3.5 -2.5 6.5 -6 6.5 h-16 c-3.5 0 -6.3 -3 -6 -6.5 l1 -18.5 c.5 -2.5 2.5 -4.5 5 -4.5 z" fill="url(#b0_body)" stroke="#ffd778" stroke-width="1.3"/><ellipse cx="24" cy="30" rx="9" ry="8" fill="#ffec8b" opacity="0.45"/><path d="M15 16 c0 0 2 13 3 21" stroke="url(#b0_shine)" stroke-width="2.5" stroke-linecap="round" fill="none"/><ellipse cx="30" cy="19" rx="2" ry="4" fill="#ffffff" opacity="0.4" transform="rotate(15 30 19)"/><rect x="19.5" y="23.5" width="9" height="10" rx="1.5" fill="#12182b" stroke="url(#b0_cap)" stroke-width="0.9"/><text x="24" y="31.2" font-family="'Cinzel', Georgia, serif" font-size="7.5" font-weight="bold" fill="#fce49c" text-anchor="middle">T</text></svg>`,
 
         /* 1: Sapphire Blue Noir */
-        `<svg viewBox="0 0 48 48"><defs><linearGradient id="b1_body" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4a7dff"/><stop offset="35%" stop-color="#1940b0"/><stop offset="70%" stop-color="#0a1d5c"/><stop offset="100%" stop-color="#040b26"/></linearGradient><linearGradient id="b1_gold" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ffe599"/><stop offset="50%" stop-color="#cca03d"/><stop offset="100%" stop-color="#694302"/></linearGradient><linearGradient id="b1_shine" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#b3d4ff" stop-opacity="0.95"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></linearGradient></defs><rect x="18" y="2.5" width="12" height="7" rx="1.5" fill="#080e22" stroke="url(#b1_gold)" stroke-width="1"/><rect x="19.5" y="9.5" width="9" height="3" rx="0.5" fill="url(#b1_gold)"/><rect x="11" y="12.5" width="26" height="30.5" rx="5" fill="url(#b1_body)" stroke="url(#b1_gold)" stroke-width="1.3"/><ellipse cx="24" cy="28" rx="8" ry="10" fill="#3b72ff" opacity="0.4"/><path d="M14 15.5 v24.5" stroke="url(#b1_shine)" stroke-width="2.2" stroke-linecap="round"/><path d="M33 16.5 v22" stroke="#ffffff" stroke-width="0.8" opacity="0.35" stroke-linecap="round"/><rect x="16" y="21" width="16" height="12.5" rx="1.5" fill="#050917" stroke="url(#b1_gold)" stroke-width="0.9"/><line x1="18" y1="23.5" x2="30" y2="23.5" stroke="#cca03d" stroke-width="0.6"/><text x="24" y="30" font-family="'Cinzel', Georgia, serif" font-size="7.5" font-weight="bold" fill="#f7d98b" text-anchor="middle">T</text><line x1="18" y1="31" x2="30" y2="31" stroke="#cca03d" stroke-width="0.6"/></svg>`,
+        `<svg viewBox="0 0 48 48"><defs><linearGradient id="b1_body" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4a7dff"/><stop offset="35%" stop-color="#1940b0"/><stop offset="70%" stop-color="#0a1d5c"/><stop offset="100%" stop-color="#040b26"/></linearGradient><linearGradient id="b1_gold" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ffe599"/><stop offset="50%" stop-color="#cca03d"/><stop offset="100%" stop-color="#694302"/></linearGradient><linearGradient id="b1_shine" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#b3d4ff" stop-opacity="0.95"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></linearGradient></defs><rect x="18" y="2.5" width="12" height="7" rx="1.5" fill="#080e22" stroke="url(#b1_gold)" stroke-width="1.3"/><rect x="19.5" y="9.5" width="9" height="3" rx="0.5" fill="url(#b1_gold)"/><rect x="11" y="12.5" width="26" height="30.5" rx="5" fill="url(#b1_body)" stroke="url(#b1_gold)" stroke-width="1.3"/><ellipse cx="24" cy="28" rx="8" ry="10" fill="#3b72ff" opacity="0.4"/><path d="M14 15.5 v24.5" stroke="url(#b1_shine)" stroke-width="2.2" stroke-linecap="round"/><path d="M33 16.5 v22" stroke="#ffffff" stroke-width="0.8" opacity="0.35" stroke-linecap="round"/><rect x="16" y="21" width="16" height="12.5" rx="1.5" fill="#050917" stroke="url(#b1_gold)" stroke-width="0.9"/><line x1="18" y1="23.5" x2="30" y2="23.5" stroke="#cca03d" stroke-width="0.6"/><text x="24" y="30" font-family="'Cinzel', Georgia, serif" font-size="7.5" font-weight="bold" fill="#f7d98b" text-anchor="middle">T</text><line x1="18" y1="31" x2="30" y2="31" stroke="#cca03d" stroke-width="0.6"/></svg>`,
 
         /* 2: Emerald Gemstone */
         `<svg viewBox="0 0 48 48"><defs><linearGradient id="b2_body" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#73e658"/><stop offset="35%" stop-color="#1ea636"/><stop offset="70%" stop-color="#095719"/><stop offset="100%" stop-color="#022108"/></linearGradient><linearGradient id="b2_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff1aa"/><stop offset="60%" stop-color="#d49c28"/><stop offset="100%" stop-color="#694302"/></linearGradient></defs><polygon points="24,1.5 29.5,5.5 29.5,8.5 18.5,8.5 18.5,5.5" fill="url(#b2_body)" stroke="url(#b2_gold)" stroke-width="0.9"/><rect x="21" y="8.5" width="6" height="4" fill="url(#b2_gold)"/><polygon points="24,12.5 36.5,18.5 36.5,36 24,44.5 11.5,36 11.5,18.5" fill="url(#b2_body)" stroke="url(#b2_gold)" stroke-width="1.3"/><polygon points="24,16.5 32.5,20.5 32.5,34 24,39.5 15.5,34 15.5,20.5" fill="none" stroke="#99ff88" stroke-width="0.8" opacity="0.65"/><line x1="24" y1="16.5" x2="24" y2="39.5" stroke="#ffffff" stroke-width="1" opacity="0.45"/><circle cx="24" cy="27" r="4.8" fill="#04260b" stroke="url(#b2_gold)" stroke-width="0.9"/><text x="24" y="30.2" font-family="'Cinzel', Georgia, serif" font-size="7" font-weight="bold" fill="#ffe082" text-anchor="middle">T</text></svg>`,
 
         /* 3: Ruby Rose Velvet */
-        `<svg viewBox="0 0 48 48"><defs><radialGradient id="b3_body" cx="35%" cy="35%" r="65%"><stop offset="0%" stop-color="#ff6b8b"/><stop offset="40%" stop-color="#d61138"/><stop offset="80%" stop-color="#730018"/><stop offset="100%" stop-color="#2b0007"/></radialGradient><linearGradient id="b3_gold" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#fff8cc"/><stop offset="50%" stop-color="#f0bc4d"/><stop offset="100%" stop-color="#805404"/></linearGradient></defs><rect x="18" y="2" width="12" height="7.5" rx="2" fill="#d61138" stroke="url(#b3_gold)" stroke-width="0.9"/><rect x="20" y="3.5" width="8" height="4" fill="#ffffff" opacity="0.3"/><rect x="21" y="9.5" width="6" height="3" fill="url(#b3_gold)"/><path d="M16 12.5 h16 c4 0 7 3 7 7 v16.5 c0 4 -3 7 -7 7 h-16 c-4 0 -7 -3 -7 -7 v-16.5 c0 -4 3 -7 7 -7 z" fill="url(#b3_body)" stroke="url(#b3_gold)" stroke-width="1.3"/><path d="M13.5 18 c0 0 3 14 3 20" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.65"/><ellipse cx="24" cy="30" rx="8" ry="7" fill="#ff4d6d" opacity="0.4"/><rect x="17" y="22" width="14" height="12.5" rx="1.5" fill="#140205" stroke="url(#b3_gold)" stroke-width="0.9"/><text x="24" y="31" font-family="'Cinzel', Georgia, serif" font-size="8" font-weight="bold" fill="#ffc773" text-anchor="middle">T</text></svg>`,
+        `<svg viewBox="0 0 48 48"><defs><radialGradient id="b3_body" cx="35%" cy="35%" r="65%"><stop offset="0%" stop-color="#ff6b8b"/><stop offset="40%" stop-color="#d61138"/><stop offset="80%" stop-color="#730018"/><stop offset="100%" stop-color="#2b0007"/></radialGradient><linearGradient id="b3_gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff8cc"/><stop offset="50%" stop-color="#f0bc4d"/><stop offset="100%" stop-color="#805404"/></linearGradient></defs><rect x="18" y="2" width="12" height="7.5" rx="2" fill="#d61138" stroke="url(#b3_gold)" stroke-width="0.9"/><rect x="20" y="3.5" width="8" height="4" fill="#ffffff" opacity="0.3"/><rect x="21" y="9.5" width="6" height="3" fill="url(#b3_gold)"/><path d="M16 12.5 h16 c4 0 7 3 7 7 v16.5 c0 4 -3 7 -7 7 h-16 c-4 0 -7 -3 -7 -7 v-16.5 c0 -4 3 -7 7 -7 z" fill="url(#b3_body)" stroke="url(#b3_gold)" stroke-width="1.3"/><path d="M13.5 18 c0 0 3 14 3 20" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.65"/><ellipse cx="24" cy="30" rx="8" ry="7" fill="#ff4d6d" opacity="0.4"/><rect x="17" y="22" width="14" height="12.5" rx="1.5" fill="#140205" stroke="url(#b3_gold)" stroke-width="0.9"/><text x="24" y="31" font-family="'Cinzel', Georgia, serif" font-size="8" font-weight="bold" fill="#ffc773" text-anchor="middle">T</text></svg>`,
 
         /* 4: Diamond Silver */
         `<svg viewBox="0 0 48 48"><defs><linearGradient id="b4_body" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="25%" stop-color="#e0e4ed"/><stop offset="55%" stop-color="#9aa5b8"/><stop offset="85%" stop-color="#4a5568"/><stop offset="100%" stop-color="#1f2430"/></linearGradient><linearGradient id="b4_glow" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e8f4ff"/><stop offset="100%" stop-color="#7389a8"/></linearGradient></defs><polygon points="24,1.5 30.5,6.5 24,9.5 17.5,6.5" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.9"/><rect x="22" y="9.5" width="4" height="3.5" fill="#94a3b8"/><polygon points="24,12.5 37.5,19.5 34.5,41.5 24,45.5 13.5,41.5 10.5,19.5" fill="url(#b4_body)" stroke="#ffffff" stroke-width="1.3"/><polygon points="24,12.5 37.5,19.5 24,45.5" fill="#ffffff" opacity="0.22"/><polygon points="24,12.5 10.5,19.5 24,45.5" fill="#0f172a" opacity="0.28"/><line x1="24" y1="12.5" x2="24" y2="45.5" stroke="#ffffff" stroke-width="1.3" opacity="0.8"/><circle cx="24" cy="27" r="5.2" fill="url(#b4_glow)" opacity="0.8" stroke="#ffffff" stroke-width="0.9"/><text x="24" y="30.2" font-family="'Cinzel', Georgia, serif" font-size="7.5" font-weight="bold" fill="#0f172a" text-anchor="middle">T</text></svg>`,
@@ -2009,7 +2882,7 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
             : (tgUser?.id ? `tg://user?id=${tgUser.id}` : 'https://t.me/tamaz_9');
 
         const comment = document.getElementById('reviewComment').value.trim();
-        const starsEmoji = '⭐️'.repeat(currentRating);
+        const starsEmoji = '⭐'.repeat(currentRating);
 
         const reviewMessage = 
 `🌟 <b>НОВЫЙ ОТЗЫВ В TAPAZ!</b>
@@ -2045,12 +2918,14 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
         }
     }
 
+    /* Функция переключения разделов через нижнюю навигацию */
     function switchMainSection(section) {
-        document.getElementById('navMenuBtn').classList.toggle('active', section === 'menu');
-        document.getElementById('navSupportBtn').classList.toggle('active', section === 'support');
-
         if (section === 'support') {
             showScreen('supportScreen');
+        } else if (section === 'ai') {
+            showScreen('consultantScreen');
+        } else if (section === 'cart') {
+            openCartScreen('mainMenu');
         } else {
             showScreen('mainMenu');
         }
@@ -2127,8 +3002,9 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
         updateBonusUI();
         renderLevelsGrid();
 
-        // Запуск загрузки товаров из Supabase при старте
+        await initFavorites();
         loadProductsFromSupabase();
+        checkDeepLink();
     }
 
     function updateBonusUI() {
@@ -2140,7 +3016,7 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
         showToast(`У вас ${bonusPoints} бонусов TAPAZ (1 Б = 1 ₽ скидки)!`);
     }
 
-    /* ================= НАВИГАЦИЯ ================= */
+    /* ================= НАВИГАЦИЯ И ПОДСВЕТКА ТАБОВ ================= */
     function showScreen(screenId) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.overlay').forEach(o => o.classList.remove('active'));
@@ -2152,13 +3028,15 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
             renderLevelsGrid();
         }
 
-        if (screenId === 'supportScreen') {
-            document.getElementById('navMenuBtn').classList.remove('active');
-            document.getElementById('navSupportBtn').classList.add('active');
-        } else if (screenId === 'mainMenu') {
-            document.getElementById('navMenuBtn').classList.add('active');
-            document.getElementById('navSupportBtn').classList.remove('active');
-        }
+        const isMenu = (screenId === 'mainMenu' || screenId === 'categoriesScreen' || screenId === 'catalogScreen' || screenId === 'levelsScreen' || screenId === 'gameScreen');
+        const isCart = (screenId === 'cartScreen');
+        const isAi = (screenId === 'consultantScreen');
+        const isSupport = (screenId === 'supportScreen');
+
+        document.getElementById('navMenuBtn')?.classList.toggle('active', isMenu);
+        document.getElementById('navCartBtn')?.classList.toggle('active', isCart);
+        document.getElementById('navAiBtn')?.classList.toggle('active', isAi);
+        document.getElementById('navSupportBtn')?.classList.toggle('active', isSupport);
     }
 
     function showToast(msg) {
@@ -2545,7 +3423,7 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
                 } else {
                     if (len >= 3) {
                         const cells = [];
-                        for (let k = r - len + 1; k <= r; k++) cells.push({ r: k, c });
+                        for (let k = r - len + 1; k <= r; k++) cells.push({ r, c });
                         verticalRuns.push({ cells, len, icon: board[r][c] });
                     }
                     len = 1;
