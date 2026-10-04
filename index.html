@@ -605,23 +605,22 @@
             padding: 20px;
         }
 
-        /* ================= МОДАЛЬНОЕ ОКНО: ДЕТАЛЬНАЯ КАРТОЧКА ТОВАРА ================= */
+        /* ================= МОДАЛЬНОЕ ОКНО: ДЕТАЛЬНАЯ КАРТОЧКА ТОВАРА С ЗАФИКСИРОВАННЫМИ КНОПКАМИ ================= */
         .product-modal-panel {
             width: 100%;
             max-width: 380px;
-            max-height: 86vh;
+            height: 84vh;
+            max-height: 640px;
             background: linear-gradient(165deg, #131838 0%, #070b1c 100%);
             border: 1px solid var(--gold);
             border-radius: 20px;
-            padding: 20px 18px;
+            padding: 16px 18px 14px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
             box-shadow: 0 16px 50px rgba(0,0,0,0.85);
-            overflow-y: auto;
+            overflow: hidden; /* Панель не скроллится целиком, скроллится только тело внутри */
             position: relative;
             animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            -webkit-overflow-scrolling: touch;
         }
         @keyframes modalSlideUp {
             from { opacity: 0; transform: translateY(30px) scale(0.96); }
@@ -647,9 +646,20 @@
         }
         .product-modal-close:active { transform: scale(0.92); }
 
+        /* Прокручиваемая внутренняя область (фото, ноты, описание) */
+        .product-modal-body {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-right: 2px;
+            -webkit-overflow-scrolling: touch;
+        }
+
         .product-modal-img-wrap {
             width: 100%;
-            height: 190px;
+            height: 180px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -657,10 +667,11 @@
             border-radius: 12px;
             margin-top: 6px;
             cursor: zoom-in;
+            flex-shrink: 0;
         }
         .product-modal-img-wrap img {
             max-width: 100%;
-            max-height: 180px;
+            max-height: 170px;
             object-fit: contain;
             filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.7));
             transition: transform 0.15s ease;
@@ -709,11 +720,17 @@
             color: var(--gold-light);
             font-weight: 700;
         }
+
+        /* Зафиксированная нижняя панель с кнопками */
         .product-modal-actions {
             display: flex;
             gap: 8px;
-            margin-top: 4px;
+            padding-top: 10px;
+            margin-top: 6px;
+            border-top: 1px solid rgba(212, 160, 76, 0.25);
             align-items: center;
+            flex-shrink: 0;
+            background: transparent;
         }
         .product-modal-fav-btn, .product-modal-share-btn {
             width: 48px;
@@ -1612,26 +1629,30 @@
         <div class="catalog-list" id="catalogListContainer"></div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО: ДЕТАЛЬНАЯ КАРТОЧКА ТОВАРА -->
+    <!-- МОДАЛЬНОЕ ОКНО: ДЕТАЛЬНАЯ КАРТОЧКА ТОВАРА С ЗАФИКСИРОВАННЫМИ КНОПКАМИ -->
     <div class="overlay" id="productModal" onclick="if(event.target===this) closeProductModal()">
         <div class="product-modal-panel">
             <button class="product-modal-close" onclick="closeProductModal()">&times;</button>
             
-            <div class="product-modal-img-wrap" onclick="openImageModal(document.getElementById('productModalImg').src)">
-                <img id="productModalImg" src="" alt="TAPAZ Perfume">
+            <!-- Скроллируемая область: фото, название, ноты, описание -->
+            <div class="product-modal-body">
+                <div class="product-modal-img-wrap" onclick="openImageModal(document.getElementById('productModalImg').src)">
+                    <img id="productModalImg" src="" alt="TAPAZ Perfume">
+                </div>
+
+                <div class="product-modal-header">
+                    <div class="product-modal-name" id="productModalName">Creed Aventus</div>
+                    <div class="product-modal-volume" id="productModalVolume">100 ml</div>
+                </div>
+
+                <div class="product-modal-price" id="productModalPrice">8 200 ₽</div>
+
+                <div class="product-modal-desc" id="productModalDesc">
+                    <b>Верхние ноты:</b> бергамот, черная смородина...
+                </div>
             </div>
 
-            <div class="product-modal-header">
-                <div class="product-modal-name" id="productModalName">Creed Aventus</div>
-                <div class="product-modal-volume" id="productModalVolume">100 ml</div>
-            </div>
-
-            <div class="product-modal-price" id="productModalPrice">8 200 ₽</div>
-
-            <div class="product-modal-desc" id="productModalDesc">
-                <b>Верхние ноты:</b> бергамот, черная смородина...
-            </div>
-
+            <!-- Зафиксированная нижняя панель с кнопками: всегда видна без скролла -->
             <div class="product-modal-actions">
                 <button class="btn btn-gold" id="productModalBuyBtn" style="flex: 1; min-height: 48px; font-size: 14px;">ДОБАВИТЬ В КОРЗИНУ</button>
                 <button class="product-modal-fav-btn" id="productModalFavBtn" title="В избранное">
@@ -1639,7 +1660,6 @@
                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                     </svg>
                 </button>
-                <!-- Кнопка вызова меню «Поделиться» -->
                 <button class="product-modal-share-btn" id="productModalShareBtn" title="Поделиться парфюмом" onclick="openShareModal()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="18" cy="5" r="3"/>
@@ -2011,7 +2031,8 @@
     /* ================= НАСТРОЙКИ УВЕДОМЛЕНИЙ И ШЕРИНГА ================= */
     const BOT_TOKEN = '8841223635:AAF6RfQnAckFBE6N8wVSuSrqesTm8c14iVs';
     const MANAGER_CHAT_ID = '8287154272';
-    const BOT_USERNAME = 'tapaz_official_bot'; 
+    // Укажите точный юзернейм вашего бота в Telegram без символа @
+    const BOT_USERNAME = 'tapaz_bot'; 
 
     /* ================= БАЗА ТОВАРОВ КАТАЛОГА ================= */
     let BASE_PRODUCTS = [
@@ -2918,7 +2939,6 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
         }
     }
 
-    /* Функция переключения разделов через нижнюю навигацию */
     function switchMainSection(section) {
         if (section === 'support') {
             showScreen('supportScreen');
