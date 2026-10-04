@@ -319,7 +319,7 @@
         }
         .chat-input:focus { border-color: var(--gold-light); }
 
-        /* ================= КАТАЛОГ ТОВАРОВ (КОМПАКТНЫЕ КАРТОЧКИ) ================= */
+        /* ================= КАТАЛОГ ТОВАРОВ ================= */
         .catalog-header {
             display: flex;
             align-items: center;
@@ -605,7 +605,7 @@
             padding: 20px;
         }
 
-        /* ================= МОДАЛЬНОЕ ОКНО: ДЕТАЛЬНАЯ КАРТОЧКА ТОВАРА С ЗАФИКСИРОВАННЫМИ КНОПКАМИ ================= */
+        /* ================= МОДАЛЬНОЕ ОКНО ТОВАРА С ЗАФИКСИРОВАННЫМИ КНОПКАМИ ================= */
         .product-modal-panel {
             width: 100%;
             max-width: 380px;
@@ -672,6 +672,7 @@
             max-width: 100%;
             max-height: 170px;
             object-fit: contain;
+            opacity: 1 !important; /* Гарантированная 100% непрозрачность */
             filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.7));
             transition: transform 0.15s ease;
         }
@@ -1622,7 +1623,7 @@
 
         <div class="catalog-search-wrap" id="catalogSearchWrap" style="display: none;">
             <div class="catalog-search-box">
-                <svg class="catalog-search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 11.99 14 9.5 11.99 14 9.5 14z"/></svg>
+                <svg class="catalog-search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
                 <input type="text" id="catalogSearchInput" class="catalog-search-input" placeholder="Поиск по названию или нотам..." oninput="handleCatalogSearch(this.value)">
                 <button class="catalog-search-clear" id="catalogSearchClearBtn" onclick="clearCatalogSearch()">&times;</button>
             </div>
@@ -1636,9 +1637,10 @@
         <div class="product-modal-panel">
             <button class="product-modal-close" onclick="closeProductModal()">&times;</button>
             
+            <!-- Скроллируемая область: фото, название, ноты, описание -->
             <div class="product-modal-body">
                 <div class="product-modal-img-wrap" onclick="openImageModal(document.getElementById('productModalImg').src)">
-                    <img id="productModalImg" src="" alt="TAPAZ Perfume" onerror="this.style.opacity='0.2'">
+                    <img id="productModalImg" src="" alt="TAPAZ Perfume">
                 </div>
 
                 <div class="product-modal-header">
@@ -1661,6 +1663,7 @@
                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                     </svg>
                 </button>
+                <!-- Кнопка вызова меню «Поделиться» -->
                 <button class="product-modal-share-btn" id="productModalShareBtn" title="Поделиться парфюмом" onclick="openShareModal()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="18" cy="5" r="3"/>
@@ -2033,7 +2036,7 @@
     const BOT_TOKEN = '8841223635:AAF6RfQnAckFBE6N8wVSuSrqesTm8c14iVs';
     const MANAGER_CHAT_ID = '8287154272';
     // Точный юзернейм вашего бота в Telegram
-    const BOT_USERNAME = 'Tapaz_bot'; 
+    const BOT_USERNAME = 'Tapaz_official_bot'; 
 
     /* ================= БАЗА ТОВАРОВ КАТАЛОГА ================= */
     let BASE_PRODUCTS = [
@@ -2085,7 +2088,7 @@
     let isFavoritesFilter = false;
     let favorites = new Set();
     let currentModalProduct = null;
-    let hasHandledDeepLink = false; // Флаг защиты от зацикливания при открытии ссылки
+    let hasHandledDeepLink = false;
 
     /* Подгрузка каталога из Supabase */
     async function loadProductsFromSupabase() {
@@ -2107,7 +2110,6 @@
                 if (document.getElementById('catalogScreen').classList.contains('active')) {
                     renderCatalogByCategory(currentCategoryKey);
                 }
-                // Проверяем ссылку только если она ещё не была обработана
                 if (!hasHandledDeepLink) {
                     checkDeepLink();
                 }
@@ -2203,7 +2205,6 @@
         document.body.removeChild(ta);
     }
 
-    /* Исправленный однократный вызов deep-link без зацикливания */
     function checkDeepLink() {
         if (hasHandledDeepLink) return;
 
@@ -2213,7 +2214,7 @@
         if (startParam) {
             const found = findProductBySlug(startParam);
             if (found) {
-                hasHandledDeepLink = true; // Фиксируем, что ссылка обработана
+                hasHandledDeepLink = true;
 
                 const titles = { female: 'Женские ароматы', male: 'Мужские ароматы', unisex: 'Унисекс' };
                 currentCategoryKey = found.category;
@@ -2362,6 +2363,7 @@
         renderCatalogByCategory(currentCategoryKey);
     }
 
+    /* Отрисовка компактных карточек товаров */
     function renderCatalogByCategory(categoryKey) {
         const container = document.getElementById('catalogListContainer');
         if (!container) return;
@@ -2407,7 +2409,7 @@
 
             div.innerHTML = `
                 <div class="catalog-bottle">
-                    <img src="${item.img}" loading="lazy" alt="TAPAZ Perfume" onerror="this.style.opacity='0.2'">
+                    <img src="${item.img}" loading="lazy" alt="TAPAZ Perfume">
                 </div>
                 <div class="catalog-info">
                     <div class="item-top-row">
@@ -2435,7 +2437,10 @@
         if (!product) return;
         currentModalProduct = product;
 
-        document.getElementById('productModalImg').src = product.img;
+        const imgEl = document.getElementById('productModalImg');
+        imgEl.style.opacity = '1';
+        imgEl.src = product.img;
+
         document.getElementById('productModalName').textContent = product.name;
         
         const volEl = document.getElementById('productModalVolume');
@@ -2449,6 +2454,7 @@
         document.getElementById('productModalPrice').textContent = Number(product.price).toLocaleString('ru-RU') + ' ₽';
         document.getElementById('productModalDesc').innerHTML = product.desc;
         
+        // Синхронизация кнопки избранного
         const modalFavBtn = document.getElementById('productModalFavBtn');
         modalFavBtn.classList.toggle('active', favorites.has(product.name));
         modalFavBtn.onclick = () => toggleFavorite(product.name);
@@ -2582,7 +2588,7 @@
         `<svg viewBox="0 0 48 48"><defs><linearGradient id="b1_body" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4a7dff"/><stop offset="35%" stop-color="#1940b0"/><stop offset="70%" stop-color="#0a1d5c"/><stop offset="100%" stop-color="#040b26"/></linearGradient><linearGradient id="b1_gold" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ffe599"/><stop offset="50%" stop-color="#cca03d"/><stop offset="100%" stop-color="#694302"/></linearGradient><linearGradient id="b1_shine" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#b3d4ff" stop-opacity="0.95"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></linearGradient></defs><rect x="18" y="2.5" width="12" height="7" rx="1.5" fill="#080e22" stroke="url(#b1_gold)" stroke-width="1.3"/><rect x="19.5" y="9.5" width="9" height="3" rx="0.5" fill="url(#b1_gold)"/><rect x="11" y="12.5" width="26" height="30.5" rx="5" fill="url(#b1_body)" stroke="url(#b1_gold)" stroke-width="1.3"/><ellipse cx="24" cy="28" rx="8" ry="10" fill="#3b72ff" opacity="0.4"/><path d="M14 15.5 v24.5" stroke="url(#b1_shine)" stroke-width="2.2" stroke-linecap="round"/><path d="M33 16.5 v22" stroke="#ffffff" stroke-width="0.8" opacity="0.35" stroke-linecap="round"/><rect x="16" y="21" width="16" height="12.5" rx="1.5" fill="#050917" stroke="url(#b1_gold)" stroke-width="0.9"/><line x1="18" y1="23.5" x2="30" y2="23.5" stroke="#cca03d" stroke-width="0.6"/><text x="24" y="30" font-family="'Cinzel', Georgia, serif" font-size="7.5" font-weight="bold" fill="#f7d98b" text-anchor="middle">T</text><line x1="18" y1="31" x2="30" y2="31" stroke="#cca03d" stroke-width="0.6"/></svg>`,
 
         /* 2: Emerald Gemstone */
-        `<svg viewBox="0 0 48 48"><defs><linearGradient id="b2_body" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#73e658"/><stop offset="35%" stop-color="#1ea636"/><stop offset="70%" stop-color="#095719"/><stop offset="100%" stop-color="#022108"/></linearGradient><linearGradient id="b2_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff1aa"/><stop offset="60%" stop-color="#d49c28"/><stop offset="100%" stop-color="#694302"/></linearGradient></defs><polygon points="24,1.5 29.5,5.5 29.5,8.5 18.5,8.5 18.5,5.5" fill="url(#b2_body)" stroke="url(#b2_gold)" stroke-width="0.9"/><rect x="21" y="8.5" width="6" height="4" fill="url(#b2_gold)"/><polygon points="24,12.5 36.5,18.5 36.5,36 24,44.5 11.5,36 11.5,18.5" fill="url(#b2_body)" stroke="url(#b2_gold)" stroke-width="1.3"/><polygon points="24,16.5 32.5,20.5 32.5,34 24,39.5 15.5,34 15.5,20.5" fill="none" stroke="#99ff88" stroke-width="0.8" opacity="0.65"/><line x1="24" y1="16.5" x2="24" y2="39.5" stroke="#ffffff" stroke-width="1" opacity="0.45"/><circle cx="24" cy="27" r="4.8" fill="#04260b" stroke="url(#b2_gold)" stroke-width="0.9"/><text x="24" y="30.2" font-family="'Cinzel', Georgia, serif" font-size="7" font-weight="bold" fill="#ffe082" text-anchor="middle">T</text></svg>`,
+        `<svg viewBox="0 0 48 48"><defs><linearGradient id="b2_body" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#73e658"/><stop offset="35%" stop-color="#1ea636"/><stop offset="70%" stop-color="#095719"/><stop offset="100%" stop-color="#022108"/></linearGradient><linearGradient id="b2_gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff1aa"/><stop offset="60%" stop-color="#d49c28"/><stop offset="100%" stop-color="#694302"/></linearGradient></defs><polygon points="24,1.5 29.5,5.5 29.5,8.5 18.5,8.5 18.5,5.5" fill="url(#b2_body)" stroke="url(#b2_gold)" stroke-width="0.9"/><rect x="21" y="8.5" width="6" height="4" fill="url(#b2_gold)"/><polygon points="24,12.5 36.5,18.5 36.5,36 24,44.5 11.5,36 11.5,18.5" fill="url(#b2_body)" stroke="url(#b2_gold)" stroke-width="1.3"/><polygon points="24,16.5 32.5,20.5 32.5,34 24,39.5 15.5,34 15.5,20.5" fill="none" stroke="#99ff88" stroke-width="0.8" opacity="0.65"/><line x1="24" y1="16.5" x2="24" y2="39.5" stroke="#ffffff" stroke-width="1" opacity="0.45"/><circle cx="24" cy="27" r="4.8" fill="#04260b" stroke="url(#b2_gold)" stroke-width="0.9"/><text x="24" y="30.2" font-family="'Cinzel', Georgia, serif" font-size="7.5" font-weight="bold" fill="#ffe082" text-anchor="middle">T</text></svg>`,
 
         /* 3: Ruby Rose Velvet */
         `<svg viewBox="0 0 48 48"><defs><radialGradient id="b3_body" cx="35%" cy="35%" r="65%"><stop offset="0%" stop-color="#ff6b8b"/><stop offset="40%" stop-color="#d61138"/><stop offset="80%" stop-color="#730018"/><stop offset="100%" stop-color="#2b0007"/></radialGradient><linearGradient id="b3_gold" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#fff8cc"/><stop offset="50%" stop-color="#f0bc4d"/><stop offset="100%" stop-color="#805404"/></linearGradient></defs><rect x="18" y="2" width="12" height="7.5" rx="2" fill="#d61138" stroke="url(#b3_gold)" stroke-width="0.9"/><rect x="20" y="3.5" width="8" height="4" fill="#ffffff" opacity="0.3"/><rect x="21" y="9.5" width="6" height="3" fill="url(#b3_gold)"/><path d="M16 12.5 h16 c4 0 7 3 7 7 v16.5 c0 4 -3 7 -7 7 h-16 c-4 0 -7 -3 -7 -7 v-16.5 c0 -4 3 -7 7 -7 z" fill="url(#b3_body)" stroke="url(#b3_gold)" stroke-width="1.3"/><path d="M13.5 18 c0 0 3 14 3 20" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.65"/><ellipse cx="24" cy="30" rx="8" ry="7" fill="#ff4d6d" opacity="0.4"/><rect x="17" y="22" width="14" height="12.5" rx="1.5" fill="#140205" stroke="url(#b3_gold)" stroke-width="0.9"/><text x="24" y="31" font-family="'Cinzel', Georgia, serif" font-size="8" font-weight="bold" fill="#ffc773" text-anchor="middle">T</text></svg>`,
@@ -3191,10 +3197,7 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
                     }
                 });
 
-                cell.addEventListener('pointercancel', () => {
-                    isTracking = false;
-                });
-
+                cell.addEventListener('pointercancel', () => { isTracking = false; });
                 el.appendChild(cell);
             }
         }
@@ -3204,9 +3207,7 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
 
     const gameBoardElement = document.getElementById('gameBoard');
     if (gameBoardElement) {
-        gameBoardElement.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-        }, { passive: false });
+        gameBoardElement.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
     }
 
     function onCellClick(r, c) {
@@ -3365,9 +3366,8 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
                         matchesNext = true;
                     }
                 }
-                if (matchesNext) {
-                    len++;
-                } else {
+                if (matchesNext) len++;
+                else {
                     if (len >= 3) {
                         const cells = [];
                         for (let k = c - len + 1; k <= c; k++) cells.push({ r, c: k });
@@ -3389,9 +3389,8 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
                         matchesNext = true;
                     }
                 }
-                if (matchesNext) {
-                    len++;
-                } else {
+                if (matchesNext) len++;
+                else {
                     if (len >= 3) {
                         const cells = [];
                         for (let k = r - len + 1; k <= r; k++) cells.push({ r, c });
@@ -3584,9 +3583,7 @@ ${discount > 0 ? `🎁 <b>Списано бонусов:</b> -${discount} Б\n` 
             showShockwaveFx(r2, c2);
             triggerHaptic('heavy');
             for (let r = 0; r < BOARD_SIZE; r++) {
-                for (let c = 0; c < BOARD_SIZE; c++) {
-                    destroyCell(r, c);
-                }
+                for (let c = 0; c < BOARD_SIZE; c++) destroyCell(r, c);
             }
         } else if ((type1 === 'rainbow' || type2 === 'rainbow') && (type1 && type2)) {
             const other = type1 === 'rainbow' ? type2 : type1;
