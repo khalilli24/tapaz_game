@@ -472,21 +472,24 @@
         }
 
         .catalog-bottle {
-            width: 85px;
-            height: 105px;
+            width: 88px; /* Увеличили ширину контейнера */
+            height: 108px; /* Увеличили высоту контейнера */
             flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             align-self: center;
+            overflow: visible; /* Чтобы увеличенный флакон не обрезался краями */
         }
         .catalog-bottle img {
             width: 100%;
             height: 100%;
             object-fit: contain;
             border-radius: 8px;
-            transform: scale(1.04);
-            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
+            /* Авто-увеличение картинки: регулируйте scale(1.3) или scale(1.4) под ваш вкус */
+            transform: scale(1.18);
+            filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.75));
+            transition: transform 0.2s ease;
         }
 
         .catalog-info {
@@ -2043,7 +2046,7 @@
         { 
             name: 'Creed Aventus', 
             volume: '100 ml',
-            img: 'img/CreedAventus.jpg', 
+            img: 'img/1.webp', 
             desc: '<b>Верхние ноты:</b> бергамот, черная смородина, лимон, розовый перец, яблоко. <b>Средние ноты:</b> пачули, ананас, жасмин. <b>Базовые ноты:</b> мускус, амброксан, дубовый мох, кедр, берёза. Создан для уверенных в себе, харизматичных и целеустремленных мужчин.', 
             price: 8200, 
             category: 'male' 
@@ -2051,7 +2054,7 @@
         { 
             name: 'Louis Vuitton Imagination', 
             volume: '100 ml',
-            img: 'img/LVImaination.jpg', 
+            img: 'img/2.webp', 
             desc: '<b>Верхние ноты:</b> цитрон (цедрат), калабрийский бергамот и сицилийский апельсин. <b>Средние ноты:</b> тунисский нероли, нигерийский имбирь и цейлонская корица. <b>Базовые ноты:</b> китайский черный чай, амброксан, гваяковое дерево и олибанум. Транслирует спокойную уверенность, внутреннюю силу и безупречный вкус.', 
             price: 9500, 
             category: 'male' 
@@ -2059,7 +2062,7 @@
         { 
             name: 'Tom Ford Lost Cherry', 
             volume: '50 ml',
-            img: 'img/TomFordLostCherry.jpg', 
+            img: 'img/3.webp', 
             desc: '<b>Верхние ноты:</b> черешня, масло горького миндаля. <b>Средние ноты:</b> турецкая роза. <b>Базовые ноты:</b> перуанский бальзам, сандаловое дерево, ветивер, кедр. Композиция балансирует на грани невинности и провокации, подчеркивая чувственность и магнетизм.', 
             price: 8200, 
             category: 'unisex' 
@@ -2067,7 +2070,7 @@
         { 
             name: 'Tom Ford Tobacco Vanille', 
             volume: '100 ml',
-            img: 'img/TomFordTobaccoVanille.jpg', 
+            img: 'img/4.webp', 
             desc: '<b>Верхние ноты:</b> табачный лист, специи. <b>Средние ноты:</b> бобы тонка, цветок табака, ваниль, какао. <b>Базовые ноты:</b> сухофрукты. Аромат для сильной, чувственной и доминантной личности, транслирующей миру уверенность и статус.', 
             price: 9500, 
             category: 'unisex' 
@@ -2075,7 +2078,7 @@
         { 
             name: 'Kilian Angel’s Share', 
             volume: '50 ml',
-            img: 'img/KilianAngelsShare.jpg', 
+            img: 'img/5.webp', 
             desc: '<b>Верхние ноты:</b> коньяк. <b>Средние ноты:</b> корица, бобы тонка, дуб. <b>Базовые ноты:</b> пралине, ваниль, сандал. Глубокий алкогольно-гурманский аромат, передающий атмосферу роскошного вечера и дубовых винных погребов.', 
             price: 7200, 
             category: 'unisex' 
