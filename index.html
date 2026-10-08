@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -86,8 +86,8 @@
         }
 
         .avatar-wrap {
-            width:290px;
-            height: 290px;
+            width: 160px;
+            height: 160px;
             margin: 0 auto 24px;
             position: relative;
             display: flex;
@@ -190,8 +190,17 @@
 
     <div class="maintenance-card">
         <div class="avatar-wrap">
-            <video class="avatar-img" autoplay loop muted playsinline webkit-playsinline poster="photo-emil.jpg">
-                <source src="imges.mp4" type="video/mp4">
+            <video 
+                id="avatarVideo" 
+                class="avatar-img" 
+                autoplay 
+                loop 
+                muted 
+                playsinline 
+                webkit-playsinline 
+                preload="auto"
+                poster="photo-emil.jpg">
+                <source src="imges.mp4?v=2" type="video/mp4">
             </video>
             <span class="status-badge">⚙️</span>
         </div>
@@ -206,13 +215,13 @@
         </p>
 
         <button class="btn-refresh" onclick="donateDeveloper()">
-            <span>Оставить на пиво алкашам</span>
+            <span>☕ Поблагодарить разработчиков</span>
         </button>
     </div>
 
     <script>
-        // Замените на вашу персональную ссылку сбора или перевода:
-        const PAYMENT_URL = "https://t.tb.ru/pm_short/3CkjK1ZluFA";
+        // Ссылка для перевода / доната разработчикам
+        const PAYMENT_URL = "https://www.tbank.ru/cf/ВАША_ССЫЛКА";
 
         function donateDeveloper() {
             if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
@@ -222,12 +231,28 @@
             }
         }
 
+        // Настройка окна Telegram
         if (window.Telegram && window.Telegram.WebApp) {
             const tg = window.Telegram.WebApp;
             tg.ready();
             tg.expand();
             if (tg.setHeaderColor) tg.setHeaderColor('#0b0f19');
             if (tg.setBackgroundColor) tg.setBackgroundColor('#0b0f19');
+        }
+
+        // Принудительный старт видео и обход блокировок автозапуска
+        const video = document.getElementById('avatarVideo');
+        if (video) {
+            video.muted = true;
+            const playVideo = () => {
+                video.play().catch(() => {});
+            };
+
+            playVideo();
+
+            // Если браузер заблокировал автостарт — запустится при первом касании
+            document.body.addEventListener('touchstart', playVideo, { once: true });
+            document.body.addEventListener('click', playVideo, { once: true });
         }
     </script>
 </body>
