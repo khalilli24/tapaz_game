@@ -2687,19 +2687,42 @@
         const raw = String(value ?? '').trim();
         if (!raw) return '';
 
-        if (
-            raw.startsWith('./') ||
-            raw.startsWith('../') ||
-            raw.startsWith('/') ||
-            /^[a-zA-Z0-9_./%\-]+$/.test(raw)
-        ) {
-            return raw;
-        }
-
         try {
-            const url = new URL(raw, window.location.href);
-            if (url.protocol === 'https:' || url.protocol === 'http:') {
-                return url.href;
+            // Полные http/https URL оставляем как есть.
+            if (/^https?:\/\//i.test(raw)) {
+                const url = new URL(raw);
+                return url.protocol === 'https:' || url.protocol === 'http:'
+                    ? url.href
+                    : '';
+            }
+
+            // Каталог изображений физически лежит в корне проекта /img/.
+            // На основном index.html путь img/1.webp корректен.
+            // На тестовом /test/index_test.html браузер иначе ищет /test/img/1.webp.
+            // Поэтому для страниц внутри /test/ поднимаемся на уровень выше.
+            const normalized = raw.replace(/^\.\//, '');
+
+            if (/^img\//i.test(normalized)) {
+                const relativePath =
+                    window.location.pathname.includes('/test/')
+                        ? `../${normalized}`
+                        : normalized;
+
+                return new URL(relativePath, window.location.href).href;
+            }
+
+            // Остальные безопасные относительные пути.
+            if (
+                raw.startsWith('./') ||
+                raw.startsWith('../') ||
+                /^[a-zA-Z0-9_./%\-]+$/.test(raw)
+            ) {
+                return new URL(raw, window.location.href).href;
+            }
+
+            // Абсолютный путь внутри текущего origin.
+            if (raw.startsWith('/')) {
+                return new URL(raw, window.location.origin).href;
             }
         } catch (_) {}
 
@@ -2787,19 +2810,19 @@
             price.textContent = `${Number(item.price).toLocaleString('ru-RU')} ₽`;
 
             const actions = document.createElement('div');
-            actions.className = 'catalog-actions';
+            actions.className = 'catalog-card-actions';
 
-            const favBtn = document.createElement('button');
-            favBtn.className = `btn-card-fav${favorites.has(item.name) ? ' active' : ''}`;
-            favBtn.type = 'button';
-            favBtn.textContent = favorites.has(item.name) ? '♥' : '♡';
-            favBtn.addEventListener('click', event => {
+            const moreBtn = document.createElement('button');
+            moreBtn.className = 'btn btn-outline btn-card-more';
+            moreBtn.type = 'button';
+            moreBtn.textContent = 'О ТОВАРЕ';
+            moreBtn.addEventListener('click', event => {
                 event.stopPropagation();
-                toggleFavorite(item.name);
+                openProductModal(item);
             });
 
             const buyBtn = document.createElement('button');
-            buyBtn.className = 'btn-card-buy';
+            buyBtn.className = 'btn btn-gold btn-card-buy';
             buyBtn.type = 'button';
             buyBtn.textContent = 'В КОРЗИНУ';
 
@@ -2809,8 +2832,39 @@
                 addToCart(item.id, cartItemName, Number(item.price));
             });
 
-            actions.appendChild(favBtn);
+            const favBtn = document.createElement('button');
+            favBtn.className = `btn-card-fav${favorites.has(item.name) ? ' active' : ''}`;
+            favBtn.type = 'button';
+            favBtn.title = 'В избранное';
+            favBtn.setAttribute('aria-label', 'Добавить в избранное');
+
+            const heartSvg = document.createElementNS(
+                'http://www.w3.org/2000/svg',
+                'svg'
+            );
+            heartSvg.setAttribute('viewBox', '0 0 24 24');
+            heartSvg.setAttribute('aria-hidden', 'true');
+
+            const heartPath = document.createElementNS(
+                'http://www.w3.org/2000/svg',
+                'path'
+            );
+            heartPath.setAttribute(
+                'd',
+                'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'
+            );
+
+            heartSvg.appendChild(heartPath);
+            favBtn.appendChild(heartSvg);
+
+            favBtn.addEventListener('click', event => {
+                event.stopPropagation();
+                toggleFavorite(item.name);
+            });
+
+            actions.appendChild(moreBtn);
             actions.appendChild(buyBtn);
+            actions.appendChild(favBtn);
 
             info.appendChild(topRow);
             info.appendChild(price);
