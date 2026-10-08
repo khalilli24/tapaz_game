@@ -2188,7 +2188,7 @@
             <div class="overlay-panel">
                 <div class="overlay-title">ПОБЕДА!</div>
                 <div style="font-size: 15px;">Уровень пройден.</div>
-                <div style="color: #69f0ae; font-size: 15px; font-weight: bold;">+25 бонусов TAPAZ начислено!</div>
+                <div style="color: #69f0ae; font-size: 15px; font-weight: bold;" id="winRewardText">Проверяем награду...</div>
                 <div style="color: var(--gold); font-size: 20px; font-weight: bold;" id="winScoreText">Счет: 0</div>
                 <button class="btn btn-gold" onclick="nextLevel()">ДАЛЕЕ</button>
             </div>
@@ -2677,72 +2677,152 @@
     }
 
     /* Отрисовка компактных карточек товаров */
+    function stripHtmlToText(value) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(String(value ?? ''), 'text/html');
+        return (doc.body.textContent || '').replace(/\s+/g, ' ').trim();
+    }
+
+    function safeImageSrc(value) {
+        const raw = String(value ?? '').trim();
+        if (!raw) return '';
+
+        if (
+            raw.startsWith('./') ||
+            raw.startsWith('../') ||
+            raw.startsWith('/') ||
+            /^[a-zA-Z0-9_./%\-]+$/.test(raw)
+        ) {
+            return raw;
+        }
+
+        try {
+            const url = new URL(raw, window.location.href);
+            if (url.protocol === 'https:' || url.protocol === 'http:') {
+                return url.href;
+            }
+        } catch (_) {}
+
+        return '';
+    }
+
+    function appendStaticEmptyState(container, text) {
+        const div = document.createElement('div');
+        div.className = 'catalog-empty-state';
+        div.textContent = text;
+        container.replaceChildren(div);
+    }
+
     function renderCatalogByCategory(categoryKey) {
         const container = document.getElementById('catalogListContainer');
         if (!container) return;
-        container.innerHTML = '';
 
+        container.replaceChildren();
         const query = currentSearchQuery.toLowerCase();
 
         const filtered = BASE_PRODUCTS.filter(item => {
             if (isFavoritesFilter && !favorites.has(item.name)) return false;
-            const matchesCategory = isFavoritesFilter || (categoryKey === 'all') || (item.category === categoryKey);
+
+            const matchesCategory =
+                isFavoritesFilter ||
+                categoryKey === 'all' ||
+                item.category === categoryKey;
+
             if (!matchesCategory) return false;
             if (!query) return true;
 
-            const nameMatch = item.name.toLowerCase().includes(query);
-            const descClean = item.desc ? item.desc.replace(/<[^>]*>/g, '').toLowerCase() : '';
+            const nameMatch = String(item.name || '').toLowerCase().includes(query);
+            const descClean = stripHtmlToText(item.desc).toLowerCase();
+
             return nameMatch || descClean.includes(query);
         });
 
         if (filtered.length === 0) {
             if (isFavoritesFilter) {
-                container.innerHTML = `<div class="catalog-empty-state">В избранном пока пусто.<br>Нажмите сердечко ♡ на карточке аромата!</div>`;
+                appendStaticEmptyState(container, 'В избранном пока пусто. Нажмите сердечко ♡ на карточке аромата!');
             } else if (query) {
-                container.innerHTML = `<div class="catalog-empty-state">По запросу «${currentSearchQuery}» ничего не найдено.</div>`;
+                appendStaticEmptyState(container, `По запросу «${currentSearchQuery}» ничего не найдено.`);
             } else {
-                container.innerHTML = `<div class="catalog-empty-state">В этой категории скоро появятся новинки!</div>`;
+                appendStaticEmptyState(container, 'В этой категории скоро появятся новинки!');
             }
             return;
         }
 
         const fragment = document.createDocumentFragment();
-        filtered.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'catalog-item';
-            div.onclick = (e) => {
-                if (!e.target.closest('.btn-card-buy') && !e.target.closest('.btn-card-fav')) {
-                    openProductModal(item);
-                }
-            };
-            
-            const volumeHtml = item.volume ? `<div class="item-volume">${item.volume}</div>` : '';
-            const cartItemName = item.volume ? `${item.name} (${item.volume})` : item.name;
-            const isFav = favorites.has(item.name);
 
-            div.innerHTML = `
-                <div class="catalog-bottle">
-                    <img src="${item.img}" loading="lazy" alt="TAPAZ Perfume">
-                </div>
-                <div class="catalog-info">
-                    <div class="item-top-row">
-                        <div class="item-name">${item.name}</div>
-                        ${volumeHtml}
-                    </div>
-                    <div class="item-price">${Number(item.price).toLocaleString('ru-RU')} ₽</div>
-                    <div class="catalog-card-actions">
-                        <button class="btn btn-outline btn-card-more">О ТОВАРЕ</button>
-                        <button class="btn btn-gold btn-card-buy" onclick="event.stopPropagation(); addToCart('${item.id}', '${cartItemName.replace(/'/g, "\\'")}', ${item.price})">В КОРЗИНУ</button>
-                        <button class="btn-card-fav ${isFav ? 'active' : ''}" title="В избранное" onclick="event.stopPropagation(); toggleFavorite('${item.name.replace(/'/g, "\\'")}')">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            `;
-            fragment.appendChild(div);
+        filtered.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'catalog-item';
+
+            const bottle = document.createElement('div');
+            bottle.className = 'catalog-bottle';
+
+            const img = document.createElement('img');
+            img.loading = 'lazy';
+            img.alt = String(item.name || 'TAPAZ Perfume');
+            const src = safeImageSrc(item.img);
+            if (src) img.src = src;
+            bottle.appendChild(img);
+
+            const info = document.createElement('div');
+            info.className = 'catalog-info';
+
+            const topRow = document.createElement('div');
+            topRow.className = 'item-top-row';
+
+            const name = document.createElement('div');
+            name.className = 'item-name';
+            name.textContent = String(item.name || '');
+            topRow.appendChild(name);
+
+            if (item.volume) {
+                const volume = document.createElement('div');
+                volume.className = 'item-volume';
+                volume.textContent = String(item.volume);
+                topRow.appendChild(volume);
+            }
+
+            const price = document.createElement('div');
+            price.className = 'item-price';
+            price.textContent = `${Number(item.price).toLocaleString('ru-RU')} ₽`;
+
+            const actions = document.createElement('div');
+            actions.className = 'catalog-actions';
+
+            const favBtn = document.createElement('button');
+            favBtn.className = `btn-card-fav${favorites.has(item.name) ? ' active' : ''}`;
+            favBtn.type = 'button';
+            favBtn.textContent = favorites.has(item.name) ? '♥' : '♡';
+            favBtn.addEventListener('click', event => {
+                event.stopPropagation();
+                toggleFavorite(item.name);
+            });
+
+            const buyBtn = document.createElement('button');
+            buyBtn.className = 'btn-card-buy';
+            buyBtn.type = 'button';
+            buyBtn.textContent = 'В КОРЗИНУ';
+
+            const cartItemName = item.volume ? `${item.name} (${item.volume})` : item.name;
+            buyBtn.addEventListener('click', event => {
+                event.stopPropagation();
+                addToCart(item.id, cartItemName, Number(item.price));
+            });
+
+            actions.appendChild(favBtn);
+            actions.appendChild(buyBtn);
+
+            info.appendChild(topRow);
+            info.appendChild(price);
+            info.appendChild(actions);
+
+            card.appendChild(bottle);
+            card.appendChild(info);
+            card.addEventListener('click', () => openProductModal(item));
+
+            fragment.appendChild(card);
         });
+
         container.appendChild(fragment);
     }
 
@@ -2765,7 +2845,7 @@
         }
 
         document.getElementById('productModalPrice').textContent = Number(product.price).toLocaleString('ru-RU') + ' ₽';
-        document.getElementById('productModalDesc').innerHTML = product.desc;
+        document.getElementById('productModalDesc').textContent = stripHtmlToText(product.desc);
         
         // Синхронизация кнопки избранного
         const modalFavBtn = document.getElementById('productModalFavBtn');
@@ -3314,6 +3394,9 @@
     let checkoutRequestId = null;
     let bonusBalanceTotal = 0;
     let bonusReservedTotal = 0;
+    let gameHighestCompletedLevel = 0;
+    let currentGameSessionId = null;
+    let gameRewardClaimPending = false;
 
     function addToCart(productId, name, price) {
         if (!cart[name]) {
@@ -3386,11 +3469,14 @@
     function renderCartItems() {
         const list = document.getElementById('cartItemsList');
         const summary = document.getElementById('cartSummaryBlock');
-        list.innerHTML = '';
+        list.replaceChildren();
 
         const keys = Object.keys(cart);
         if (keys.length === 0) {
-            list.innerHTML = '<div class="cart-empty-text">Ваша корзина пуста.<br>Выберите товары в каталоге!</div>';
+            const empty = document.createElement('div');
+            empty.className = 'cart-empty-text';
+            empty.textContent = 'Ваша корзина пуста. Выберите товары в каталоге!';
+            list.appendChild(empty);
             summary.style.display = 'none';
             isBonusApplied = false;
             return;
@@ -3405,29 +3491,59 @@
             subtotal += itemSum;
             totalQty += item.qty;
 
-            const div = document.createElement('div');
-            div.className = 'cart-item';
-            div.innerHTML = `
-                <div class="cart-item-info">
-                    <div class="cart-item-name">${name}</div>
-                    <div class="cart-item-price">${itemSum.toLocaleString('ru-RU')} ₽</div>
-                </div>
-                <div class="cart-item-controls">
-                    <button class="cart-qty-btn" onclick="changeCartQty('${name}', -1)">−</button>
-                    <span class="cart-item-qty">${item.qty}</span>
-                    <button class="cart-qty-btn" onclick="changeCartQty('${name}', 1)">+</button>
-                </div>
-            `;
-            list.appendChild(div);
+            const row = document.createElement('div');
+            row.className = 'cart-item';
+
+            const info = document.createElement('div');
+            info.className = 'cart-item-info';
+
+            const nameEl = document.createElement('div');
+            nameEl.className = 'cart-item-name';
+            nameEl.textContent = name;
+
+            const priceEl = document.createElement('div');
+            priceEl.className = 'cart-item-price';
+            priceEl.textContent = `${itemSum.toLocaleString('ru-RU')} ₽`;
+
+            info.appendChild(nameEl);
+            info.appendChild(priceEl);
+
+            const controls = document.createElement('div');
+            controls.className = 'cart-item-controls';
+
+            const minus = document.createElement('button');
+            minus.className = 'cart-qty-btn';
+            minus.type = 'button';
+            minus.textContent = '−';
+            minus.addEventListener('click', () => changeCartQty(name, -1));
+
+            const qty = document.createElement('span');
+            qty.className = 'cart-item-qty';
+            qty.textContent = String(item.qty);
+
+            const plus = document.createElement('button');
+            plus.className = 'cart-qty-btn';
+            plus.type = 'button';
+            plus.textContent = '+';
+            plus.addEventListener('click', () => changeCartQty(name, 1));
+
+            controls.appendChild(minus);
+            controls.appendChild(qty);
+            controls.appendChild(plus);
+
+            row.appendChild(info);
+            row.appendChild(controls);
+            list.appendChild(row);
         });
 
         let discount = 0;
         if (isBonusApplied && bonusPoints > 0) {
             discount = Math.min(bonusPoints, subtotal);
         }
-        const finalTotal = Math.max(0, subtotal - discount);
 
+        const finalTotal = Math.max(0, subtotal - discount);
         document.getElementById('cartBonusTitle').textContent = `Бонусы TAPAZ: ${bonusPoints} Б`;
+
         const bonusBtn = document.getElementById('cartBonusApplyBtn');
         const discountRow = document.getElementById('cartDiscountRow');
 
@@ -3443,7 +3559,7 @@
         }
 
         document.getElementById('cartTotalItemsCount').textContent = `${totalQty} шт.`;
-        document.getElementById('cartTotalSum').textContent = finalTotal.toLocaleString('ru-RU') + ' ₽';
+        document.getElementById('cartTotalSum').textContent = `${finalTotal.toLocaleString('ru-RU')} ₽`;
         summary.style.display = 'flex';
     }
 
@@ -3491,8 +3607,23 @@
                 }
             });
 
-            if (error) throw error;
-            if (!data?.success) throw new Error(data?.error || 'Order creation failed');
+            if (error) {
+                let details = null;
+                try { details = await error.context?.json?.(); } catch (_) {}
+                if (details?.code === 'ORDER_RATE_LIMIT') {
+                    showToast('За 12 часов можно оформить максимум 5 заказов.');
+                    return;
+                }
+                throw error;
+            }
+
+            if (!data?.success) {
+                if (data?.code === 'ORDER_RATE_LIMIT') {
+                    showToast('За 12 часов можно оформить максимум 5 заказов.');
+                    return;
+                }
+                throw new Error(data?.error || 'Order creation failed');
+            }
 
             bonusBalanceTotal = Number(data.bonusBalance ?? bonusBalanceTotal);
             bonusReservedTotal = Number(data.bonusReservedTotal ?? bonusReservedTotal);
@@ -3508,7 +3639,11 @@
 
             const orderNumber = data.orderId ? ` #${data.orderId}` : '';
             const bonusText = Number(data.discount) > 0 ? ` Зарезервировано ${Number(data.discount).toLocaleString('ru-RU')} Б.` : '';
-            showToast(`✅ Заказ${orderNumber} оформлен!${bonusText}`);
+            if (data.managerNotificationSent === false) {
+                showToast(`✅ Заказ${orderNumber} сохранён. Уведомление менеджеру задерживается.`);
+            } else {
+                showToast(`✅ Заказ${orderNumber} оформлен!${bonusText}`);
+            }
 
             await openOrdersScreen();
 
@@ -3656,6 +3791,12 @@
 
             if (error) {
                 console.error('Ошибка submit-review:', error);
+                let details = null;
+                try { details = await error.context?.json?.(); } catch (_) {}
+                if (details?.code === 'REVIEW_EDIT_LIMIT') {
+                    showToast('Отзыв можно изменить максимум 3 раза за 24 часа.');
+                    return;
+                }
                 throw error;
             }
 
@@ -3892,7 +4033,7 @@
             ) {
                 loadMyOrders(true, true);
             }
-        }, 5000);
+        }, 15000);
     }
 
     function stopOrdersAutoRefresh() {
@@ -4207,13 +4348,118 @@
         }
     }
 
-    async function initUserProgress() {
-        const prog = await loadStorageItem('tapaz_progress');
-        if (prog) unlockedLevel = Math.max(1, parseInt(prog, 10));
+    async function loadServerGameState() {
+        const initData = window.Telegram?.WebApp?.initData || '';
+        if (!initData || !supabaseClient) return false;
 
+        try {
+            const { data, error } = await supabaseClient.functions.invoke('game-level', {
+                body: { initData, action: 'state' }
+            });
+
+            if (error || !data?.success) {
+                console.error('Не удалось загрузить прогресс игры:', error || data);
+                return false;
+            }
+
+            gameHighestCompletedLevel = Number(data.highestCompletedLevel ?? 0);
+            unlockedLevel = Math.min(24, gameHighestCompletedLevel + 1);
+            bonusBalanceTotal = Number(data.bonusBalance ?? 0);
+            bonusReservedTotal = Number(data.bonusReservedTotal ?? 0);
+            bonusPoints = Number(data.bonusAvailable ?? 0);
+
+            updateBonusUI();
+            renderLevelsGrid();
+            return true;
+        } catch (error) {
+            console.error('Ошибка server game state:', error);
+            return false;
+        }
+    }
+
+    async function startServerGameSession(level) {
+        const initData = window.Telegram?.WebApp?.initData || '';
+        if (!initData || !supabaseClient) {
+            showToast('Игра с бонусами доступна внутри Telegram.');
+            return null;
+        }
+
+        try {
+            const { data, error } = await supabaseClient.functions.invoke('game-level', {
+                body: { initData, action: 'start', level }
+            });
+
+            if (error || !data?.success) {
+                console.error('Не удалось начать game session:', error || data);
+                showToast(data?.code === 'LEVEL_LOCKED' ? 'Сначала пройдите предыдущий уровень.' : 'Не удалось запустить уровень.');
+                return null;
+            }
+
+            return String(data.sessionId || '');
+        } catch (error) {
+            console.error('Ошибка startServerGameSession:', error);
+            showToast('Не удалось запустить уровень.');
+            return null;
+        }
+    }
+
+    async function claimServerGameReward(level) {
+        if (gameRewardClaimPending) return false;
+
+        const initData = window.Telegram?.WebApp?.initData || '';
+        if (!initData || !supabaseClient || !currentGameSessionId) return false;
+
+        gameRewardClaimPending = true;
+        const rewardText = document.getElementById('winRewardText');
+        if (rewardText) rewardText.textContent = 'Начисляем награду...';
+
+        try {
+            const { data, error } = await supabaseClient.functions.invoke('game-level', {
+                body: {
+                    initData,
+                    action: 'claim',
+                    level,
+                    sessionId: currentGameSessionId
+                }
+            });
+
+            if (error || !data?.success) {
+                console.error('Ошибка начисления game reward:', error || data);
+                if (rewardText) rewardText.textContent = 'Награда не начислена. Повторите уровень позже.';
+                return false;
+            }
+
+            gameHighestCompletedLevel = Number(data.highestCompletedLevel ?? gameHighestCompletedLevel);
+            unlockedLevel = Math.min(24, gameHighestCompletedLevel + 1);
+            bonusBalanceTotal = Number(data.bonusBalance ?? bonusBalanceTotal);
+            bonusReservedTotal = Number(data.bonusReservedTotal ?? bonusReservedTotal);
+            bonusPoints = Number(data.bonusAvailable ?? bonusPoints);
+
+            updateBonusUI();
+            renderLevelsGrid();
+
+            const reward = Number(data.reward || 0);
+            if (rewardText) {
+                rewardText.textContent = reward > 0
+                    ? `+${reward} бонусов TAPAZ начислено!`
+                    : 'Награда за этот уровень уже была получена.';
+            }
+            return true;
+        } catch (error) {
+            console.error('claimServerGameReward exception:', error);
+            if (rewardText) rewardText.textContent = 'Награда временно не начислена.';
+            return false;
+        } finally {
+            gameRewardClaimPending = false;
+        }
+    }
+
+    async function initUserProgress() {
         bonusPoints = 0;
         bonusBalanceTotal = 0;
         bonusReservedTotal = 0;
+        gameHighestCompletedLevel = 0;
+        unlockedLevel = 1;
 
         updateBonusUI();
         renderLevelsGrid();
@@ -4222,6 +4468,7 @@
         await loadProductsFromSupabase();
         await loadMyOrders(false);
         await loadExistingReview();
+        await loadServerGameState();
         updateCartCount();
     }
 
@@ -4278,27 +4525,33 @@
 
     function renderLevelsGrid() {
         const grid = document.getElementById('levelsGrid');
-        grid.innerHTML = '';
+        grid.replaceChildren();
+
         for (let i = 1; i <= 24; i++) {
             const btn = document.createElement('button');
             btn.className = 'level-btn';
             btn.textContent = i;
-            if (i < unlockedLevel) {
+
+            if (i <= gameHighestCompletedLevel) {
                 btn.classList.add('completed');
                 btn.onclick = () => startGame(i);
-            } else if (i === unlockedLevel) {
+            } else if (i === gameHighestCompletedLevel + 1 && i <= 24) {
                 btn.classList.add('current');
                 btn.onclick = () => startGame(i);
             } else {
                 btn.classList.add('locked');
                 btn.onclick = () => showToast('Пройдите предыдущие уровни');
             }
+
             grid.appendChild(btn);
         }
     }
 
     /* ================= ИГРОВАЯ МЕХАНИКА АРЕНЫ ================= */
     async function startGame(level) {
+        currentGameSessionId = await startServerGameSession(level);
+        if (!currentGameSessionId) return;
+
         currentLevel = level;
         currentScore = 0;
         taskProgress = 0;
@@ -4317,8 +4570,8 @@
             taskTarget = 12 + level * 2;
         } else if (level % 3 === 2) {
             taskType = 'boxes';
-            taskTarget = 6 + level;
-            while (boxes.size < taskTarget && boxes.size < 20) {
+            taskTarget = Math.min(20, 6 + level);
+            while (boxes.size < taskTarget) {
                 const r = Math.floor(Math.random() * BOARD_SIZE);
                 const c = Math.floor(Math.random() * BOARD_SIZE);
                 boxes.add(`${r}-${c}`);
@@ -4553,7 +4806,7 @@
                 updateGameUI();
                 await processCascades();
                 await checkAndShuffle();
-                checkGameStatus();
+                await checkGameStatus();
             }
             isProcessing = false;
             return;
@@ -4569,7 +4822,7 @@
             updateGameUI();
             await processCascades();
             await checkAndShuffle();
-            checkGameStatus();
+            await checkGameStatus();
             isProcessing = false;
             return;
         }
@@ -4584,7 +4837,7 @@
             updateGameUI();
             await processCascades({ r: r2, c: c2 });
             await checkAndShuffle();
-            checkGameStatus();
+            await checkGameStatus();
         } else {
             swap(r1, c1, r2, c2);
             await animateBounceBack(r1, c1, r2, c2);
@@ -5071,21 +5324,21 @@
         }
     }
 
-    function checkGameStatus() {
+    async function checkGameStatus() {
         let isWin = false;
+
         if (taskType === 'score' && currentScore >= taskTarget) isWin = true;
         if ((taskType === 'collect' || taskType === 'boxes') && taskProgress >= taskTarget) isWin = true;
 
         if (isWin) {
             triggerHaptic('success');
             document.getElementById('winScoreText').textContent = `Счет: ${currentScore}`;
+
+            const rewardText = document.getElementById('winRewardText');
+            if (rewardText) rewardText.textContent = 'Проверяем награду...';
+
             document.getElementById('winOverlay').classList.add('active');
-            
-            if (currentLevel >= unlockedLevel) {
-                unlockedLevel = currentLevel + 1;
-                saveStorageItem('tapaz_progress', unlockedLevel);
-                showToast('Уровень пройден! Серверное начисление бонусов подключим следующим этапом.');
-            }
+            await claimServerGameReward(currentLevel);
         } else if (movesLeft <= 0) {
             triggerHaptic('warning');
             document.getElementById('retryBtn').style.display = 'block';
@@ -5095,6 +5348,7 @@
     }
 
     function nextLevel() {
+        currentGameSessionId = null;
         showScreen('levelsScreen');
     }
 
