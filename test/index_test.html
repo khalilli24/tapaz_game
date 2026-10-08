@@ -2886,7 +2886,14 @@
 
         const imgEl = document.getElementById('productModalImg');
         imgEl.style.opacity = '1';
-        imgEl.src = product.img;
+
+        const modalImageSrc = safeImageSrc(product.img);
+
+        if (modalImageSrc) {
+            imgEl.src = modalImageSrc;
+        } else {
+            imgEl.removeAttribute('src');
+        }
 
         document.getElementById('productModalName').textContent = product.name;
         
