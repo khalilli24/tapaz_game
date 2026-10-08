@@ -1525,6 +1525,35 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+    
+        /* ================= МОИ ЗАКАЗЫ ================= */
+        .orders-screen-body { flex: 1; overflow-y: auto; padding: 14px 14px calc(96px + env(safe-area-inset-bottom)); -webkit-overflow-scrolling: touch; }
+        .orders-bonus-card { border: 1px solid rgba(222,177,73,.3); background: linear-gradient(145deg,rgba(222,177,73,.10),rgba(255,255,255,.025)); border-radius: 18px; padding: 14px; margin-bottom: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+        .orders-bonus-title { color: var(--gold-light); font-size: 13px; font-weight: 800; letter-spacing: .5px; margin-bottom: 10px; }
+        .orders-bonus-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
+        .orders-bonus-cell { background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.07); border-radius: 12px; padding: 9px 6px; text-align: center; }
+        .orders-bonus-value { font-size: 17px; font-weight: 900; color: #fff; }
+        .orders-bonus-label { margin-top: 3px; font-size: 9px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .45px; }
+        .orders-list { display: flex; flex-direction: column; gap: 12px; }
+        .order-card { border-radius: 18px; padding: 14px; background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.08); box-shadow: 0 10px 26px rgba(0,0,0,.18); }
+        .order-card-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 10px; }
+        .order-number { color:#fff; font-size:15px; font-weight:900; }
+        .order-date { margin-top:3px; color:var(--text-dim); font-size:10px; }
+        .order-status { flex-shrink:0; border-radius:999px; padding:6px 9px; font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:.35px; }
+        .order-status.new { color:#ffd66b; background:rgba(255,196,55,.12); border:1px solid rgba(255,196,55,.25); }
+        .order-status.confirmed,.order-status.processing { color:#84d8ff; background:rgba(56,174,255,.12); border:1px solid rgba(56,174,255,.25); }
+        .order-status.completed { color:#7df2a6; background:rgba(71,220,125,.11); border:1px solid rgba(71,220,125,.24); }
+        .order-status.cancelled { color:#ff9090; background:rgba(255,84,84,.10); border:1px solid rgba(255,84,84,.22); }
+        .order-items { display:flex; flex-direction:column; gap:7px; padding:10px 0; border-top:1px solid rgba(255,255,255,.06); border-bottom:1px solid rgba(255,255,255,.06); }
+        .order-item-line { display:flex; justify-content:space-between; gap:10px; font-size:11px; color:#e7e7e7; }
+        .order-item-line span:last-child { white-space:nowrap; color:var(--gold-light); font-weight:700; }
+        .order-totals { display:flex; flex-direction:column; gap:5px; margin-top:10px; font-size:11px; }
+        .order-total-row { display:flex; justify-content:space-between; gap:10px; color:var(--text-dim); }
+        .order-total-row.final { color:#fff; font-size:13px; font-weight:900; }
+        .order-total-row.bonus { color:#7df2a6; }
+        .order-cancel-btn { width:100%; margin-top:12px; min-height:42px; border-radius:12px; border:1px solid rgba(255,104,104,.38); color:#ff9c9c; background:rgba(255,77,77,.07); font-weight:900; font-size:11px; letter-spacing:.5px; }
+        .orders-empty,.orders-loading { text-align:center; color:var(--text-dim); font-size:12px; line-height:1.6; padding:38px 18px; }
+
     </style>
 </head>
 <body>
@@ -1736,6 +1765,27 @@
         </div>
     </div>
 
+
+    <!-- РАЗДЕЛ: МОИ ЗАКАЗЫ -->
+    <div class="screen" id="ordersScreen">
+        <div class="catalog-header">
+            <button class="icon-btn" onclick="switchMainSection('menu')"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+            <div class="catalog-title">МОИ ЗАКАЗЫ</div>
+            <button class="icon-btn" onclick="loadMyOrders(true)" title="Обновить"><svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.09 0-7.19 3.72-6.39 7.69l-2.08.68C2.45 7.28 6.35 2 12 2c2.76 0 5.26 1.12 7.07 2.93L22 2v8h-8l3.65-3.65zM6.35 17.65C7.8 19.1 9.79 20 12 20c4.09 0 7.19-3.72 6.39-7.69l2.08-.68C21.55 16.72 17.65 22 12 22c-2.76 0-5.26-1.12-7.07-2.93L2 22v-8h8l-3.65 3.65z"/></svg></button>
+        </div>
+        <div class="orders-screen-body">
+            <div class="orders-bonus-card">
+                <div class="orders-bonus-title">БОНУСЫ TAPAZ</div>
+                <div class="orders-bonus-grid">
+                    <div class="orders-bonus-cell"><div class="orders-bonus-value" id="ordersBonusAvailable">0</div><div class="orders-bonus-label">Доступно</div></div>
+                    <div class="orders-bonus-cell"><div class="orders-bonus-value" id="ordersBonusReserved">0</div><div class="orders-bonus-label">В резерве</div></div>
+                    <div class="orders-bonus-cell"><div class="orders-bonus-value" id="ordersBonusBalance">0</div><div class="orders-bonus-label">Баланс</div></div>
+                </div>
+            </div>
+            <div class="orders-list" id="ordersList"><div class="orders-loading">Загружаем ваши заказы...</div></div>
+        </div>
+    </div>
+
     <!-- 2. РАЗДЕЛ: ПОДДЕРЖКА / СПРАВОЧНИК -->
     <div class="screen" id="supportScreen">
         <div class="support-header">
@@ -1906,15 +1956,14 @@
             <span class="nav-label">МЕНЮ</span>
         </button>
 
-        <!-- 2. КОРЗИНА -->
-        <button class="nav-item" id="navCartBtn" onclick="switchMainSection('cart')">
+        <!-- 2. ЗАКАЗЫ -->
+        <button class="nav-item" id="navOrdersBtn" onclick="switchMainSection('orders')">
             <div class="nav-icon-wrap">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 2h12l2 4v16H4V6l2-4z"/><path d="M4 6h16"/><path d="M9 10h6"/><path d="M9 14h6"/>
                 </svg>
-                <span class="nav-cart-badge" id="navCartCount">0</span>
             </div>
-            <span class="nav-label">КОРЗИНА</span>
+            <span class="nav-label">ЗАКАЗЫ</span>
         </button>
 
         <!-- 3. TAPAZ AI (Увеличенный золотой 3D-значок) -->
@@ -2615,6 +2664,9 @@
     let cart = {};
     let isBonusApplied = false;
     let cartPreviousScreen = 'catalogScreen';
+    let checkoutRequestId = null;
+    let bonusBalanceTotal = 0;
+    let bonusReservedTotal = 0;
 
     function addToCart(productId, name, price) {
         if (!cart[name]) {
@@ -2627,6 +2679,7 @@
             cart[name].qty++;
         }
 
+        checkoutRequestId = null;
         updateCartCount();
         showToast(`${name} добавлен в корзину!`);
     }
@@ -2638,14 +2691,14 @@
         }
         const c1 = document.getElementById('cartCount');
         if (c1) c1.textContent = totalCount;
-        const c2 = document.getElementById('navCartCount');
-        if (c2) c2.textContent = totalCount;
     }
 
-    function openCartScreen(fromScreen = 'catalogScreen') {
+    async function openCartScreen(fromScreen = 'catalogScreen') {
         cartPreviousScreen = fromScreen;
         renderCartItems();
         showScreen('cartScreen');
+        await loadMyOrders(false);
+        renderCartItems();
     }
 
     function backFromCart() {
@@ -2656,16 +2709,18 @@
         if (!cart[name]) return;
         cart[name].qty += delta;
         if (cart[name].qty <= 0) delete cart[name];
+        checkoutRequestId = null;
         updateCartCount();
         renderCartItems();
     }
 
     function toggleBonusUse() {
-        // Временно отключено: бонусы переносим на серверную проверку.
-        // Это не позволяет клиенту подделать скидку через DevTools.
-        isBonusApplied = false;
+        if (bonusPoints <= 0 && !isBonusApplied) {
+            showToast('У вас нет доступных бонусов.');
+            return;
+        }
+        isBonusApplied = !isBonusApplied;
         renderCartItems();
-        showToast('🎁 Списание бонусов временно недоступно — переносим его на защищённый сервер.');
     }
 
     function renderCartItems() {
@@ -2741,81 +2796,61 @@
         btn.textContent = 'ОФОРМЛЯЕМ...';
 
         try {
-            if (!supabaseClient) {
-                throw new Error('Supabase client is not initialized');
-            }
+            if (!supabaseClient) throw new Error('Supabase client is not initialized');
 
             const initData = window.Telegram?.WebApp?.initData || '';
-
             if (!initData) {
                 showToast('Оформление заказа доступно внутри Telegram.');
                 return;
             }
 
-            const items = keys.map(name => {
-                const item = cart[name];
+            const items = keys.map(name => ({
+                productId: cart[name].productId,
+                quantity: cart[name].qty
+            }));
 
-                return {
-                    productId: item.productId,
-                    quantity: item.qty
-                };
-            });
-
-            const hasInvalidItem = items.some(item => {
+            if (items.some(item => {
                 const productId = Number(item.productId);
                 const quantity = Number(item.quantity);
-
-                return (
-                    !Number.isSafeInteger(productId) ||
-                    productId <= 0 ||
-                    !Number.isSafeInteger(quantity) ||
-                    quantity <= 0
-                );
-            });
-
-            if (hasInvalidItem) {
+                return !Number.isSafeInteger(productId) || productId <= 0 || !Number.isSafeInteger(quantity) || quantity <= 0;
+            })) {
                 showToast('Не удалось определить товар. Обновите каталог и попробуйте снова.');
                 return;
             }
 
-            const requestId =
-                window.crypto?.randomUUID?.() ||
-                `tapaz-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+            if (!checkoutRequestId) {
+                checkoutRequestId = window.crypto?.randomUUID?.() || `tapaz-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+            }
 
             const { data, error } = await supabaseClient.functions.invoke('create-order', {
                 body: {
                     initData,
                     items,
-                    requestId
+                    requestId: checkoutRequestId,
+                    useBonus: isBonusApplied
                 }
             });
 
-            if (error) {
-                console.error('Ошибка create-order:', error);
-                throw error;
-            }
+            if (error) throw error;
+            if (!data?.success) throw new Error(data?.error || 'Order creation failed');
 
-            if (!data?.success) {
-                console.error('create-order вернул ошибку:', data);
-                throw new Error(data?.error || 'Order creation failed');
-            }
+            bonusBalanceTotal = Number(data.bonusBalance ?? bonusBalanceTotal);
+            bonusReservedTotal = Number(data.bonusReservedTotal ?? bonusReservedTotal);
+            bonusPoints = Number(data.bonusAvailable ?? Math.max(0, bonusBalanceTotal - bonusReservedTotal));
 
-            // Источник истины — сервер. Корзину очищаем только после
-            // подтверждения, что заказ действительно создан в базе.
             cart = {};
             isBonusApplied = false;
+            checkoutRequestId = null;
 
             updateCartCount();
+            updateBonusUI();
             renderCartItems();
 
             const orderNumber = data.orderId ? ` #${data.orderId}` : '';
-            showToast(`✅ Заказ${orderNumber} оформлен! Консультант скоро свяжется с вами.`);
+            const bonusText = Number(data.discount) > 0 ? ` Зарезервировано ${Number(data.discount).toLocaleString('ru-RU')} Б.` : '';
+            showToast(`✅ Заказ${orderNumber} оформлен!${bonusText}`);
 
-            setTimeout(() => {
-                if (window.Telegram?.WebApp?.close) {
-                    Telegram.WebApp.close();
-                }
-            }, 2200);
+            await openOrdersScreen();
 
         } catch (e) {
             console.error('Ошибка оформления заказа:', e);
@@ -2907,10 +2942,174 @@
             showScreen('supportScreen');
         } else if (section === 'ai') {
             showScreen('consultantScreen');
-        } else if (section === 'cart') {
-            openCartScreen('mainMenu');
+        } else if (section === 'orders') {
+            openOrdersScreen();
         } else {
             showScreen('mainMenu');
+        }
+    }
+
+
+    /* ================= МОИ ЗАКАЗЫ + СЕРВЕРНЫЕ БОНУСЫ ================= */
+    const ORDER_STATUS_LABELS = {
+        new: 'Ожидает подтверждения',
+        confirmed: 'Подтверждён',
+        processing: 'В обработке',
+        completed: 'Выполнен',
+        cancelled: 'Отменён'
+    };
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    function formatOrderDate(value) {
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return '';
+        return new Intl.DateTimeFormat('ru-RU', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }).format(date);
+    }
+
+    function applyServerBonusState(bonus) {
+        bonusBalanceTotal = Number(bonus?.balance ?? 0);
+        bonusReservedTotal = Number(bonus?.reserved ?? 0);
+        bonusPoints = Number(bonus?.available ?? Math.max(0, bonusBalanceTotal - bonusReservedTotal));
+
+        if (!Number.isFinite(bonusBalanceTotal)) bonusBalanceTotal = 0;
+        if (!Number.isFinite(bonusReservedTotal)) bonusReservedTotal = 0;
+        if (!Number.isFinite(bonusPoints)) bonusPoints = 0;
+
+        updateBonusUI();
+
+        const a = document.getElementById('ordersBonusAvailable');
+        const r = document.getElementById('ordersBonusReserved');
+        const b = document.getElementById('ordersBonusBalance');
+
+        if (a) a.textContent = Math.max(0, bonusPoints).toLocaleString('ru-RU');
+        if (r) r.textContent = Math.max(0, bonusReservedTotal).toLocaleString('ru-RU');
+        if (b) b.textContent = Math.max(0, bonusBalanceTotal).toLocaleString('ru-RU');
+    }
+
+    async function loadMyOrders(render = true) {
+        const initData = window.Telegram?.WebApp?.initData || '';
+        const list = document.getElementById('ordersList');
+
+        if (!initData || !supabaseClient) {
+            if (render && list) list.innerHTML = '<div class="orders-empty">Раздел заказов доступен внутри Telegram Mini App.</div>';
+            return null;
+        }
+
+        if (render && list) list.innerHTML = '<div class="orders-loading">Загружаем ваши заказы...</div>';
+
+        try {
+            const { data, error } = await supabaseClient.functions.invoke('my-orders', { body: { initData } });
+            if (error) throw error;
+            if (!data?.success) throw new Error(data?.error || 'Unable to load orders');
+
+            applyServerBonusState(data.bonus);
+            if (render) renderOrders(data.orders || []);
+            return data;
+        } catch (error) {
+            console.error('Не удалось загрузить заказы:', error);
+            if (render && list) list.innerHTML = '<div class="orders-empty">Не удалось загрузить заказы.<br>Попробуйте обновить раздел.</div>';
+            return null;
+        }
+    }
+
+    async function openOrdersScreen() {
+        showScreen('ordersScreen');
+        await loadMyOrders(true);
+    }
+
+    function renderOrders(orders) {
+        const list = document.getElementById('ordersList');
+        if (!list) return;
+
+        if (!Array.isArray(orders) || orders.length === 0) {
+            list.innerHTML = '<div class="orders-empty">У вас пока нет заказов.<br>Выберите аромат в каталоге ✨</div>';
+            return;
+        }
+
+        list.innerHTML = orders.map(order => {
+            const items = Array.isArray(order.order_items) ? order.order_items : [];
+            const itemsHtml = items.map(item => {
+                const volume = item.product_volume ? ` (${escapeHtml(item.product_volume)})` : '';
+                return `<div class="order-item-line"><div>${escapeHtml(item.product_name)}${volume} × ${Number(item.quantity || 0)}</div><span>${Number(item.line_total || 0).toLocaleString('ru-RU')} ₽</span></div>`;
+            }).join('');
+
+            const status = String(order.status || 'new');
+            const discount = Number(order.discount || 0);
+            const bonusRow = discount > 0
+                ? `<div class="order-total-row bonus"><span>Бонусы в заказе:</span><span>-${discount.toLocaleString('ru-RU')} Б</span></div>`
+                : '';
+
+            const cancelButton = status === 'new'
+                ? `<button class="order-cancel-btn" onclick="cancelOrder(${Number(order.id)})">ОТМЕНИТЬ ЗАКАЗ</button>`
+                : '';
+
+            return `
+                <div class="order-card">
+                    <div class="order-card-top">
+                        <div><div class="order-number">Заказ #${Number(order.id)}</div><div class="order-date">${escapeHtml(formatOrderDate(order.created_at))}</div></div>
+                        <div class="order-status ${escapeHtml(status)}">${escapeHtml(ORDER_STATUS_LABELS[status] || status)}</div>
+                    </div>
+                    <div class="order-items">${itemsHtml || '<div class="order-item-line"><div>Состав заказа</div><span>—</span></div>'}</div>
+                    <div class="order-totals">
+                        <div class="order-total-row"><span>Сумма:</span><span>${Number(order.subtotal || 0).toLocaleString('ru-RU')} ₽</span></div>
+                        ${bonusRow}
+                        <div class="order-total-row final"><span>К оплате:</span><span>${Number(order.total_amount || 0).toLocaleString('ru-RU')} ₽</span></div>
+                    </div>
+                    ${cancelButton}
+                </div>
+            `;
+        }).join('');
+    }
+
+    function askCancelConfirmation(orderId) {
+        return new Promise(resolve => {
+            const message = `Отменить заказ #${orderId}? Зарезервированные бонусы сразу снова станут доступны.`;
+            if (window.Telegram?.WebApp?.showConfirm) {
+                Telegram.WebApp.showConfirm(message, result => resolve(Boolean(result)));
+                return;
+            }
+            resolve(window.confirm(message));
+        });
+    }
+
+    async function cancelOrder(orderId) {
+        const confirmed = await askCancelConfirmation(orderId);
+        if (!confirmed) return;
+
+        const initData = window.Telegram?.WebApp?.initData || '';
+        if (!initData) {
+            showToast('Отмена заказа доступна внутри Telegram.');
+            return;
+        }
+
+        try {
+            const { data, error } = await supabaseClient.functions.invoke('cancel-order', { body: { initData, orderId } });
+            if (error) throw error;
+
+            if (!data?.success) {
+                if (data?.code === 'ORDER_CANNOT_BE_CANCELLED') {
+                    showToast('Заказ уже подтверждён. Напишите менеджеру для отмены.');
+                    await loadMyOrders(true);
+                    return;
+                }
+                throw new Error(data?.error || 'Unable to cancel order');
+            }
+
+            applyServerBonusState({
+                balance: data.bonusBalance,
+                reserved: data.bonusReservedTotal,
+                available: data.bonusAvailable
+            });
+
+            const released = Number(data.bonusReleased || 0);
+            showToast(released > 0 ? `✅ Заказ отменён. ${released.toLocaleString('ru-RU')} Б снова доступны.` : '✅ Заказ отменён.');
+            await loadMyOrders(true);
+        } catch (error) {
+            console.error('Ошибка отмены заказа:', error);
+            showToast('Не удалось отменить заказ. Попробуйте ещё раз.');
         }
     }
 
@@ -2967,18 +3166,16 @@
         const prog = await loadStorageItem('tapaz_progress');
         if (prog) unlockedLevel = Math.max(1, parseInt(prog, 10));
 
-        const savedBonus = await loadStorageItem('tapaz_bonus');
-        if (savedBonus) {
-            bonusPoints = parseInt(savedBonus, 10);
-        } else {
-            bonusPoints = Math.max(0, (unlockedLevel - 1) * 25);
-        }
+        bonusPoints = 0;
+        bonusBalanceTotal = 0;
+        bonusReservedTotal = 0;
 
         updateBonusUI();
         renderLevelsGrid();
 
         await initFavorites();
-        loadProductsFromSupabase();
+        await loadProductsFromSupabase();
+        await loadMyOrders(false);
     }
 
     function updateBonusUI() {
@@ -2987,7 +3184,7 @@
     }
 
     function showBonusInfo() {
-        showToast(`У вас ${bonusPoints} бонусов TAPAZ (1 Б = 1 ₽ скидки)!`);
+        showToast(`Доступно ${bonusPoints} Б. В резерве ${bonusReservedTotal} Б. (1 Б = 1 ₽)`);
     }
 
     function showScreen(screenId) {
@@ -3001,13 +3198,20 @@
             renderLevelsGrid();
         }
 
-        const isMenu = (screenId === 'mainMenu' || screenId === 'categoriesScreen' || screenId === 'catalogScreen' || screenId === 'levelsScreen' || screenId === 'gameScreen');
-        const isCart = (screenId === 'cartScreen');
+        const isMenu = (
+            screenId === 'mainMenu' ||
+            screenId === 'categoriesScreen' ||
+            screenId === 'catalogScreen' ||
+            screenId === 'levelsScreen' ||
+            screenId === 'gameScreen' ||
+            screenId === 'cartScreen'
+        );
+        const isOrders = (screenId === 'ordersScreen');
         const isAi = (screenId === 'consultantScreen');
         const isSupport = (screenId === 'supportScreen');
 
         document.getElementById('navMenuBtn')?.classList.toggle('active', isMenu);
-        document.getElementById('navCartBtn')?.classList.toggle('active', isCart);
+        document.getElementById('navOrdersBtn')?.classList.toggle('active', isOrders);
         document.getElementById('navAiBtn')?.classList.toggle('active', isAi);
         document.getElementById('navSupportBtn')?.classList.toggle('active', isSupport);
     }
@@ -3826,9 +4030,8 @@
             
             if (currentLevel >= unlockedLevel) {
                 unlockedLevel = currentLevel + 1;
-                bonusPoints += 25;
                 saveStorageItem('tapaz_progress', unlockedLevel);
-                saveStorageItem('tapaz_bonus', bonusPoints);
+                showToast('Уровень пройден! Серверное начисление бонусов подключим следующим этапом.');
             }
         } else if (movesLeft <= 0) {
             triggerHaptic('warning');
