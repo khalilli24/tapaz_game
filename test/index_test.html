@@ -1816,7 +1816,7 @@
         .ai-product-card {
             width: 100%;
             display: grid;
-            grid-template-columns: 48px minmax(0, 1fr) auto;
+            grid-template-columns: 52px minmax(0, 1fr) auto;
             gap: 10px;
             align-items: center;
             padding: 9px;
@@ -1840,10 +1840,17 @@
 
         .ai-product-image {
             width: 48px;
-            height: 48px;
+            height: 58px;
             border-radius: 10px;
-            object-fit: cover;
+
+            /* Показываем флакон целиком, без обрезки и визуального "зума". */
+            object-fit: contain;
+            object-position: center;
+            padding: 3px;
+            box-sizing: border-box;
+
             background: rgba(255,255,255,.05);
+            filter: drop-shadow(0 3px 7px rgba(0,0,0,.45));
         }
 
         .ai-product-info {
