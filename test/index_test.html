@@ -4491,7 +4491,7 @@
         }).join('');
     }
 
-    function repeatOrder(orderId) {
+    async function repeatOrder(orderId) {
         const order = ordersCache.find(
             item => Number(item.id) === Number(orderId)
         );
@@ -4510,33 +4510,212 @@
             return;
         }
 
-        for (const item of items) {
-            const productId = Number(item.product_id);
-            const quantity = Number(item.quantity);
-            const name = String(item.product_name || '').trim();
-            const price = Number(item.unit_price || 0);
+        if (!supabaseClient) {
+            showToast('Не удалось обновить данные каталога.');
+            return;
+        }
+
+        const validItems = items
+            .map(item => ({
+                productId: Number(item.product_id),
+                quantity: Number(item.quantity)
+            }))
+            .filter(item =>
+                Number.isSafeInteger(item.productId) &&
+                item.productId > 0 &&
+                Number.isSafeInteger(item.quantity) &&
+                item.quantity > 0
+            );
+
+        if (validItems.length === 0) {
+            showToast('В заказе нет доступных товаров для повтора.');
+            return;
+        }
+
+        const productIds = [
+            ...new Set(validItems.map(item => item.productId))
+        ];
+
+        let products = [];
+
+        try {
+            const { data, error } = await supabaseClient
+                .from('products')
+                .select(
+                    'id, name, volume, price, in_stock'
+                )
+                .in('id', productIds);
+
+            if (error) {
+                console.error(
+                    'Не удалось обновить товары повторного заказа:',
+                    error
+                );
+                showToast('Не удалось проверить актуальные товары.');
+                return;
+            }
+
+            products = Array.isArray(data) ? data : [];
+        } catch (error) {
+            console.error(
+                'Ошибка обновления повторного заказа:',
+                error
+            );
+            showToast('Не удалось проверить актуальные товары.');
+            return;
+        }
+
+        const productsById = new Map(
+            products.map(product => [
+                Number(product.id),
+                product
+            ])
+        );
+
+        let totalQty = getCartTotalQty();
+        let addedQty = 0;
+        let unavailableQty = 0;
+        let limitedQty = 0;
+        let priceChangedCount = 0;
+
+        for (const oldItem of items) {
+            const productId = Number(oldItem.product_id);
+            const requestedQty = Number(oldItem.quantity);
 
             if (
                 !Number.isSafeInteger(productId) ||
                 productId <= 0 ||
-                !Number.isSafeInteger(quantity) ||
-                quantity <= 0 ||
-                !name
+                !Number.isSafeInteger(requestedQty) ||
+                requestedQty <= 0
             ) {
                 continue;
             }
 
-            if (!cart[name]) {
-                cart[name] = {
+            const product = productsById.get(productId);
+
+            if (!product || product.in_stock !== true) {
+                unavailableQty += requestedQty;
+                continue;
+            }
+
+            const currentPrice = Number(product.price);
+
+            if (
+                !Number.isFinite(currentPrice) ||
+                currentPrice < 0
+            ) {
+                unavailableQty += requestedQty;
+                continue;
+            }
+
+            const oldPrice = Number(oldItem.unit_price || 0);
+            if (
+                Number.isFinite(oldPrice) &&
+                oldPrice > 0 &&
+                oldPrice !== currentPrice
+            ) {
+                priceChangedCount++;
+            }
+
+            const currentName = String(
+                product.name || ''
+            ).trim();
+
+            if (!currentName) {
+                unavailableQty += requestedQty;
+                continue;
+            }
+
+            const currentVolume = String(
+                product.volume || ''
+            ).trim();
+
+            const cartName = currentVolume
+                ? `${currentName} (${currentVolume})`
+                : currentName;
+
+            // Если этот productId уже лежал в корзине под старым
+            // названием, переносим его на актуальное название товара.
+            const existingKey = Object.keys(cart).find(
+                key =>
+                    Number(cart[key]?.productId) ===
+                    productId
+            );
+
+            if (
+                existingKey &&
+                existingKey !== cartName
+            ) {
+                const existingItem = cart[existingKey];
+                delete cart[existingKey];
+
+                if (cart[cartName]) {
+                    cart[cartName].qty += Number(
+                        existingItem.qty || 0
+                    );
+                } else {
+                    cart[cartName] = existingItem;
+                }
+            }
+
+            const existingQty = Number(
+                cart[cartName]?.qty || 0
+            );
+
+            const perProductRoom = Math.max(
+                0,
+                5 - existingQty
+            );
+
+            const orderRoom = Math.max(
+                0,
+                15 - totalQty
+            );
+
+            const qtyToAdd = Math.min(
+                requestedQty,
+                perProductRoom,
+                orderRoom
+            );
+
+            if (qtyToAdd <= 0) {
+                limitedQty += requestedQty;
+                continue;
+            }
+
+            if (!cart[cartName]) {
+                cart[cartName] = {
                     productId,
-                    price,
+                    price: currentPrice,
                     qty: 0
                 };
             }
 
-            cart[name].productId = productId;
-            cart[name].price = price;
-            cart[name].qty += quantity;
+            cart[cartName].productId = productId;
+            cart[cartName].price = currentPrice;
+            cart[cartName].qty =
+                Number(cart[cartName].qty || 0) +
+                qtyToAdd;
+
+            addedQty += qtyToAdd;
+            totalQty += qtyToAdd;
+
+            if (qtyToAdd < requestedQty) {
+                limitedQty += requestedQty - qtyToAdd;
+            }
+        }
+
+        if (addedQty === 0) {
+            if (unavailableQty > 0 && limitedQty === 0) {
+                showToast(
+                    'Товары из этого заказа сейчас недоступны.'
+                );
+            } else {
+                showToast(
+                    'Корзина уже достигла лимита 5/15.'
+                );
+            }
+            return;
         }
 
         checkoutRequestId = null;
@@ -4545,8 +4724,23 @@
         updateCartCount();
         renderCartItems();
 
-        showToast(`🛒 Заказ #${orderId} добавлен в корзину.`);
-        openCartScreen('ordersScreen');
+        let message =
+            `🛒 Добавлено из заказа #${orderId}: ${addedQty} шт.`;
+
+        if (unavailableQty > 0) {
+            message += ` Недоступно: ${unavailableQty} шт.`;
+        }
+
+        if (limitedQty > 0) {
+            message += ` Не добавлено из-за лимита: ${limitedQty} шт.`;
+        }
+
+        if (priceChangedCount > 0) {
+            message += ' Цены обновлены.';
+        }
+
+        showToast(message);
+        await openCartScreen('ordersScreen');
     }
 
     function askCancelConfirmation(orderId) {
@@ -5498,24 +5692,49 @@
     }
 
     async function triggerSpecials(r1, c1, r2, c2) {
-        const k1 = `${r1}-${c1}`, k2 = `${r2}-${c2}`;
+        const k1 = `${r1}-${c1}`;
+        const k2 = `${r2}-${c2}`;
+        const sameCell = r1 === r2 && c1 === c2;
+
+        // Важно сохранить типы и значения ДО очистки клеток.
+        // Иначе rainbow + обычный элемент теряет цвет обычного элемента.
         const type1 = specialCells.get(k1);
-        const type2 = specialCells.get(k2);
+        const type2 = sameCell ? undefined : specialCells.get(k2);
+        const value1 = board[r1]?.[c1];
+        const value2 = sameCell ? undefined : board[r2]?.[c2];
 
         specialCells.delete(k1);
-        specialCells.delete(k2);
+        if (!sameCell) {
+            specialCells.delete(k2);
+        }
+
         board[r1][c1] = -1;
-        board[r2][c2] = -1;
+        if (!sameCell) {
+            board[r2][c2] = -1;
+        }
 
         if (type1 === 'rainbow' && type2 === 'rainbow') {
             showShockwaveFx(r2, c2);
             triggerHaptic('heavy');
+
             for (let r = 0; r < BOARD_SIZE; r++) {
-                for (let c = 0; c < BOARD_SIZE; c++) destroyCell(r, c);
+                for (let c = 0; c < BOARD_SIZE; c++) {
+                    destroyCell(r, c);
+                }
             }
-        } else if ((type1 === 'rainbow' || type2 === 'rainbow') && (type1 && type2)) {
+
+        } else if (
+            (type1 === 'rainbow' || type2 === 'rainbow') &&
+            type1 &&
+            type2
+        ) {
+            // Rainbow + другой special:
+            // превращаем один случайный цвет в этот special и активируем его.
             const other = type1 === 'rainbow' ? type2 : type1;
-            const pickColor = Math.floor(Math.random() * PERFUMES.length);
+            const pickColor = Math.floor(
+                Math.random() * PERFUMES.length
+            );
+
             for (let r = 0; r < BOARD_SIZE; r++) {
                 for (let c = 0; c < BOARD_SIZE; c++) {
                     if (board[r][c] === pickColor) {
@@ -5524,52 +5743,102 @@
                     }
                 }
             }
-        } else if ((type1 === 'bomb' && type2 === 'rocket') || (type1 === 'rocket' && type2 === 'bomb')) {
+
+        } else if (
+            (type1 === 'bomb' && type2 === 'rocket') ||
+            (type1 === 'rocket' && type2 === 'bomb')
+        ) {
             showShockwaveFx(r2, c2);
             showLaserFx(r2, c2);
             triggerHaptic('heavy');
+
             for (let ro = -1; ro <= 1; ro++) {
                 for (let c = 0; c < BOARD_SIZE; c++) {
                     const rr = r2 + ro;
-                    if (rr >= 0 && rr < BOARD_SIZE) destroyCell(rr, c);
+                    if (rr >= 0 && rr < BOARD_SIZE) {
+                        destroyCell(rr, c);
+                    }
                 }
             }
+
             for (let co = -1; co <= 1; co++) {
                 for (let r = 0; r < BOARD_SIZE; r++) {
                     const cc = c2 + co;
-                    if (cc >= 0 && cc < BOARD_SIZE) destroyCell(r, cc);
+                    if (cc >= 0 && cc < BOARD_SIZE) {
+                        destroyCell(r, cc);
+                    }
                 }
             }
+
         } else {
             const type = type1 || type2;
+
             if (type === 'bomb') {
                 showShockwaveFx(r2, c2);
                 triggerHaptic('medium');
-                for (let r = Math.max(0, r2-1); r <= Math.min(BOARD_SIZE-1, r2+1); r++) {
-                    for (let c = Math.max(0, c2-1); c <= Math.min(BOARD_SIZE-1, c2+1); c++) {
+
+                for (
+                    let r = Math.max(0, r2 - 1);
+                    r <= Math.min(BOARD_SIZE - 1, r2 + 1);
+                    r++
+                ) {
+                    for (
+                        let c = Math.max(0, c2 - 1);
+                        c <= Math.min(BOARD_SIZE - 1, c2 + 1);
+                        c++
+                    ) {
                         destroyCell(r, c);
                     }
                 }
+
             } else if (type === 'rocket') {
                 showLaserFx(r2, c2);
                 triggerHaptic('medium');
+
                 for (let i = 0; i < BOARD_SIZE; i++) {
                     destroyCell(r2, i);
                     destroyCell(i, c2);
                 }
+
             } else if (type === 'rainbow') {
                 triggerHaptic('medium');
-                let targetColor = 0;
-                if (type1 === 'rainbow' && board[r2][c2] >= 0) {
-                    targetColor = board[r2][c2];
-                } else if (type2 === 'rainbow' && board[r1][c1] >= 0) {
-                    targetColor = board[r1][c1];
-                } else {
-                    targetColor = Math.floor(Math.random() * PERFUMES.length);
+
+                let targetColor = null;
+
+                // Rainbow + обычный элемент:
+                // используем реальный цвет второго элемента, сохранённый
+                // до того, как клетки были очищены.
+                if (
+                    type1 === 'rainbow' &&
+                    !type2 &&
+                    Number.isInteger(value2) &&
+                    value2 >= 0
+                ) {
+                    targetColor = value2;
+                } else if (
+                    type2 === 'rainbow' &&
+                    !type1 &&
+                    Number.isInteger(value1) &&
+                    value1 >= 0
+                ) {
+                    targetColor = value1;
                 }
+
+                // При одиночной активации rainbow цвет выбирается случайно.
+                if (
+                    targetColor === null ||
+                    targetColor >= PERFUMES.length
+                ) {
+                    targetColor = Math.floor(
+                        Math.random() * PERFUMES.length
+                    );
+                }
+
                 for (let r = 0; r < BOARD_SIZE; r++) {
                     for (let c = 0; c < BOARD_SIZE; c++) {
-                        if (board[r][c] === targetColor) destroyCell(r, c);
+                        if (board[r][c] === targetColor) {
+                            destroyCell(r, c);
+                        }
                     }
                 }
             }
@@ -5580,16 +5849,58 @@
     }
 
     function destroyCell(r, c) {
-        const k = `${r}-${c}`;
-        if (boxes.has(k)) {
-            boxes.delete(k);
-            if (taskType === 'boxes') taskProgress++;
+        if (
+            r < 0 ||
+            r >= BOARD_SIZE ||
+            c < 0 ||
+            c >= BOARD_SIZE
+        ) {
+            return false;
         }
-        if (ice.has(k)) ice.delete(k);
-        specialCells.delete(k);
-        if (taskType === 'collect' && board[r][c] === targetIcon) taskProgress++;
+
+        const k = `${r}-${c}`;
+        const hadBox = boxes.has(k);
+        const hadIce = ice.has(k);
+        const hadSpecial = specialCells.has(k);
+        const value = board[r]?.[c];
+
+        // Одна и та же клетка может попасть сразу под несколько лучей/
+        // взрывов. Если она уже уничтожена, повторно очки не начисляем.
+        if (
+            value === -1 &&
+            !hadBox &&
+            !hadIce &&
+            !hadSpecial
+        ) {
+            return false;
+        }
+
+        if (hadBox) {
+            boxes.delete(k);
+            if (taskType === 'boxes') {
+                taskProgress++;
+            }
+        }
+
+        if (hadIce) {
+            ice.delete(k);
+        }
+
+        if (hadSpecial) {
+            specialCells.delete(k);
+        }
+
+        if (
+            taskType === 'collect' &&
+            value === targetIcon
+        ) {
+            taskProgress++;
+        }
+
         board[r][c] = -1;
         currentScore += 15;
+
+        return true;
     }
 
     async function dropAndFill() {
