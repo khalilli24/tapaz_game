@@ -3513,7 +3513,26 @@
     let currentGameSessionId = null;
     let gameRewardClaimPending = false;
 
+    function getCartTotalQty() {
+        return Object.values(cart).reduce(
+            (sum, item) => sum + Number(item.qty || 0),
+            0
+        );
+    }
+
     function addToCart(productId, name, price) {
+        const existingQty = Number(cart[name]?.qty || 0);
+
+        if (existingQty >= 5) {
+            showToast('Одного товара можно добавить максимум 5 шт.');
+            return;
+        }
+
+        if (getCartTotalQty() >= 15) {
+            showToast('В одном заказе может быть максимум 15 товаров.');
+            return;
+        }
+
         if (!cart[name]) {
             cart[name] = {
                 productId: productId,
@@ -3565,8 +3584,25 @@
 
     function changeCartQty(name, delta) {
         if (!cart[name]) return;
+
+        if (delta > 0) {
+            if (Number(cart[name].qty || 0) >= 5) {
+                showToast('Одного товара можно добавить максимум 5 шт.');
+                return;
+            }
+
+            if (getCartTotalQty() >= 15) {
+                showToast('В одном заказе может быть максимум 15 товаров.');
+                return;
+            }
+        }
+
         cart[name].qty += delta;
-        if (cart[name].qty <= 0) delete cart[name];
+
+        if (cart[name].qty <= 0) {
+            delete cart[name];
+        }
+
         checkoutRequestId = null;
         updateCartCount();
         renderCartItems();
@@ -3725,10 +3761,22 @@
             if (error) {
                 let details = null;
                 try { details = await error.context?.json?.(); } catch (_) {}
+
                 if (details?.code === 'ORDER_RATE_LIMIT') {
                     showToast('За 12 часов можно оформить максимум 5 заказов.');
                     return;
                 }
+
+                if (details?.code === 'PRODUCT_QUANTITY_LIMIT') {
+                    showToast('Одной позиции можно заказать максимум 5 шт.');
+                    return;
+                }
+
+                if (details?.code === 'ORDER_QUANTITY_LIMIT') {
+                    showToast('В одном заказе может быть максимум 15 товаров.');
+                    return;
+                }
+
                 throw error;
             }
 
@@ -3737,6 +3785,17 @@
                     showToast('За 12 часов можно оформить максимум 5 заказов.');
                     return;
                 }
+
+                if (data?.code === 'PRODUCT_QUANTITY_LIMIT') {
+                    showToast('Одной позиции можно заказать максимум 5 шт.');
+                    return;
+                }
+
+                if (data?.code === 'ORDER_QUANTITY_LIMIT') {
+                    showToast('В одном заказе может быть максимум 15 товаров.');
+                    return;
+                }
+
                 throw new Error(data?.error || 'Order creation failed');
             }
 
