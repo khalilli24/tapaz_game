@@ -719,9 +719,24 @@
             line-height: 1.55;
             color: var(--text-dim);
         }
-        .product-modal-desc b {
+        .product-modal-desc b,
+        .product-modal-desc strong {
             color: var(--gold-light);
-            font-weight: 700;
+            font-weight: 800;
+        }
+        .product-note-line {
+            display: block;
+            margin-top: 8px;
+        }
+        .product-note-line:first-child {
+            margin-top: 0;
+        }
+        .product-note-label {
+            display: inline;
+        }
+        .product-desc-intro {
+            display: block;
+            margin-bottom: 8px;
         }
 
         .product-modal-actions {
@@ -2011,7 +2026,9 @@
                 <div class="product-modal-price" id="productModalPrice">8 200 ₽</div>
 
                 <div class="product-modal-desc" id="productModalDesc">
-                    <b>Верхние ноты:</b> бергамот, черная смородина...
+                    <div class="product-note-line">
+                        <strong class="product-note-label">Верхние ноты:</strong> бергамот, черная смородина...
+                    </div>
                 </div>
             </div>
 
@@ -2809,6 +2826,64 @@
         return (doc.body.textContent || '').replace(/\s+/g, ' ').trim();
     }
 
+    function renderProductDescription(value) {
+        const container = document.getElementById('productModalDesc');
+        if (!container) return;
+
+        container.replaceChildren();
+
+        const plainText = stripHtmlToText(value);
+        if (!plainText) return;
+
+        const notePattern =
+            /(Верхние ноты|Средние ноты|Базовые ноты)\s*:/gi;
+
+        const matches = [...plainText.matchAll(notePattern)];
+
+        // Если описания нот нет — показываем безопасный обычный текст.
+        if (matches.length === 0) {
+            container.textContent = plainText;
+            return;
+        }
+
+        const firstMatch = matches[0];
+        const intro = plainText.slice(0, firstMatch.index).trim();
+
+        if (intro) {
+            const introEl = document.createElement('span');
+            introEl.className = 'product-desc-intro';
+            introEl.textContent = intro;
+            container.appendChild(introEl);
+        }
+
+        matches.forEach((match, index) => {
+            const start = match.index + match[0].length;
+            const end =
+                index + 1 < matches.length
+                    ? matches[index + 1].index
+                    : plainText.length;
+
+            const valueText = plainText.slice(start, end).trim();
+
+            const line = document.createElement('div');
+            line.className = 'product-note-line';
+
+            const label = document.createElement('strong');
+            label.className = 'product-note-label';
+            label.textContent = `${match[1]}:`;
+
+            line.appendChild(label);
+
+            if (valueText) {
+                line.appendChild(
+                    document.createTextNode(` ${valueText}`)
+                );
+            }
+
+            container.appendChild(line);
+        });
+    }
+
     function safeImageSrc(value) {
         const raw = String(value ?? '').trim();
         if (!raw) return '';
@@ -3038,7 +3113,7 @@
         }
 
         document.getElementById('productModalPrice').textContent = Number(product.price).toLocaleString('ru-RU') + ' ₽';
-        document.getElementById('productModalDesc').textContent = stripHtmlToText(product.desc);
+        renderProductDescription(product.desc);
         
         // Синхронизация кнопки избранного
         const modalFavBtn = document.getElementById('productModalFavBtn');
