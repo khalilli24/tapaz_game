@@ -3291,9 +3291,47 @@
         image.alt = recommendation.name || 'Аромат';
         image.loading = 'lazy';
 
-        if (recommendation.img) {
-            image.src = recommendation.img;
+        // TAPAZ AI получает тот же путь к изображению, что и каталог
+        // (например img/2.webp). На /test/index_test.html прямой
+        // image.src искал бы /test/img/2.webp, поэтому обязательно
+        // пропускаем путь через общий safeImageSrc().
+        const catalogProduct = BASE_PRODUCTS.find(
+            product =>
+                Number(product.id) ===
+                Number(recommendation.id)
+        );
+
+        const rawImage =
+            recommendation.img ||
+            catalogProduct?.img ||
+            '';
+
+        const aiImageSrc = safeImageSrc(rawImage);
+
+        if (aiImageSrc) {
+            image.src = aiImageSrc;
+        } else {
+            // Не показываем стандартную иконку "битого" изображения.
+            image.style.visibility = 'hidden';
         }
+
+        image.addEventListener('error', () => {
+            // Если сервер вернул некорректный путь, пробуем актуальный
+            // путь товара из уже загруженного каталога.
+            const fallbackSrc = safeImageSrc(
+                catalogProduct?.img || ''
+            );
+
+            if (
+                fallbackSrc &&
+                image.src !== fallbackSrc
+            ) {
+                image.src = fallbackSrc;
+                return;
+            }
+
+            image.style.visibility = 'hidden';
+        });
 
         const info = document.createElement('div');
         info.className = 'ai-product-info';
