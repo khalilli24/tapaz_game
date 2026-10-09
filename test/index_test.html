@@ -2108,7 +2108,7 @@
                 <svg class="star-icon active" data-val="5" onclick="setRating(5)" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
             </div>
 
-            <textarea class="review-textarea" id="reviewComment" placeholder="Ваш комментарий (необязательно)..."></textarea>
+            <textarea class="review-textarea" id="reviewComment" maxlength="200" placeholder="Ваш комментарий (необязательно, до 200 символов)..."></textarea>
 
             <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
                 <button class="btn btn-gold" id="sendReviewBtn" onclick="submitReview()">ОТПРАВИТЬ</button>
@@ -2575,25 +2575,73 @@
     }
 
     function toggleFavorite(productName) {
-        if (favorites.has(productName)) {
+        const wasFavorite = favorites.has(productName);
+
+        if (wasFavorite) {
             favorites.delete(productName);
             showToast('Удалено из избранного');
         } else {
             favorites.add(productName);
             showToast('Добавлено в избранное ❤️');
         }
+
+        const isFavoriteNow = favorites.has(productName);
+
         triggerHaptic('medium');
         saveFavorites();
         updateFavoritesBadge();
 
+        // Не перерисовываем весь каталог.
+        // На мобильном Telegram WebView полная перерисовка пересоздавала <img>
+        // и вызывала заметное мигание картинок.
+        document.querySelectorAll('.btn-card-fav').forEach(btn => {
+            if (btn.dataset.productName !== productName) return;
+
+            btn.classList.toggle('active', isFavoriteNow);
+            btn.setAttribute(
+                'aria-label',
+                isFavoriteNow
+                    ? 'Удалить из избранного'
+                    : 'Добавить в избранное'
+            );
+        });
+
         if (currentModalProduct && currentModalProduct.name === productName) {
             const modalFavBtn = document.getElementById('productModalFavBtn');
+
             if (modalFavBtn) {
-                modalFavBtn.classList.toggle('active', favorites.has(productName));
+                modalFavBtn.classList.toggle('active', isFavoriteNow);
+                modalFavBtn.setAttribute(
+                    'aria-label',
+                    isFavoriteNow
+                        ? 'Удалить из избранного'
+                        : 'Добавить в избранное'
+                );
             }
         }
 
-        renderCatalogByCategory(currentCategoryKey);
+        // В режиме "Избранное" удалённый товар должен исчезнуть,
+        // но удаляем только его карточку, не трогая изображения остальных товаров.
+        if (isFavoritesFilter && !isFavoriteNow) {
+            document.querySelectorAll('.btn-card-fav').forEach(btn => {
+                if (btn.dataset.productName !== productName) return;
+
+                const card = btn.closest('.catalog-item');
+                if (card) card.remove();
+            });
+
+            const container = document.getElementById('catalogListContainer');
+
+            if (
+                container &&
+                container.querySelectorAll('.catalog-item').length === 0
+            ) {
+                appendStaticEmptyState(
+                    container,
+                    'В избранном пока пусто. Нажмите сердечко ♡ на карточке аромата!'
+                );
+            }
+        }
     }
 
     function toggleFavoritesFilter() {
@@ -2836,7 +2884,13 @@
             favBtn.className = `btn-card-fav${favorites.has(item.name) ? ' active' : ''}`;
             favBtn.type = 'button';
             favBtn.title = 'В избранное';
-            favBtn.setAttribute('aria-label', 'Добавить в избранное');
+            favBtn.dataset.productName = String(item.name || '');
+            favBtn.setAttribute(
+                'aria-label',
+                favorites.has(item.name)
+                    ? 'Удалить из избранного'
+                    : 'Добавить в избранное'
+            );
 
             const heartSvg = document.createElementNS(
                 'http://www.w3.org/2000/svg',
@@ -3836,8 +3890,8 @@
 
             const comment = document.getElementById('reviewComment').value.trim();
 
-            if (comment.length > 1000) {
-                showToast('Комментарий слишком длинный.');
+            if (comment.length > 200) {
+                showToast('Комментарий — максимум 200 символов.');
                 return;
             }
 
