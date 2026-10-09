@@ -1494,6 +1494,84 @@
             100% { opacity: 0; transform: scale(1); }
         }
 
+        .fx-lightning-layer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 19;
+        }
+        .fx-lightning-segment {
+            position: absolute;
+            height: 4px;
+            transform-origin: 0 50%;
+            border-radius: 999px;
+            pointer-events: none;
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0) 0%,
+                    rgba(255,255,255,0.95) 12%,
+                    rgba(167, 229, 255, 1) 35%,
+                    rgba(255, 239, 166, 1) 62%,
+                    rgba(255,255,255,0.95) 88%,
+                    rgba(255,255,255,0) 100%
+                );
+            box-shadow:
+                0 0 6px rgba(163, 232, 255, 0.95),
+                0 0 12px rgba(120, 210, 255, 0.85),
+                0 0 18px rgba(255, 223, 120, 0.65);
+            animation: lightningPulse 0.28s ease-out forwards;
+        }
+        .fx-lightning-segment::before,
+        .fx-lightning-segment::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            transform: translateY(-50%);
+            background: radial-gradient(circle, #ffffff 0%, #9be7ff 40%, rgba(255,255,255,0) 75%);
+            box-shadow: 0 0 10px rgba(164, 229, 255, 0.9);
+        }
+        .fx-lightning-segment::before { left: -2px; }
+        .fx-lightning-segment::after { right: -2px; }
+
+        .fx-lightning-node {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            background: radial-gradient(circle, rgba(255,255,255,0.98) 0%, rgba(168,229,255,0.9) 35%, rgba(255,215,112,0.38) 55%, rgba(255,255,255,0) 75%);
+            box-shadow: 0 0 10px rgba(163, 232, 255, 0.8), 0 0 18px rgba(255, 223, 120, 0.55);
+            animation: lightningNodePulse 0.28s ease-out forwards;
+        }
+
+        @keyframes lightningPulse {
+            0% {
+                opacity: 0;
+                filter: brightness(1.1);
+                transform: scaleX(0.84);
+            }
+            25% {
+                opacity: 1;
+                filter: brightness(1.9);
+            }
+            100% {
+                opacity: 0;
+                filter: brightness(1);
+                transform: scaleX(1);
+            }
+        }
+
+        @keyframes lightningNodePulse {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+            25% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+        }
+
         .overlay {
             position: absolute;
             inset: 0;
@@ -5157,7 +5235,12 @@
             }
         });
 
-        return { matchedKeys, spawns };
+        return {
+            matchedKeys,
+            spawns,
+            horizontalRuns,
+            verticalRuns
+        };
     }
 
     async function processCascades(initialCoord = null) {
@@ -5165,7 +5248,14 @@
         let resolution = getMatchResolution(coord);
 
         while (resolution) {
-            const { matchedKeys, spawns } = resolution;
+            const {
+                matchedKeys,
+                spawns,
+                horizontalRuns,
+                verticalRuns
+            } = resolution;
+
+            showMatchLightningFx(horizontalRuns, verticalRuns);
 
             matchedKeys.forEach(k => {
                 const [r, c] = k.split('-').map(Number);
@@ -5197,6 +5287,89 @@
             coord = null;
             resolution = getMatchResolution(null);
         }
+    }
+
+    function getCellCenterInBoard(cell, boardEl) {
+        const x = cell.offsetLeft + cell.offsetWidth / 2;
+        const y = cell.offsetTop + cell.offsetHeight / 2;
+        return { x, y };
+    }
+
+    function appendLightningSegment(layer, x1, y1, x2, y2) {
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const length = Math.hypot(dx, dy);
+
+        if (length < 4) return;
+
+        const segment = document.createElement('div');
+        segment.className = 'fx-lightning-segment';
+        segment.style.left = `${x1}px`;
+        segment.style.top = `${y1}px`;
+        segment.style.width = `${length}px`;
+        segment.style.transform = `translateY(-50%) rotate(${Math.atan2(dy, dx)}rad)`;
+
+        layer.appendChild(segment);
+    }
+
+    function appendLightningNode(layer, x, y) {
+        const node = document.createElement('div');
+        node.className = 'fx-lightning-node';
+        node.style.left = `${x}px`;
+        node.style.top = `${y}px`;
+        layer.appendChild(node);
+    }
+
+    function showMatchLightningFx(horizontalRuns = [], verticalRuns = []) {
+        const boardEl = document.getElementById('gameBoard');
+        if (!boardEl) return;
+
+        const layer = document.createElement('div');
+        layer.className = 'fx-lightning-layer';
+
+        const renderedSegments = new Set();
+        const renderedNodes = new Set();
+
+        const renderRun = (run) => {
+            const cells = Array.isArray(run?.cells) ? run.cells : [];
+            if (cells.length < 3) return;
+
+            for (let i = 0; i < cells.length - 1; i++) {
+                const a = getCellElement(cells[i].r, cells[i].c);
+                const b = getCellElement(cells[i + 1].r, cells[i + 1].c);
+                if (!a || !b) continue;
+
+                const p1 = getCellCenterInBoard(a, boardEl);
+                const p2 = getCellCenterInBoard(b, boardEl);
+
+                const key = `${Math.round(p1.x)}:${Math.round(p1.y)}|${Math.round(p2.x)}:${Math.round(p2.y)}`;
+                if (!renderedSegments.has(key)) {
+                    appendLightningSegment(layer, p1.x, p1.y, p2.x, p2.y);
+                    renderedSegments.add(key);
+                }
+            }
+
+            cells.forEach(cell => {
+                const el = getCellElement(cell.r, cell.c);
+                if (!el) return;
+
+                const p = getCellCenterInBoard(el, boardEl);
+                const nodeKey = `${Math.round(p.x)}:${Math.round(p.y)}`;
+
+                if (!renderedNodes.has(nodeKey)) {
+                    appendLightningNode(layer, p.x, p.y);
+                    renderedNodes.add(nodeKey);
+                }
+            });
+        };
+
+        horizontalRuns.forEach(renderRun);
+        verticalRuns.forEach(renderRun);
+
+        if (!layer.childElementCount) return;
+
+        boardEl.appendChild(layer);
+        setTimeout(() => layer.remove(), 300);
     }
 
     function damageNeighbors(r, c) {
