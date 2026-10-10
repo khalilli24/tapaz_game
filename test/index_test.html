@@ -1568,16 +1568,26 @@
             0% {
                 opacity: 0;
                 filter: brightness(1.1);
-                transform: scaleX(0.84);
+                transform:
+                    translateY(-50%)
+                    rotate(var(--lightning-angle, 0rad))
+                    scaleX(0.84);
             }
             25% {
                 opacity: 1;
                 filter: brightness(1.9);
+                transform:
+                    translateY(-50%)
+                    rotate(var(--lightning-angle, 0rad))
+                    scaleX(1.06);
             }
             100% {
                 opacity: 0;
                 filter: brightness(1);
-                transform: scaleX(1);
+                transform:
+                    translateY(-50%)
+                    rotate(var(--lightning-angle, 0rad))
+                    scaleX(1);
             }
         }
 
@@ -5423,57 +5433,135 @@
         return boxes.has(k) || ice.has(k);
     }
 
+    function isMatchableGameCell(r, c) {
+        if (
+            r < 0 ||
+            r >= BOARD_SIZE ||
+            c < 0 ||
+            c >= BOARD_SIZE
+        ) {
+            return false;
+        }
+
+        if (isBlocked(r, c)) {
+            return false;
+        }
+
+        const value = board[r]?.[c];
+
+        return (
+            Number.isInteger(value) &&
+            value >= 0 &&
+            value < PERFUMES.length
+        );
+    }
+
     function getMatchClusters() {
         const horizontalRuns = [];
         const verticalRuns = [];
 
+        // Горизонтальные совпадения.
+        // Сканируем каждую строку как непрерывные серии одинаковых элементов.
         for (let r = 0; r < BOARD_SIZE; r++) {
-            let len = 1;
-            for (let c = 0; c < BOARD_SIZE; c++) {
-                let matchesNext = false;
-                if (c < BOARD_SIZE - 1) {
-                    const cur = board[r][c];
-                    const nxt = board[r][c+1];
-                    if (cur !== -1 && cur !== -2 && !isBlocked(r, c) && cur === nxt && !isBlocked(r, c+1)) {
-                        matchesNext = true;
-                    }
+            let c = 0;
+
+            while (c < BOARD_SIZE) {
+                if (!isMatchableGameCell(r, c)) {
+                    c++;
+                    continue;
                 }
-                if (matchesNext) len++;
-                else {
-                    if (len >= 3) {
-                        const cells = [];
-                        for (let k = c - len + 1; k <= c; k++) cells.push({ r, c: k });
-                        horizontalRuns.push({ cells, len, icon: board[r][c] });
+
+                const icon = board[r][c];
+                const startC = c;
+
+                c++;
+
+                while (
+                    c < BOARD_SIZE &&
+                    isMatchableGameCell(r, c) &&
+                    board[r][c] === icon
+                ) {
+                    c++;
+                }
+
+                const len = c - startC;
+
+                if (len >= 3) {
+                    const cells = [];
+
+                    for (
+                        let currentC = startC;
+                        currentC < c;
+                        currentC++
+                    ) {
+                        cells.push({
+                            r,
+                            c: currentC
+                        });
                     }
-                    len = 1;
+
+                    horizontalRuns.push({
+                        cells,
+                        len,
+                        icon
+                    });
                 }
             }
         }
 
+        // Вертикальные совпадения.
+        // Логика полностью симметрична горизонтальной.
         for (let c = 0; c < BOARD_SIZE; c++) {
-            let len = 1;
-            for (let r = 0; r < BOARD_SIZE; r++) {
-                let matchesNext = false;
-                if (r < BOARD_SIZE - 1) {
-                    const cur = board[r][c];
-                    const nxt = board[r+1][c];
-                    if (cur !== -1 && cur !== -2 && !isBlocked(r, c) && cur === nxt && !isBlocked(r+1, c)) {
-                        matchesNext = true;
-                    }
+            let r = 0;
+
+            while (r < BOARD_SIZE) {
+                if (!isMatchableGameCell(r, c)) {
+                    r++;
+                    continue;
                 }
-                if (matchesNext) len++;
-                else {
-                    if (len >= 3) {
-                        const cells = [];
-                        for (let k = r - len + 1; k <= r; k++) cells.push({ r, c });
-                        verticalRuns.push({ cells, len, icon: board[r][c] });
+
+                const icon = board[r][c];
+                const startR = r;
+
+                r++;
+
+                while (
+                    r < BOARD_SIZE &&
+                    isMatchableGameCell(r, c) &&
+                    board[r][c] === icon
+                ) {
+                    r++;
+                }
+
+                const len = r - startR;
+
+                if (len >= 3) {
+                    const cells = [];
+
+                    for (
+                        let currentR = startR;
+                        currentR < r;
+                        currentR++
+                    ) {
+                        cells.push({
+                            r: currentR,
+                            c
+                        });
                     }
-                    len = 1;
+
+                    verticalRuns.push({
+                        cells,
+                        len,
+                        icon
+                    });
                 }
             }
         }
 
-        return { horizontalRuns, verticalRuns };
+        return {
+            horizontalRuns,
+            verticalRuns
+        };
     }
 
     function checkMatchesOnly() {
@@ -5621,7 +5709,14 @@
         segment.style.left = `${x1}px`;
         segment.style.top = `${y1}px`;
         segment.style.width = `${length}px`;
-        segment.style.transform = `translateY(-50%) rotate(${Math.atan2(dy, dx)}rad)`;
+
+        const angle = Math.atan2(dy, dx);
+        segment.style.setProperty(
+            '--lightning-angle',
+            `${angle}rad`
+        );
+        segment.style.transform =
+            `translateY(-50%) rotate(${angle}rad) scaleX(1)`;
 
         layer.appendChild(segment);
     }
@@ -5637,6 +5732,12 @@
     function showMatchLightningFx(horizontalRuns = [], verticalRuns = []) {
         const boardEl = document.getElementById('gameBoard');
         if (!boardEl) return;
+
+        // На быстрых каскадах предыдущий слой может ещё быть в DOM.
+        // Удаляем его, чтобы эффекты не конфликтовали между собой.
+        boardEl
+            .querySelectorAll('.fx-lightning-layer')
+            .forEach(oldLayer => oldLayer.remove());
 
         const layer = document.createElement('div');
         layer.className = 'fx-lightning-layer';
