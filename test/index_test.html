@@ -1908,7 +1908,7 @@
             opacity: .55;
         }
 
-
+    
         /* ================= АНИМИРОВАННЫЙ ФОН ГЛАВНОГО МЕНЮ ================= */
         .home-video-background {
             display: none;
@@ -1920,42 +1920,36 @@
             background: var(--bg-deep);
         }
 
-        .game-container.home-video-active > .home-video-background {
+        .game-container:has(> #mainMenu.active) > .home-video-background {
             display: block;
         }
 
         .home-video-background video {
-            display: block;
             width: 100%;
             height: 100%;
+            display: block;
             object-fit: cover;
             object-position: center;
         }
 
-        /* Небольшое затемнение, чтобы логотип и кнопки не терялись на видео. */
+        /* Лёгкое затемнение, чтобы логотип и кнопки читались поверх видео. */
         .home-video-background::after {
             content: '';
             position: absolute;
             inset: 0;
             background: linear-gradient(
                 180deg,
-                rgba(5, 8, 20, 0.14) 0%,
-                rgba(5, 8, 20, 0.06) 52%,
-                rgba(5, 8, 20, 0.30) 100%
+                rgba(5, 8, 20, 0.10) 0%,
+                rgba(5, 8, 20, 0.04) 50%,
+                rgba(5, 8, 20, 0.20) 100%
             );
         }
 
-        /* Поднимаем только элементы главного меню над видео. */
+        /* Контент главного меню и нижняя навигация находятся поверх видео. */
         #mainMenu,
         .game-container > .main-nav {
             position: relative;
             z-index: 1;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            .home-video-background video {
-                visibility: hidden;
-            }
         }
 
     </style>
@@ -1964,20 +1958,20 @@
 
 <div class="game-container">
 
-    <!-- Анимированный фон только для главного меню. Файл background.mp4 положите рядом с этим HTML. -->
-    <div class="home-video-background" aria-hidden="true">
-        <video
-            id="homeBackgroundVideo"
-            autoplay
-            muted
-            loop
-            playsinline
-            webkit-playsinline
-            preload="metadata"
-            tabindex="-1">
-            <source src="background.mp4" type="video/mp4">
-        </video>
-    </div>
+        <div class="home-video-background" aria-hidden="true">
+            <video
+                id="homeBackgroundVideo"
+                autoplay
+                muted
+                loop
+                playsinline
+                webkit-playsinline
+                preload="auto"
+                tabindex="-1">
+                <source src="background.mp4" type="video/mp4">
+            </video>
+        </div>
+
 
 
     <!-- 0. РАЗДЕЛ: ВЫБОР КАТЕГОРИИ КАТАЛОГА -->
@@ -6301,72 +6295,58 @@
         return new Promise(res => setTimeout(res, ms));
     }
 
-
-
-    // ================= АНИМИРОВАННЫЙ ФОН ГЛАВНОГО МЕНЮ =================
-    // Видео работает только пока открыт mainMenu. На других экранах оно ставится на паузу,
-    // чтобы не расходовать батарею/CPU и не влиять на игру, каталог и остальные функции.
-    (() => {
-        const video = document.getElementById('homeBackgroundVideo');
-        const mainMenu = document.getElementById('mainMenu');
-        const container = mainMenu?.closest('.game-container');
-
-        if (!video || !mainMenu || !container) return;
-
-        const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)');
-
-        video.muted = true;
-        video.defaultMuted = true;
-
-        function syncHomeBackgroundVideo() {
-            const menuIsVisible = mainMenu.classList.contains('active');
-            const motionAllowed = !(reducedMotion?.matches);
-            const shouldPlay = menuIsVisible && !document.hidden && motionAllowed;
-
-            container.classList.toggle('home-video-active', menuIsVisible);
-
-            if (shouldPlay) {
-                const playback = video.play();
-                if (playback && typeof playback.catch === 'function') {
-                    playback.catch(() => {});
-                }
-            } else {
-                video.pause();
-            }
-        }
-
-        new MutationObserver(syncHomeBackgroundVideo).observe(mainMenu, {
-            attributes: true,
-            attributeFilter: ['class']
-        });
-
-        document.addEventListener('visibilitychange', syncHomeBackgroundVideo);
-
-        if (reducedMotion) {
-            if (typeof reducedMotion.addEventListener === 'function') {
-                reducedMotion.addEventListener('change', syncHomeBackgroundVideo);
-            } else if (typeof reducedMotion.addListener === 'function') {
-                reducedMotion.addListener(syncHomeBackgroundVideo);
-            }
-        }
-
-        // Дополнительная попытка запуска после первого взаимодействия пользователя,
-        // если конкретный WebView заблокировал даже muted autoplay.
-        const retryPlaybackOnce = () => {
-            if (mainMenu.classList.contains('active') && !document.hidden) {
-                const playback = video.play();
-                if (playback && typeof playback.catch === 'function') {
-                    playback.catch(() => {});
-                }
-            }
-        };
-        document.addEventListener('pointerdown', retryPlaybackOnce, { once: true, passive: true });
-
-        syncHomeBackgroundVideo();
-    })();
-
     initUserProgress();
 </script>
+
+
+    <script>
+        (() => {
+            const video = document.getElementById('homeBackgroundVideo');
+            const mainMenu = document.getElementById('mainMenu');
+
+            if (!video || !mainMenu) return;
+
+            video.muted = true;
+            video.defaultMuted = true;
+
+            const syncHomeBackgroundVideo = () => {
+                const shouldPlay =
+                    mainMenu.classList.contains('active') &&
+                    !document.hidden;
+
+                if (shouldPlay) {
+                    const playPromise = video.play();
+                    if (playPromise) {
+                        playPromise.catch(() => {});
+                    }
+                } else {
+                    video.pause();
+                }
+            };
+
+            new MutationObserver(syncHomeBackgroundVideo).observe(mainMenu, {
+                attributes: true,
+                attributeFilter: ['class']
+            });
+
+            document.addEventListener(
+                'visibilitychange',
+                syncHomeBackgroundVideo
+            );
+
+            window.addEventListener('pageshow', syncHomeBackgroundVideo);
+            window.addEventListener('pagehide', () => video.pause());
+
+            /* Повторная попытка для WebView, если autoplay был отложен. */
+            document.addEventListener(
+                'pointerdown',
+                syncHomeBackgroundVideo,
+                { passive: true }
+            );
+
+            syncHomeBackgroundVideo();
+        })();
+    </script>
 
 </body>
 </html>
