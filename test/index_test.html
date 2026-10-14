@@ -3331,6 +3331,202 @@
     /* ================= ЛОГИКА ИИ-КОНСУЛЬТАНТА TAPAZ AI v2 ================= */
     let aiHistoryLoaded = false;
     let aiRequestPending = false;
+    let aiClientHistory = [];
+
+    const AI_UI_HISTORY_VERSION = 1;
+    const AI_UI_HISTORY_LIMIT = 40;
+
+    function getAiUiHistoryStorageKey() {
+        // Telegram user id используется здесь только для разделения
+        // локального UI-кэша между аккаунтами. Это НЕ авторизация.
+        const userId =
+            window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+
+        return userId
+            ? `tapaz_ai_ui_history_v${AI_UI_HISTORY_VERSION}_${userId}`
+            : `tapaz_ai_ui_history_v${AI_UI_HISTORY_VERSION}`;
+    }
+
+    function sanitizeAiRecommendationForCache(value) {
+        if (!value || typeof value !== 'object') {
+            return null;
+        }
+
+        const id = Number(value.id ?? value.product_id);
+
+        if (!Number.isSafeInteger(id) || id <= 0) {
+            return null;
+        }
+
+        return {
+            id,
+            name: String(value.name || '').slice(0, 180),
+            volume: String(value.volume || '').slice(0, 80),
+            price: Number(value.price || 0),
+            img: String(value.img || '').slice(0, 500),
+            reason: String(value.reason || '').slice(0, 700)
+        };
+    }
+
+    function normalizeAiHistoryItem(item) {
+        if (!item || typeof item !== 'object') {
+            return null;
+        }
+
+        const role =
+            item.role === 'assistant'
+                ? 'assistant'
+                : item.role === 'user'
+                    ? 'user'
+                    : null;
+
+        if (!role) {
+            return null;
+        }
+
+        const content = String(item.content || '').trim();
+
+        if (!content) {
+            return null;
+        }
+
+        if (role === 'user') {
+            return {
+                role,
+                content: content.slice(0, 1000)
+            };
+        }
+
+        const recommendations = Array.isArray(item.recommendations)
+            ? item.recommendations
+                .map(sanitizeAiRecommendationForCache)
+                .filter(Boolean)
+                .slice(0, 3)
+            : [];
+
+        const quickReplies = Array.isArray(item.quickReplies)
+            ? item.quickReplies
+                .map(value => String(value || '').trim().slice(0, 100))
+                .filter(Boolean)
+                .slice(0, 3)
+            : [];
+
+        return {
+            role,
+            content: content.slice(0, 4000),
+            recommendations,
+            quickReplies
+        };
+    }
+
+    function loadAiUiHistoryCache() {
+        try {
+            const raw = localStorage.getItem(
+                getAiUiHistoryStorageKey()
+            );
+
+            if (!raw) {
+                return [];
+            }
+
+            const parsed = JSON.parse(raw);
+
+            if (
+                !parsed ||
+                parsed.version !== AI_UI_HISTORY_VERSION ||
+                !Array.isArray(parsed.items)
+            ) {
+                return [];
+            }
+
+            return parsed.items
+                .map(normalizeAiHistoryItem)
+                .filter(Boolean)
+                .slice(-AI_UI_HISTORY_LIMIT);
+
+        } catch (error) {
+            console.warn(
+                'Не удалось прочитать UI-историю TAPAZ AI:',
+                error
+            );
+            return [];
+        }
+    }
+
+    function saveAiUiHistoryCache() {
+        aiClientHistory = aiClientHistory
+            .map(normalizeAiHistoryItem)
+            .filter(Boolean)
+            .slice(-AI_UI_HISTORY_LIMIT);
+
+        const payload = JSON.stringify({
+            version: AI_UI_HISTORY_VERSION,
+            items: aiClientHistory
+        });
+
+        try {
+            localStorage.setItem(
+                getAiUiHistoryStorageKey(),
+                payload
+            );
+        } catch (error) {
+            // При очень редком переполнении localStorage сохраняем
+            // только более свежую часть диалога.
+            try {
+                aiClientHistory = aiClientHistory.slice(-20);
+                localStorage.setItem(
+                    getAiUiHistoryStorageKey(),
+                    JSON.stringify({
+                        version: AI_UI_HISTORY_VERSION,
+                        items: aiClientHistory
+                    })
+                );
+            } catch (_) {}
+        }
+    }
+
+    function clearAiUiHistoryCache() {
+        aiClientHistory = [];
+
+        try {
+            localStorage.removeItem(
+                getAiUiHistoryStorageKey()
+            );
+        } catch (_) {}
+    }
+
+    function renderAiClientHistory(items) {
+        const chat = document.getElementById('chatMessages');
+        if (!chat) return;
+
+        chat.innerHTML = '';
+        chat.appendChild(createAiWelcomeMessage());
+
+        items.forEach(item => {
+            if (item.role === 'user') {
+                appendAiUserMessage(
+                    item.content || '',
+                    false
+                );
+                return;
+            }
+
+            if (item.role === 'assistant') {
+                appendAiAssistantMessage(
+                    item.content || '',
+                    Array.isArray(item.recommendations)
+                        ? item.recommendations
+                        : [],
+                    Array.isArray(item.quickReplies)
+                        ? item.quickReplies
+                        : [],
+                    false
+                );
+            }
+        });
+
+        scrollAiChatToBottom();
+    }
 
     const AI_WELCOME_TEXT =
         'Здравствуйте! Я TAPAZ AI. Помогу подобрать аромат под ваш стиль, повод и бюджет. ' +
@@ -3408,15 +3604,27 @@
         scrollAiChatToBottom();
     }
 
-    function appendAiUserMessage(message) {
+    function appendAiUserMessage(message, persist = true) {
         const chat = document.getElementById('chatMessages');
         if (!chat) return;
 
+        const content = String(message || '').trim();
+        if (!content) return;
+
         const bubble = document.createElement('div');
         bubble.className = 'chat-msg user';
-        bubble.textContent = message;
+        bubble.textContent = content;
 
         chat.appendChild(bubble);
+
+        if (persist) {
+            aiClientHistory.push({
+                role: 'user',
+                content
+            });
+            saveAiUiHistoryCache();
+        }
+
         scrollAiChatToBottom();
     }
 
@@ -3566,24 +3774,46 @@
         return card;
     }
 
-    function appendAiAssistantMessage(answer, recommendations = [], quickReplies = []) {
+    function appendAiAssistantMessage(
+        answer,
+        recommendations = [],
+        quickReplies = [],
+        persist = true
+    ) {
         const chat = document.getElementById('chatMessages');
         if (!chat) return;
+
+        const content = String(answer || '').trim();
+        if (!content) return;
+
+        const safeRecommendations = Array.isArray(recommendations)
+            ? recommendations
+                .map(sanitizeAiRecommendationForCache)
+                .filter(Boolean)
+                .slice(0, 3)
+            : [];
+
+        const safeQuickReplies = Array.isArray(quickReplies)
+            ? quickReplies
+                .map(value => String(value || '').trim().slice(0, 100))
+                .filter(Boolean)
+                .slice(0, 3)
+            : [];
 
         const bubble = document.createElement('div');
         bubble.className = 'chat-msg bot';
 
         const text = document.createElement('div');
         text.className = 'ai-answer-text';
-        text.textContent = String(answer || '').trim();
+        text.textContent = content;
 
         bubble.appendChild(text);
 
-        if (Array.isArray(recommendations) && recommendations.length > 0) {
+        if (safeRecommendations.length > 0) {
             const list = document.createElement('div');
             list.className = 'ai-recommendations';
 
-            recommendations.slice(0, 3).forEach(recommendation => {
+            safeRecommendations.forEach(recommendation => {
                 list.appendChild(
                     createAiProductCard(recommendation)
                 );
@@ -3592,9 +3822,23 @@
             bubble.appendChild(list);
         }
 
-        createAiQuickReplies(bubble, quickReplies);
+        createAiQuickReplies(
+            bubble,
+            safeQuickReplies
+        );
 
         chat.appendChild(bubble);
+
+        if (persist) {
+            aiClientHistory.push({
+                role: 'assistant',
+                content,
+                recommendations: safeRecommendations,
+                quickReplies: safeQuickReplies
+            });
+            saveAiUiHistoryCache();
+        }
+
         scrollAiChatToBottom();
     }
 
@@ -3627,24 +3871,44 @@
 
         renderAiWelcomeOnly();
 
-        const initData = window.Telegram?.WebApp?.initData || '';
+        // Полная локальная UI-история содержит не только текст,
+        // но и рекомендации, фотографии и быстрые ответы.
+        const cachedHistory = loadAiUiHistoryCache();
 
-        if (!initData || !supabaseClient) {
+        if (cachedHistory.length > 0) {
+            aiClientHistory = cachedHistory;
+            renderAiClientHistory(cachedHistory);
             aiHistoryLoaded = true;
             return;
         }
 
+        const initData = window.Telegram?.WebApp?.initData || '';
+
+        if (!initData || !supabaseClient) {
+            // Не фиксируем loaded=true: если Telegram initData ещё не
+            // успел появиться, при следующем входе попробуем снова.
+            aiHistoryLoaded = false;
+            return;
+        }
+
         try {
-            const { data, error } = await supabaseClient.functions.invoke('consultant', {
-                body: {
-                    initData,
-                    action: 'history'
-                }
-            });
+            const { data, error } =
+                await supabaseClient.functions.invoke(
+                    'consultant',
+                    {
+                        body: {
+                            initData,
+                            action: 'history'
+                        }
+                    }
+                );
 
             if (error) {
-                console.error('Ошибка загрузки истории TAPAZ AI:', error);
-                aiHistoryLoaded = true;
+                console.error(
+                    'Ошибка загрузки истории TAPAZ AI:',
+                    error
+                );
+                aiHistoryLoaded = false;
                 return;
             }
 
@@ -3653,28 +3917,32 @@
                 : [];
 
             if (messages.length > 0) {
-                chat.innerHTML = '';
-                chat.appendChild(createAiWelcomeMessage());
+                aiClientHistory = messages
+                    .map(item => normalizeAiHistoryItem({
+                        role: item.role,
+                        content: item.content || ''
+                    }))
+                    .filter(Boolean)
+                    .slice(-AI_UI_HISTORY_LIMIT);
 
-                messages.forEach(item => {
-                    if (item.role === 'user') {
-                        appendAiUserMessage(item.content || '');
-                    } else if (item.role === 'assistant') {
-                        appendAiAssistantMessage(
-                            item.content || '',
-                            [],
-                            []
-                        );
-                    }
-                });
+                renderAiClientHistory(
+                    aiClientHistory
+                );
+
+                // Серверная история старого формата содержит только
+                // текст. Сохраняем её как fallback для следующих запусков.
+                saveAiUiHistoryCache();
             }
 
             aiHistoryLoaded = true;
             scrollAiChatToBottom();
 
         } catch (error) {
-            console.error('Не удалось загрузить историю TAPAZ AI:', error);
-            aiHistoryLoaded = true;
+            console.error(
+                'Не удалось загрузить историю TAPAZ AI:',
+                error
+            );
+            aiHistoryLoaded = false;
         }
     }
 
@@ -3700,6 +3968,7 @@
                     }
                 }
 
+                clearAiUiHistoryCache();
                 aiHistoryLoaded = true;
                 renderAiWelcomeOnly();
                 showToast('✨ Начали новый подбор.');
