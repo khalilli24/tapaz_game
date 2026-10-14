@@ -2146,7 +2146,7 @@
     <!-- 1. РАЗДЕЛ: КАТАЛОГ ТОВАРОВ ВЫБРАННОЙ КАТЕГОРИИ -->
     <div class="screen" id="catalogScreen">
         <div class="catalog-header">
-            <button class="icon-btn" onclick="showScreen('categoriesScreen')"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+            <button class="icon-btn" onclick="handleCatalogBack()"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
             <div class="catalog-title" id="catalogCategoryTitle">КАТАЛОГ</div>
             <div class="catalog-header-right">
                 <!-- Поиск -->
@@ -2928,7 +2928,25 @@
         renderCatalogByCategory(currentCategoryKey);
     }
 
-    function openCategory(categoryKey, titleText) {
+    let catalogReturnScreen = 'categoriesScreen';
+
+    function handleCatalogBack() {
+        const target =
+            catalogReturnScreen === 'consultantScreen'
+                ? 'consultantScreen'
+                : 'categoriesScreen';
+
+        catalogReturnScreen = 'categoriesScreen';
+        showScreen(target);
+    }
+
+    function openCategory(
+        categoryKey,
+        titleText,
+        returnScreen = 'categoriesScreen'
+    ) {
+        catalogReturnScreen = returnScreen;
+
         currentCategoryKey = categoryKey;
         currentCategoryTitle = titleText;
         currentSearchQuery = '';
@@ -3445,7 +3463,8 @@
 
         openCategory(
             product.category,
-            titles[product.category] || 'Каталог'
+            titles[product.category] || 'Каталог',
+            'consultantScreen'
         );
 
         setTimeout(() => {
