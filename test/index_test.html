@@ -1952,11 +1952,53 @@
             z-index: 1;
         }
 
+    
+        /* ================= ФОТО-ФОН ДЛЯ ЗАКАЗОВ / TAPAZ AI / СПРАВОЧНИКА ================= */
+        .section-photo-background {
+            display: none;
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+
+            background-image: url('background-sections.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        /* Показываем фото только в трёх нужных разделах. */
+        .game-container:has(> #ordersScreen.active) > .section-photo-background,
+        .game-container:has(> #consultantScreen.active) > .section-photo-background,
+        .game-container:has(> #supportScreen.active) > .section-photo-background {
+            display: block;
+        }
+
+        /* Лёгкое затемнение для читаемости интерфейса. */
+        .section-photo-background::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(5, 8, 20, 0.22);
+        }
+
+        /* Нужные экраны остаются поверх фоновой фотографии. */
+        #ordersScreen,
+        #consultantScreen,
+        #supportScreen {
+            position: relative;
+            z-index: 1;
+        }
+
     </style>
 </head>
 <body>
 
 <div class="game-container">
+
+        <div class="section-photo-background" aria-hidden="true"></div>
+
 
         <div class="home-video-background" aria-hidden="true">
             <video
