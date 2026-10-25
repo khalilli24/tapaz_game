@@ -2727,6 +2727,540 @@
             }
         }
 
+
+        /* ================= SPECIAL FX UPGRADE =================
+           Эффекты находятся в отдельном слое над игровым полем,
+           поэтому renderBoard() больше не стирает их мгновенно.
+        */
+
+        #gameScreen .game-special-fx-layer {
+            position: absolute;
+            pointer-events: none;
+            overflow: hidden;
+            border-radius: 18px;
+            z-index: 40;
+            contain: layout paint;
+        }
+
+        /* ---------- Общий impact поля ---------- */
+        #gameScreen .board.fx-board-impact {
+            animation: boardImpact 0.28s cubic-bezier(0.25, 0.9, 0.35, 1);
+        }
+
+        @keyframes boardImpact {
+            0%   { transform: translate3d(0, 0, 0) scale(1); }
+            24%  { transform: translate3d(-3px, 1px, 0) scale(0.997); }
+            48%  { transform: translate3d(3px, -2px, 0) scale(1.002); }
+            72%  { transform: translate3d(-1px, 1px, 0) scale(0.999); }
+            100% { transform: translate3d(0, 0, 0) scale(1); }
+        }
+
+        /* ================= БОМБА ================= */
+        #gameScreen .fx-bomb-flash,
+        #gameScreen .fx-bomb-ring,
+        #gameScreen .fx-bomb-core,
+        #gameScreen .fx-bomb-particle {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        #gameScreen .fx-bomb-flash {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            background:
+                radial-gradient(circle,
+                    rgba(255,255,255,0.98) 0 12%,
+                    rgba(255,196,154,0.92) 24%,
+                    rgba(235,82,103,0.52) 50%,
+                    rgba(235,82,103,0) 76%);
+            mix-blend-mode: screen;
+            animation: bombFlashBurst 0.42s ease-out forwards;
+            z-index: 8;
+        }
+
+        @keyframes bombFlashBurst {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.2);
+            }
+            16% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(2.4);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(7.8);
+            }
+        }
+
+        #gameScreen .fx-bomb-core {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff5ee;
+            box-shadow:
+                0 0 9px rgba(255,255,255,0.95),
+                0 0 22px rgba(239,95,119,0.8),
+                0 0 44px rgba(199,56,78,0.48);
+            animation: bombCore 0.3s ease-out forwards;
+            z-index: 9;
+        }
+
+        @keyframes bombCore {
+            0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.25); }
+            28%  { opacity: 1; transform: translate(-50%, -50%) scale(1.55); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.55); }
+        }
+
+        #gameScreen .fx-bomb-ring {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0.25);
+            border: 2px solid rgba(255, 226, 212, 0.92);
+            box-shadow:
+                0 0 12px rgba(239, 95, 119, 0.48),
+                inset 0 0 8px rgba(255,255,255,0.16);
+            animation: bombRingExpand 0.52s cubic-bezier(0.1, 0.7, 0.2, 1) forwards;
+            z-index: 7;
+        }
+
+        #gameScreen .fx-bomb-ring.ring-two {
+            border-color: rgba(225, 91, 119, 0.65);
+            animation-delay: 0.075s;
+            animation-duration: 0.6s;
+        }
+
+        @keyframes bombRingExpand {
+            0% {
+                opacity: 0.95;
+                transform: translate(-50%, -50%) scale(0.3);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(9.8);
+            }
+        }
+
+        #gameScreen .fx-bomb-particle {
+            width: var(--size, 5px);
+            height: var(--size, 5px);
+            border-radius: 45% 55% 60% 40%;
+            transform:
+                translate(-50%, -50%)
+                rotate(var(--angle))
+                translateX(5px)
+                scale(1);
+            transform-origin: 50% 50%;
+            background: var(--particle-color, #ff8a9c);
+            box-shadow: 0 0 8px color-mix(in srgb, var(--particle-color, #ff8a9c) 72%, transparent);
+            animation: bombParticleFly 0.55s cubic-bezier(0.1, 0.7, 0.25, 1) forwards;
+            animation-delay: var(--delay, 0ms);
+            z-index: 10;
+        }
+
+        @keyframes bombParticleFly {
+            0% {
+                opacity: 1;
+                transform:
+                    translate(-50%, -50%)
+                    rotate(var(--angle))
+                    translateX(5px)
+                    scale(1);
+            }
+            75% { opacity: 0.9; }
+            100% {
+                opacity: 0;
+                transform:
+                    translate(-50%, -50%)
+                    rotate(var(--angle))
+                    translateX(var(--distance))
+                    scale(0.15);
+            }
+        }
+
+        /* ================= РАКЕТА ================= */
+        #gameScreen .fx-rocket-origin,
+        #gameScreen .fx-rocket-trail,
+        #gameScreen .fx-rocket-runner,
+        #gameScreen .fx-rocket-cell-hit {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        #gameScreen .fx-rocket-origin {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            background: #eaf7ff;
+            box-shadow:
+                0 0 8px rgba(255,255,255,0.95),
+                0 0 24px rgba(94,181,245,0.85);
+            animation: rocketOriginFlash 0.38s ease-out forwards;
+            z-index: 10;
+        }
+
+        @keyframes rocketOriginFlash {
+            0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+            32%  { opacity: 1; transform: translate(-50%, -50%) scale(1.4); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(2.4); }
+        }
+
+        #gameScreen .fx-rocket-trail {
+            overflow: hidden;
+            opacity: 0;
+            z-index: 6;
+        }
+
+        #gameScreen .fx-rocket-trail::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0) 0%,
+                    rgba(157,218,255,0.24) 14%,
+                    rgba(237,249,255,0.98) 48%,
+                    rgba(93,180,242,0.72) 68%,
+                    rgba(255,255,255,0) 100%
+                );
+            box-shadow:
+                0 0 8px rgba(141, 211, 255, 0.72),
+                0 0 18px rgba(85, 165, 229, 0.48);
+        }
+
+        #gameScreen .fx-rocket-trail.row {
+            left: 0;
+            right: 0;
+            height: 7px;
+            transform: translateY(-50%) scaleX(0.05);
+            transform-origin: center;
+            animation: rocketRowSweep 0.42s cubic-bezier(0.1, 0.75, 0.2, 1) forwards;
+        }
+
+        #gameScreen .fx-rocket-trail.col {
+            top: 0;
+            bottom: 0;
+            width: 7px;
+            transform: translateX(-50%) scaleY(0.05);
+            transform-origin: center;
+            animation: rocketColSweep 0.42s cubic-bezier(0.1, 0.75, 0.2, 1) forwards;
+        }
+
+        #gameScreen .fx-rocket-trail.col::before {
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(255,255,255,0) 0%,
+                    rgba(157,218,255,0.24) 14%,
+                    rgba(237,249,255,0.98) 48%,
+                    rgba(93,180,242,0.72) 68%,
+                    rgba(255,255,255,0) 100%
+                );
+        }
+
+        @keyframes rocketRowSweep {
+            0%   { opacity: 0; transform: translateY(-50%) scaleX(0.04); filter: blur(2px); }
+            24%  { opacity: 1; }
+            66%  { opacity: 1; transform: translateY(-50%) scaleX(1); filter: blur(0); }
+            100% { opacity: 0; transform: translateY(-50%) scaleX(1); }
+        }
+
+        @keyframes rocketColSweep {
+            0%   { opacity: 0; transform: translateX(-50%) scaleY(0.04); filter: blur(2px); }
+            24%  { opacity: 1; }
+            66%  { opacity: 1; transform: translateX(-50%) scaleY(1); filter: blur(0); }
+            100% { opacity: 0; transform: translateX(-50%) scaleY(1); }
+        }
+
+        #gameScreen .fx-rocket-runner {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            background: #ffffff;
+            box-shadow:
+                0 0 7px rgba(255,255,255,0.98),
+                0 0 18px rgba(101,190,255,0.92);
+            animation: rocketRunner 0.42s cubic-bezier(0.1, 0.72, 0.2, 1) forwards;
+            z-index: 9;
+        }
+
+        @keyframes rocketRunner {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) translate(0,0) scale(1.15);
+            }
+            82% { opacity: 1; }
+            100% {
+                opacity: 0;
+                transform:
+                    translate(-50%, -50%)
+                    translate(var(--tx), var(--ty))
+                    scale(0.55);
+            }
+        }
+
+        #gameScreen .fx-rocket-cell-hit {
+            width: var(--hit-size, 20px);
+            height: var(--hit-size, 20px);
+            border-radius: 8px;
+            transform: translate(-50%, -50%) scale(0.45);
+            border: 1px solid rgba(192, 228, 255, 0.8);
+            background: rgba(120, 190, 239, 0.11);
+            box-shadow:
+                0 0 12px rgba(110, 188, 243, 0.45),
+                inset 0 0 7px rgba(216, 241, 255, 0.24);
+            animation: rocketCellHit 0.32s ease-out forwards;
+            animation-delay: var(--delay, 0ms);
+            opacity: 0;
+            z-index: 7;
+        }
+
+        @keyframes rocketCellHit {
+            0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.42); }
+            38%  { opacity: 1; transform: translate(-50%, -50%) scale(1.12); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.42); }
+        }
+
+        /* ================= РАДУГА ================= */
+        #gameScreen .fx-rainbow-aura,
+        #gameScreen .fx-rainbow-ring,
+        #gameScreen .fx-rainbow-ray,
+        #gameScreen .fx-rainbow-target,
+        #gameScreen .fx-rainbow-star {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        #gameScreen .fx-rainbow-aura {
+            inset: -8%;
+            border-radius: 24px;
+            background:
+                conic-gradient(
+                    from 0deg,
+                    rgba(255, 105, 135, 0.00),
+                    rgba(255, 105, 135, 0.16),
+                    rgba(255, 197, 106, 0.12),
+                    rgba(115, 224, 192, 0.13),
+                    rgba(102, 179, 255, 0.16),
+                    rgba(181, 122, 239, 0.16),
+                    rgba(255, 105, 135, 0.00)
+                );
+            mix-blend-mode: screen;
+            filter: blur(7px);
+            opacity: 0;
+            animation: rainbowAuraSpin 0.7s ease-out forwards;
+            z-index: 3;
+        }
+
+        @keyframes rainbowAuraSpin {
+            0%   { opacity: 0; transform: rotate(-24deg) scale(0.92); }
+            24%  { opacity: 0.76; }
+            70%  { opacity: 0.5; }
+            100% { opacity: 0; transform: rotate(46deg) scale(1.06); }
+        }
+
+        #gameScreen .fx-rainbow-ring {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0.35);
+            border: 3px solid transparent;
+            background:
+                linear-gradient(#11182d, #11182d) padding-box,
+                conic-gradient(
+                    #ff7d93,
+                    #ffc66f,
+                    #7de0c3,
+                    #72b8f0,
+                    #b382ef,
+                    #ff7d93
+                ) border-box;
+            box-shadow:
+                0 0 18px rgba(147, 190, 255, 0.42),
+                0 0 30px rgba(186, 127, 236, 0.28);
+            animation: rainbowRingExpand 0.62s cubic-bezier(0.1, 0.75, 0.2, 1) forwards;
+            z-index: 8;
+        }
+
+        @keyframes rainbowRingExpand {
+            0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.25) rotate(0deg); }
+            18%  { opacity: 1; }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(6.8) rotate(54deg); }
+        }
+
+        #gameScreen .fx-rainbow-ray {
+            width: 3px;
+            height: var(--ray-length, 74px);
+            border-radius: 999px;
+            transform-origin: 50% 0%;
+            transform:
+                translate(-50%, 0)
+                rotate(var(--angle))
+                scaleY(0.15);
+            background:
+                linear-gradient(
+                    180deg,
+                    hsla(var(--hue), 92%, 76%, 0.96),
+                    hsla(var(--hue), 88%, 66%, 0.12),
+                    transparent
+                );
+            box-shadow: 0 0 8px hsla(var(--hue), 90%, 70%, 0.45);
+            opacity: 0;
+            animation: rainbowRay 0.54s ease-out forwards;
+            animation-delay: var(--delay, 0ms);
+            z-index: 6;
+        }
+
+        @keyframes rainbowRay {
+            0%   { opacity: 0; transform: translate(-50%, 0) rotate(var(--angle)) scaleY(0.1); }
+            26%  { opacity: 0.95; }
+            100% { opacity: 0; transform: translate(-50%, 0) rotate(var(--angle)) scaleY(1); }
+        }
+
+        #gameScreen .fx-rainbow-target {
+            width: var(--target-size, 22px);
+            height: var(--target-size, 22px);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0.72);
+            border: 2px solid hsla(var(--hue), 88%, 74%, 0.82);
+            background:
+                radial-gradient(
+                    circle,
+                    hsla(var(--hue), 90%, 76%, 0.32),
+                    hsla(var(--hue), 90%, 65%, 0.05) 64%,
+                    transparent 70%
+                );
+            box-shadow:
+                0 0 10px hsla(var(--hue), 90%, 68%, 0.5);
+            opacity: 0;
+            animation: rainbowTargetPull 0.52s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+            animation-delay: var(--delay, 0ms);
+            z-index: 7;
+        }
+
+        @keyframes rainbowTargetPull {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.58);
+            }
+            28% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.08);
+            }
+            100% {
+                opacity: 0;
+                transform:
+                    translate(
+                        calc(-50% + var(--dx)),
+                        calc(-50% + var(--dy))
+                    )
+                    scale(0.12)
+                    rotate(16deg);
+            }
+        }
+
+        #gameScreen .fx-rainbow-star {
+            width: 6px;
+            height: 6px;
+            transform: translate(-50%, -50%) rotate(45deg) scale(0.3);
+            background: hsla(var(--hue), 92%, 78%, 0.95);
+            box-shadow: 0 0 9px hsla(var(--hue), 90%, 70%, 0.65);
+            animation: rainbowStar 0.56s ease-out forwards;
+            animation-delay: var(--delay, 0ms);
+            opacity: 0;
+            z-index: 9;
+        }
+
+        @keyframes rainbowStar {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) rotate(45deg) scale(0.2);
+            }
+            28% {
+                opacity: 1;
+                transform:
+                    translate(-50%, -50%)
+                    translate(var(--sx), var(--sy))
+                    rotate(95deg)
+                    scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform:
+                    translate(-50%, -50%)
+                    translate(var(--ex), var(--ey))
+                    rotate(160deg)
+                    scale(0.2);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            #gameScreen .board.fx-board-impact {
+                animation: none !important;
+            }
+
+            #gameScreen .fx-bomb-particle,
+            #gameScreen .fx-rocket-cell-hit,
+            #gameScreen .fx-rainbow-ray,
+            #gameScreen .fx-rainbow-target,
+            #gameScreen .fx-rainbow-star {
+                display: none !important;
+            }
+
+            #gameScreen .fx-bomb-flash,
+            #gameScreen .fx-bomb-core,
+            #gameScreen .fx-bomb-ring,
+            #gameScreen .fx-rocket-origin,
+            #gameScreen .fx-rocket-trail,
+            #gameScreen .fx-rocket-runner,
+            #gameScreen .fx-rainbow-aura,
+            #gameScreen .fx-rainbow-ring {
+                animation-duration: 0.18s !important;
+            }
+        }
+
+
+        /* ================= INSTANT SWIPE RESPONSE ================= */
+        #gameScreen .board,
+        #gameScreen .cell {
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #gameScreen .cell {
+            will-change: transform;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        #gameScreen .cell svg {
+            will-change: transform;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        #gameScreen .cell.swipe-origin,
+        #gameScreen .cell.swipe-target {
+            z-index: 16;
+        }
+
+        #gameScreen .cell.swipe-origin {
+            border-color: rgba(187, 223, 255, 0.52);
+            box-shadow:
+                0 0 0 1px rgba(187, 223, 255, 0.10),
+                0 4px 10px rgba(0,0,0,0.28);
+        }
+
 </style>
 </head>
 <body>
@@ -7032,47 +7566,182 @@
 
                 let startX = 0, startY = 0;
                 let isTracking = false;
+                let gestureCommitted = false;
+                const SWIPE_COMMIT_DISTANCE = 9;
+
+                const tryCommitSwipe = (e) => {
+                    if (
+                        !isTracking ||
+                        gestureCommitted ||
+                        isProcessing ||
+                        movesLeft <= 0
+                    ) {
+                        return false;
+                    }
+
+                    const deltaX = e.clientX - startX;
+                    const deltaY = e.clientY - startY;
+
+                    // Пока направление жеста ещё не очевидно — ничего не делаем.
+                    if (
+                        Math.max(
+                            Math.abs(deltaX),
+                            Math.abs(deltaY)
+                        ) < SWIPE_COMMIT_DISTANCE
+                    ) {
+                        return false;
+                    }
+
+                    let targetR = r;
+                    let targetC = c;
+
+                    if (Math.abs(deltaX) >= Math.abs(deltaY)) {
+                        targetC += deltaX > 0 ? 1 : -1;
+                    } else {
+                        targetR += deltaY > 0 ? 1 : -1;
+                    }
+
+                    if (
+                        targetR < 0 ||
+                        targetR >= BOARD_SIZE ||
+                        targetC < 0 ||
+                        targetC >= BOARD_SIZE
+                    ) {
+                        return false;
+                    }
+
+                    const sourceKey = `${r}-${c}`;
+                    const targetKey = `${targetR}-${targetC}`;
+
+                    if (
+                        boxes.has(sourceKey) ||
+                        ice.has(sourceKey) ||
+                        boxes.has(targetKey) ||
+                        ice.has(targetKey)
+                    ) {
+                        return false;
+                    }
+
+                    gestureCommitted = true;
+                    isTracking = false;
+                    selectedCell = null;
+
+                    // Тактильный отклик приходит в тот же момент, когда жест
+                    // распознан, а не после проверки матча.
+                    triggerHaptic('light');
+
+                    executeMove(r, c, targetR, targetC);
+
+                    try {
+                        cell.releasePointerCapture(e.pointerId);
+                    } catch (err) {}
+
+                    return true;
+                };
 
                 cell.addEventListener('pointerdown', (e) => {
                     if (isProcessing || movesLeft <= 0) return;
+
                     startX = e.clientX;
                     startY = e.clientY;
                     isTracking = true;
-                    try { cell.setPointerCapture(e.pointerId); } catch (err) {}
+                    gestureCommitted = false;
+
+                    try {
+                        cell.setPointerCapture(e.pointerId);
+                    } catch (err) {}
                 });
 
+                cell.addEventListener(
+                    'pointermove',
+                    (e) => {
+                        if (!isTracking || gestureCommitted) return;
+                        e.preventDefault();
+                        tryCommitSwipe(e);
+                    },
+                    { passive: false }
+                );
+
                 cell.addEventListener('pointerup', (e) => {
+                    if (gestureCommitted) {
+                        isTracking = false;
+                        return;
+                    }
+
                     if (!isTracking) return;
-                    isTracking = false;
-                    try { cell.releasePointerCapture(e.pointerId); } catch (err) {}
 
                     const deltaX = e.clientX - startX;
                     const deltaY = e.clientY - startY;
                     const dist = Math.hypot(deltaX, deltaY);
 
-                    if (dist > 25) {
-                        let targetR = r, targetC = c;
-                        if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                            targetC += (deltaX > 0 ? 1 : -1);
-                        } else {
-                            targetR += (deltaY > 0 ? 1 : -1);
+                    isTracking = false;
+
+                    try {
+                        cell.releasePointerCapture(e.pointerId);
+                    } catch (err) {}
+
+                    // На очень быстрых коротких свайпах браузер может прислать
+                    // мало pointermove-событий. На pointerup оставляем fallback.
+                    if (
+                        Math.max(
+                            Math.abs(deltaX),
+                            Math.abs(deltaY)
+                        ) >= SWIPE_COMMIT_DISTANCE
+                    ) {
+                        if (tryCommitSwipe(e)) {
+                            return;
                         }
 
-                        if (targetR >= 0 && targetR < BOARD_SIZE && targetC >= 0 && targetC < BOARD_SIZE) {
+                        // tryCommitSwipe требует isTracking=true.
+                        // Повторяем минимальную fallback-логику для pointerup.
+                        let targetR = r;
+                        let targetC = c;
+
+                        if (Math.abs(deltaX) >= Math.abs(deltaY)) {
+                            targetC += deltaX > 0 ? 1 : -1;
+                        } else {
+                            targetR += deltaY > 0 ? 1 : -1;
+                        }
+
+                        if (
+                            targetR >= 0 &&
+                            targetR < BOARD_SIZE &&
+                            targetC >= 0 &&
+                            targetC < BOARD_SIZE
+                        ) {
                             const sourceKey = `${r}-${c}`;
                             const targetKey = `${targetR}-${targetC}`;
-                            if (!boxes.has(sourceKey) && !ice.has(sourceKey) && !boxes.has(targetKey) && !ice.has(targetKey)) {
+
+                            if (
+                                !boxes.has(sourceKey) &&
+                                !ice.has(sourceKey) &&
+                                !boxes.has(targetKey) &&
+                                !ice.has(targetKey) &&
+                                !isProcessing
+                            ) {
+                                gestureCommitted = true;
                                 selectedCell = null;
-                                executeMove(r, c, targetR, targetC);
+                                triggerHaptic('light');
+                                executeMove(
+                                    r,
+                                    c,
+                                    targetR,
+                                    targetC
+                                );
                                 return;
                             }
                         }
-                    } else if (dist <= 10) {
+                    }
+
+                    if (dist <= 8) {
                         onCellClick(r, c);
                     }
                 });
 
-                cell.addEventListener('pointercancel', () => { isTracking = false; });
+                cell.addEventListener('pointercancel', () => {
+                    isTracking = false;
+                    gestureCommitted = false;
+                });
                 el.appendChild(cell);
             }
         }
@@ -7144,15 +7813,26 @@
         const dx = rect2.left - rect1.left;
         const dy = rect2.top - rect1.top;
 
-        el1.style.zIndex = '10';
-        el2.style.zIndex = '10';
-        el1.style.transition = 'transform 0.18s cubic-bezier(0.25, 1, 0.5, 1)';
-        el2.style.transition = 'transform 0.18s cubic-bezier(0.25, 1, 0.5, 1)';
+        el1.classList.add('swipe-origin');
+        el2.classList.add('swipe-target');
 
-        el1.style.transform = `translate(${dx}px, ${dy}px)`;
-        el2.style.transform = `translate(${-dx}px, ${-dy}px)`;
+        el1.style.zIndex = '16';
+        el2.style.zIndex = '16';
 
-        await sleep(180);
+        const fastSwapTransition =
+            'transform 90ms cubic-bezier(0.16, 1, 0.3, 1)';
+
+        el1.style.transition = fastSwapTransition;
+        el2.style.transition = fastSwapTransition;
+
+        // translate3d отправляет движение в compositor/GPU и начинает
+        // визуальный отклик в том же кадре, где распознан свайп.
+        el1.style.transform =
+            `translate3d(${dx}px, ${dy}px, 0)`;
+        el2.style.transform =
+            `translate3d(${-dx}px, ${-dy}px, 0)`;
+
+        await sleep(92);
     }
 
     async function animateBounceBack(r1, c1, r2, c2) {
@@ -7163,13 +7843,20 @@
         el1.classList.add('shake-anim');
         el2.classList.add('shake-anim');
         triggerHaptic('warning');
-        await sleep(200);
 
-        el1.style.transition = 'transform 0.15s ease-out';
-        el2.style.transition = 'transform 0.15s ease-out';
-        el1.style.transform = 'translate(0, 0)';
-        el2.style.transform = 'translate(0, 0)';
-        await sleep(150);
+        // Ошибочный свайп тоже должен ощущаться мгновенным:
+        // коротко показываем обмен и сразу возвращаем назад.
+        await sleep(70);
+
+        el1.style.transition =
+            'transform 75ms cubic-bezier(0.2, 0.8, 0.2, 1)';
+        el2.style.transition =
+            'transform 75ms cubic-bezier(0.2, 0.8, 0.2, 1)';
+
+        el1.style.transform = 'translate3d(0, 0, 0)';
+        el2.style.transform = 'translate3d(0, 0, 0)';
+
+        await sleep(78);
     }
 
     async function executeMove(r1, c1, r2, c2) {
@@ -7213,7 +7900,6 @@
 
         if (matches.length > 0) {
             movesLeft--;
-            triggerHaptic('light');
             renderBoard();
             updateGameUI();
             await processCascades({ r: r2, c: c2 });
@@ -7612,35 +8298,333 @@
         });
     }
 
-    function showShockwaveFx(r, c) {
+    function ensureSpecialFxLayer() {
+        const container = document.querySelector('#gameScreen .board-container');
         const boardEl = document.getElementById('gameBoard');
-        const target = getCellElement(r, c);
-        if (!boardEl || !target) return;
 
-        const wave = document.createElement('div');
-        wave.className = 'fx-shockwave';
-        wave.style.left = `${target.offsetLeft + target.offsetWidth / 2}px`;
-        wave.style.top = `${target.offsetTop + target.offsetHeight / 2}px`;
-        boardEl.appendChild(wave);
-        setTimeout(() => wave.remove(), 360);
+        if (!container || !boardEl) return null;
+
+        let layer = container.querySelector('.game-special-fx-layer');
+
+        if (!layer) {
+            layer = document.createElement('div');
+            layer.className = 'game-special-fx-layer';
+            layer.setAttribute('aria-hidden', 'true');
+            container.appendChild(layer);
+        }
+
+        const containerRect = container.getBoundingClientRect();
+        const boardRect = boardEl.getBoundingClientRect();
+
+        layer.style.left = `${boardRect.left - containerRect.left}px`;
+        layer.style.top = `${boardRect.top - containerRect.top}px`;
+        layer.style.width = `${boardRect.width}px`;
+        layer.style.height = `${boardRect.height}px`;
+
+        return layer;
+    }
+
+    function getFxCellMetrics(r, c) {
+        const target = getCellElement(r, c);
+        if (!target) return null;
+
+        return {
+            x: target.offsetLeft + target.offsetWidth / 2,
+            y: target.offsetTop + target.offsetHeight / 2,
+            width: target.offsetWidth,
+            height: target.offsetHeight
+        };
+    }
+
+    function impactGameBoard() {
+        const boardEl = document.getElementById('gameBoard');
+        if (!boardEl) return;
+
+        boardEl.classList.remove('fx-board-impact');
+        void boardEl.offsetWidth;
+        boardEl.classList.add('fx-board-impact');
+
+        setTimeout(() => {
+            boardEl.classList.remove('fx-board-impact');
+        }, 310);
+    }
+
+    function showShockwaveFx(r, c) {
+        const layer = ensureSpecialFxLayer();
+        const metrics = getFxCellMetrics(r, c);
+        if (!layer || !metrics) return;
+
+        const { x, y } = metrics;
+
+        const flash = document.createElement('div');
+        flash.className = 'fx-bomb-flash';
+        flash.style.left = `${x}px`;
+        flash.style.top = `${y}px`;
+
+        const core = document.createElement('div');
+        core.className = 'fx-bomb-core';
+        core.style.left = `${x}px`;
+        core.style.top = `${y}px`;
+
+        const ring1 = document.createElement('div');
+        ring1.className = 'fx-bomb-ring';
+        ring1.style.left = `${x}px`;
+        ring1.style.top = `${y}px`;
+
+        const ring2 = document.createElement('div');
+        ring2.className = 'fx-bomb-ring ring-two';
+        ring2.style.left = `${x}px`;
+        ring2.style.top = `${y}px`;
+
+        layer.append(flash, core, ring1, ring2);
+
+        const particleColors = [
+            '#fff4ec',
+            '#ffb09a',
+            '#f06a80',
+            '#cf4564'
+        ];
+
+        const particleCount = 16;
+
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('i');
+            particle.className = 'fx-bomb-particle';
+
+            const angle = (360 / particleCount) * i + (i % 2 ? 7 : -5);
+            const distance = 36 + (i % 5) * 8;
+            const size = 3 + (i % 4);
+
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
+            particle.style.setProperty('--angle', `${angle}deg`);
+            particle.style.setProperty('--distance', `${distance}px`);
+            particle.style.setProperty('--size', `${size}px`);
+            particle.style.setProperty('--delay', `${(i % 4) * 8}ms`);
+            particle.style.setProperty(
+                '--particle-color',
+                particleColors[i % particleColors.length]
+            );
+
+            layer.appendChild(particle);
+            setTimeout(() => particle.remove(), 720);
+        }
+
+        impactGameBoard();
+
+        setTimeout(() => {
+            flash.remove();
+            core.remove();
+            ring1.remove();
+            ring2.remove();
+        }, 760);
     }
 
     function showLaserFx(r, c) {
+        const layer = ensureSpecialFxLayer();
+        const metrics = getFxCellMetrics(r, c);
         const boardEl = document.getElementById('gameBoard');
-        const target = getCellElement(r, c);
-        if (!boardEl || !target) return;
 
-        const rowBeam = document.createElement('div');
-        rowBeam.className = 'fx-laser-row';
-        rowBeam.style.top = `${target.offsetTop + target.offsetHeight / 2}px`;
+        if (!layer || !metrics || !boardEl) return;
 
-        const colBeam = document.createElement('div');
-        colBeam.className = 'fx-laser-col';
-        colBeam.style.left = `${target.offsetLeft + target.offsetWidth / 2}px`;
+        const { x, y } = metrics;
 
-        boardEl.appendChild(rowBeam);
-        boardEl.appendChild(colBeam);
-        setTimeout(() => { rowBeam.remove(); colBeam.remove(); }, 320);
+        const origin = document.createElement('div');
+        origin.className = 'fx-rocket-origin';
+        origin.style.left = `${x}px`;
+        origin.style.top = `${y}px`;
+
+        const rowTrail = document.createElement('div');
+        rowTrail.className = 'fx-rocket-trail row';
+        rowTrail.style.top = `${y}px`;
+
+        const colTrail = document.createElement('div');
+        colTrail.className = 'fx-rocket-trail col';
+        colTrail.style.left = `${x}px`;
+
+        layer.append(origin, rowTrail, colTrail);
+
+        const runnerVectors = [
+            [Math.max(0, layer.clientWidth - x), 0],
+            [-Math.max(0, x), 0],
+            [0, Math.max(0, layer.clientHeight - y)],
+            [0, -Math.max(0, y)]
+        ];
+
+        runnerVectors.forEach(([tx, ty], index) => {
+            const runner = document.createElement('div');
+            runner.className = 'fx-rocket-runner';
+            runner.style.left = `${x}px`;
+            runner.style.top = `${y}px`;
+            runner.style.setProperty('--tx', `${tx}px`);
+            runner.style.setProperty('--ty', `${ty}px`);
+            runner.style.animationDelay = `${index * 12}ms`;
+            layer.appendChild(runner);
+            setTimeout(() => runner.remove(), 620);
+        });
+
+        // Подсветка каждой клетки по пути: линия визуально "пробегает"
+        // по строке и колонке, а не просто вспыхивает целиком.
+        const seen = new Set();
+
+        for (let i = 0; i < BOARD_SIZE; i++) {
+            [
+                [r, i],
+                [i, c]
+            ].forEach(([rr, cc]) => {
+                const key = `${rr}-${cc}`;
+                if (seen.has(key)) return;
+                seen.add(key);
+
+                const cellMetrics = getFxCellMetrics(rr, cc);
+                if (!cellMetrics) return;
+
+                const distance = Math.abs(rr - r) + Math.abs(cc - c);
+                const hit = document.createElement('div');
+                hit.className = 'fx-rocket-cell-hit';
+                hit.style.left = `${cellMetrics.x}px`;
+                hit.style.top = `${cellMetrics.y}px`;
+                hit.style.setProperty(
+                    '--hit-size',
+                    `${Math.max(16, cellMetrics.width * 0.72)}px`
+                );
+                hit.style.setProperty(
+                    '--delay',
+                    `${Math.min(150, distance * 22)}ms`
+                );
+
+                layer.appendChild(hit);
+                setTimeout(() => hit.remove(), 650);
+            });
+        }
+
+        setTimeout(() => {
+            origin.remove();
+            rowTrail.remove();
+            colTrail.remove();
+        }, 650);
+    }
+
+    function showRainbowFx(r, c, targetColor = null, affectAll = false) {
+        const layer = ensureSpecialFxLayer();
+        const metrics = getFxCellMetrics(r, c);
+
+        if (!layer || !metrics) return;
+
+        const { x, y } = metrics;
+
+        const aura = document.createElement('div');
+        aura.className = 'fx-rainbow-aura';
+
+        const ring = document.createElement('div');
+        ring.className = 'fx-rainbow-ring';
+        ring.style.left = `${x}px`;
+        ring.style.top = `${y}px`;
+
+        layer.append(aura, ring);
+
+        // Короткие спектральные лучи от центра.
+        for (let i = 0; i < 12; i++) {
+            const ray = document.createElement('i');
+            ray.className = 'fx-rainbow-ray';
+            ray.style.left = `${x}px`;
+            ray.style.top = `${y}px`;
+            ray.style.setProperty('--angle', `${i * 30}deg`);
+            ray.style.setProperty('--hue', `${(i * 30 + 330) % 360}`);
+            ray.style.setProperty(
+                '--ray-length',
+                `${48 + (i % 4) * 13}px`
+            );
+            ray.style.setProperty('--delay', `${(i % 3) * 12}ms`);
+
+            layer.appendChild(ray);
+            setTimeout(() => ray.remove(), 760);
+        }
+
+        // Искры вокруг радуги.
+        for (let i = 0; i < 14; i++) {
+            const star = document.createElement('i');
+            star.className = 'fx-rainbow-star';
+            star.style.left = `${x}px`;
+            star.style.top = `${y}px`;
+
+            const angle = (Math.PI * 2 * i) / 14;
+            const startDistance = 12 + (i % 3) * 6;
+            const endDistance = 38 + (i % 5) * 9;
+
+            star.style.setProperty('--hue', `${(i * 41) % 360}`);
+            star.style.setProperty('--sx', `${Math.cos(angle) * startDistance}px`);
+            star.style.setProperty('--sy', `${Math.sin(angle) * startDistance}px`);
+            star.style.setProperty('--ex', `${Math.cos(angle) * endDistance}px`);
+            star.style.setProperty('--ey', `${Math.sin(angle) * endDistance}px`);
+            star.style.setProperty('--delay', `${(i % 5) * 10}ms`);
+
+            layer.appendChild(star);
+            setTimeout(() => star.remove(), 760);
+        }
+
+        // Подсвечиваем именно уничтожаемый цвет и визуально "стягиваем"
+        // его в радугу. Для rainbow + rainbow — все обычные клетки.
+        let visualIndex = 0;
+
+        for (let rr = 0; rr < BOARD_SIZE; rr++) {
+            for (let cc = 0; cc < BOARD_SIZE; cc++) {
+                const value = board[rr]?.[cc];
+
+                const shouldAnimate =
+                    affectAll
+                        ? value >= 0
+                        : (
+                            Number.isInteger(targetColor) &&
+                            value === targetColor
+                        );
+
+                if (!shouldAnimate) continue;
+
+                const cellMetrics = getFxCellMetrics(rr, cc);
+                if (!cellMetrics) continue;
+
+                const target = document.createElement('div');
+                target.className = 'fx-rainbow-target';
+                target.style.left = `${cellMetrics.x}px`;
+                target.style.top = `${cellMetrics.y}px`;
+
+                target.style.setProperty(
+                    '--target-size',
+                    `${Math.max(16, cellMetrics.width * 0.64)}px`
+                );
+                target.style.setProperty(
+                    '--dx',
+                    `${x - cellMetrics.x}px`
+                );
+                target.style.setProperty(
+                    '--dy',
+                    `${y - cellMetrics.y}px`
+                );
+                target.style.setProperty(
+                    '--hue',
+                    `${(visualIndex * 47 + 320) % 360}`
+                );
+
+                const distance =
+                    Math.abs(rr - r) +
+                    Math.abs(cc - c);
+
+                target.style.setProperty(
+                    '--delay',
+                    `${Math.min(120, distance * 13)}ms`
+                );
+
+                layer.appendChild(target);
+                setTimeout(() => target.remove(), 820);
+                visualIndex++;
+            }
+        }
+
+        setTimeout(() => {
+            aura.remove();
+            ring.remove();
+        }, 820);
     }
 
     async function triggerSpecials(r1, c1, r2, c2) {
@@ -7666,6 +8650,10 @@
         }
 
         if (type1 === 'rainbow' && type2 === 'rainbow') {
+            const rainbowR = type1 === 'rainbow' ? r1 : r2;
+            const rainbowC = type1 === 'rainbow' ? c1 : c2;
+
+            showRainbowFx(rainbowR, rainbowC, null, true);
             showShockwaveFx(r2, c2);
             triggerHaptic('heavy');
 
@@ -7686,6 +8674,10 @@
             const pickColor = Math.floor(
                 Math.random() * PERFUMES.length
             );
+
+            const rainbowR = type1 === 'rainbow' ? r1 : r2;
+            const rainbowC = type1 === 'rainbow' ? c1 : c2;
+            showRainbowFx(rainbowR, rainbowC, pickColor);
 
             for (let r = 0; r < BOARD_SIZE; r++) {
                 for (let c = 0; c < BOARD_SIZE; c++) {
@@ -7786,6 +8778,10 @@
                     );
                 }
 
+                const rainbowR = type1 === 'rainbow' ? r1 : r2;
+                const rainbowC = type1 === 'rainbow' ? c1 : c2;
+                showRainbowFx(rainbowR, rainbowC, targetColor);
+
                 for (let r = 0; r < BOARD_SIZE; r++) {
                     for (let c = 0; c < BOARD_SIZE; c++) {
                         if (board[r][c] === targetColor) {
@@ -7797,7 +8793,7 @@
         }
 
         renderBoard();
-        await sleep(220);
+        await sleep(280);
     }
 
     function destroyCell(r, c) {
