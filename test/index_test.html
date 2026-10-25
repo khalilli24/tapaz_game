@@ -3262,26 +3262,21 @@
         }
 
 
-        /* ================= MOBILE NAV / SAFE AREA FIX =================
-           Не привязываемся к конкретной модели телефона или высоте WebView.
-           Любой мобильный экран до 480px получает небольшой подъём кнопок,
-           а сама панель продолжает учитывать safe-area iPhone через env().
+        /* ================= MOBILE NAV POSITION FIX v2 =================
+           Не меняем внутреннюю геометрию safe-area.
+           Просто физически поднимаем сам ряд кнопок выше.
         */
         @media (max-width: 480px) {
-            .main-nav {
-                padding-bottom: env(safe-area-inset-bottom);
-            }
-
             .main-nav .nav-item {
-                padding-top: 0;
-                padding-bottom: 8px;
+                position: relative;
+                top: -10px;
+                padding: 4px 0;
             }
         }
 
-        /* На очень узких/низких устройствах поднимаем ещё немного. */
         @media (max-width: 380px), (max-height: 700px) {
             .main-nav .nav-item {
-                padding-bottom: 11px;
+                top: -12px;
             }
         }
 
