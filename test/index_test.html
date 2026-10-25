@@ -1649,6 +1649,137 @@
             100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
         }
 
+
+        /* ================= СПРАВКА И ПОДСКАЗКИ MATCH-3 ================= */
+
+        .game-help-btn {
+            font-size: 19px;
+            font-weight: 900;
+            font-family: var(--font-ui);
+            color: var(--gold-light);
+        }
+
+        .game-help-panel {
+            max-width: 390px;
+            max-height: min(82dvh, 720px);
+            padding: 20px 18px 18px;
+            text-align: left;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            gap: 12px;
+        }
+
+        .game-help-panel .overlay-title {
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .game-help-intro {
+            color: var(--text);
+            font-size: 13px;
+            line-height: 1.5;
+            text-align: center;
+            padding: 0 4px 6px;
+        }
+
+        .game-help-section-title {
+            color: var(--gold-light);
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .game-help-rule {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 11px;
+            border-radius: 11px;
+            background: rgba(10, 14, 34, 0.72);
+            border: 1px solid rgba(212, 160, 76, 0.24);
+        }
+
+        .game-help-rule-icon {
+            width: 42px;
+            min-width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: rgba(212, 160, 76, 0.08);
+        }
+
+        .game-help-rule-icon svg {
+            width: 38px;
+            height: 38px;
+            display: block;
+        }
+
+        .game-help-rule-text {
+            min-width: 0;
+            font-size: 12px;
+            line-height: 1.45;
+            color: var(--text-dim);
+        }
+
+        .game-help-rule-text b {
+            display: block;
+            color: var(--gold-light);
+            font-size: 13px;
+            margin-bottom: 2px;
+        }
+
+        .game-help-tip {
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: rgba(244, 207, 119, 0.08);
+            border: 1px dashed rgba(244, 207, 119, 0.42);
+            color: var(--text);
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        @keyframes gameHintNudge {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+                filter: brightness(1);
+            }
+            45% {
+                transform:
+                    translate(
+                        var(--hint-x, 0px),
+                        var(--hint-y, 0px)
+                    )
+                    scale(1.06);
+                filter:
+                    brightness(1.45)
+                    drop-shadow(0 0 9px rgba(244, 207, 119, 0.9));
+            }
+        }
+
+        .cell.game-hint-move {
+            z-index: 8;
+            border-color: var(--gold-light);
+            box-shadow:
+                0 0 0 1px rgba(244, 207, 119, 0.45),
+                0 0 15px rgba(244, 207, 119, 0.68),
+                inset 0 0 7px rgba(244, 207, 119, 0.25);
+            animation: gameHintNudge 0.72s ease-in-out 3;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .cell.game-hint-move {
+                animation: none;
+                border-color: var(--gold-light);
+                box-shadow:
+                    0 0 0 2px rgba(244, 207, 119, 0.65),
+                    0 0 15px rgba(244, 207, 119, 0.7);
+            }
+        }
+
         .overlay {
             position: absolute;
             inset: 0;
@@ -2414,7 +2545,12 @@
         <div class="levels-header">
             <button class="icon-btn" onclick="showScreen('mainMenu')"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
             <div class="levels-title">АРЕНА TAPAZ</div>
-            <div style="width:38px;"></div>
+            <button
+                class="icon-btn game-help-btn"
+                onclick="showGameHelp()"
+                title="Как играть"
+                aria-label="Как играть"
+            >?</button>
         </div>
 
         <div class="arena-controls-row">
@@ -2430,7 +2566,12 @@
         <div class="hud">
             <button class="icon-btn hud-back" onclick="showScreen('levelsScreen')"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
             <div class="hud-level">УРОВЕНЬ <span id="hudLevelNum">1</span></div>
-            <div></div>
+            <button
+                class="icon-btn game-help-btn"
+                onclick="showGameHelp()"
+                title="Как играть"
+                aria-label="Как играть"
+            >?</button>
             <div class="hud-chips">
                 <div class="hud-chip">ХОДЫ: <span class="val" id="hudMoves">20</span></div>
                 <div class="hud-chip">СЧЕТ: <span class="val" id="hudScore">0</span></div>
@@ -2471,6 +2612,94 @@
             </div>
         </div>
     </div>
+
+
+    <!-- КРАТКАЯ СПРАВКА MATCH-3 -->
+    <div
+        class="overlay"
+        id="gameHelpOverlay"
+        onclick="if (event.target === this) closeGameHelp()"
+    >
+        <div class="overlay-panel game-help-panel">
+            <div class="overlay-title">КАК ИГРАТЬ</div>
+
+            <div class="game-help-intro">
+                Меняйте <b>соседние флаконы</b> местами и собирайте
+                <b>3 или больше одинаковых</b> по горизонтали или вертикали.
+                Выполните цель уровня до того, как закончатся ходы.
+            </div>
+
+            <div class="game-help-section-title">Спецэлементы</div>
+
+            <div class="game-help-rule">
+                <div class="game-help-rule-icon" id="helpRocketIcon"></div>
+                <div class="game-help-rule-text">
+                    <b>Ракета — 4 в ряд</b>
+                    Соберите 4 одинаковых флакона. Ракета уничтожает
+                    весь ряд и весь столбец через клетку активации.
+                </div>
+            </div>
+
+            <div class="game-help-rule">
+                <div class="game-help-rule-icon" id="helpBombIcon"></div>
+                <div class="game-help-rule-text">
+                    <b>Бомба — пересечение рядов</b>
+                    Соберите одинаковые флаконы одновременно по горизонтали
+                    и вертикали. Бомба взрывает область 3×3.
+                </div>
+            </div>
+
+            <div class="game-help-rule">
+                <div class="game-help-rule-icon" id="helpRainbowIcon"></div>
+                <div class="game-help-rule-text">
+                    <b>Радуга — 5+ в ряд</b>
+                    Соберите 5 или больше одинаковых. Поменяйте радугу
+                    местами с обычным флаконом — исчезнут все флаконы
+                    такого типа.
+                </div>
+            </div>
+
+            <div class="game-help-section-title">Препятствия</div>
+
+            <div class="game-help-rule">
+                <div class="game-help-rule-icon" id="helpBoxIcon"></div>
+                <div class="game-help-rule-text">
+                    <b>Коробка</b>
+                    Собирайте совпадения рядом с коробкой или задевайте её
+                    спецэлементами. На некоторых уровнях нужно разбить
+                    заданное количество коробок.
+                </div>
+            </div>
+
+            <div class="game-help-rule">
+                <div class="game-help-rule-icon" id="helpIceIcon"></div>
+                <div class="game-help-rule-text">
+                    <b>Лёд</b>
+                    Замороженную клетку нельзя двигать. Разбейте лёд
+                    совпадением рядом или спецэффектом, чтобы освободить поле.
+                </div>
+            </div>
+
+            <div class="game-help-section-title">Цели уровней</div>
+
+            <div class="game-help-tip">
+                🎯 Уровень может попросить <b>собрать определённые флаконы</b>,
+                <b>разбить коробки</b> или <b>набрать нужное количество очков</b>.
+                Текущая цель всегда показана над игровым полем.
+            </div>
+
+            <div class="game-help-tip">
+                💡 Если долго не делать ход, игра сама слегка покачает
+                два элемента, которые можно поменять местами для следующего
+                совпадения.
+            </div>
+
+            <button class="btn btn-gold" onclick="closeGameHelp()">
+                ПОНЯТНО
+            </button>
+        </div>
+    </div>
+
 
     <!-- 4 РАЗДЕЛА В НИЖНЕЙ НАВИГАЦИИ -->
     <div class="main-nav">
@@ -5349,6 +5578,12 @@
 
     let newlyDroppedKeys = new Set();
 
+    const GAME_HINT_DELAY_MS = 7000;
+    const GAME_HELP_SEEN_KEY = 'tapaz_game_help_seen_v1';
+
+    let gameHintTimer = null;
+    let gameHintVisualTimer = null;
+
     function loadStorageItem(key) {
         return new Promise((resolve) => {
             if (window.Telegram?.WebApp?.CloudStorage) {
@@ -5544,6 +5779,13 @@
         } else {
             stopOrdersAutoRefresh();
         }
+
+        if (screenId === 'gameScreen') {
+            scheduleGameHint();
+        } else {
+            clearGameHintTimer();
+            clearGameHintVisual();
+        }
     }
 
     function showToast(msg) {
@@ -5578,6 +5820,314 @@
     }
 
     /* ================= ИГРОВАЯ МЕХАНИКА АРЕНЫ ================= */
+
+    function renderGameHelpIcons() {
+        const icons = [
+            ['helpRocketIcon', ROCKET_SVG],
+            ['helpBombIcon', BOMB_SVG],
+            ['helpRainbowIcon', RAINBOW_SVG],
+            ['helpBoxIcon', BOX_SVG],
+            ['helpIceIcon', ICE_SVG]
+        ];
+
+        icons.forEach(([id, svg]) => {
+            const el = document.getElementById(id);
+            if (el && !el.childElementCount) {
+                el.innerHTML = svg;
+            }
+        });
+    }
+
+    function showGameHelp() {
+        clearGameHintTimer();
+        clearGameHintVisual();
+        renderGameHelpIcons();
+
+        document
+            .getElementById('gameHelpOverlay')
+            ?.classList.add('active');
+    }
+
+    function closeGameHelp() {
+        document
+            .getElementById('gameHelpOverlay')
+            ?.classList.remove('active');
+
+        try {
+            localStorage.setItem(
+                GAME_HELP_SEEN_KEY,
+                '1'
+            );
+        } catch (_) {}
+
+        scheduleGameHint();
+    }
+
+    function maybeShowGameHelpOnce() {
+        let alreadySeen = false;
+
+        try {
+            alreadySeen =
+                localStorage.getItem(GAME_HELP_SEEN_KEY) === '1';
+        } catch (_) {}
+
+        if (alreadySeen) {
+            scheduleGameHint();
+            return;
+        }
+
+        setTimeout(() => {
+            const gameScreen =
+                document.getElementById('gameScreen');
+
+            if (gameScreen?.classList.contains('active')) {
+                showGameHelp();
+            }
+        }, 280);
+    }
+
+    function clearGameHintVisual() {
+        document
+            .querySelectorAll('.cell.game-hint-move')
+            .forEach(cell => {
+                cell.classList.remove('game-hint-move');
+                cell.style.removeProperty('--hint-x');
+                cell.style.removeProperty('--hint-y');
+            });
+
+        if (gameHintVisualTimer) {
+            clearTimeout(gameHintVisualTimer);
+            gameHintVisualTimer = null;
+        }
+    }
+
+    function clearGameHintTimer() {
+        if (gameHintTimer) {
+            clearTimeout(gameHintTimer);
+            gameHintTimer = null;
+        }
+
+        if (gameHintVisualTimer) {
+            clearTimeout(gameHintVisualTimer);
+            gameHintVisualTimer = null;
+        }
+    }
+
+    function canShowGameHint() {
+        const gameScreen =
+            document.getElementById('gameScreen');
+
+        const helpOpen =
+            document
+                .getElementById('gameHelpOverlay')
+                ?.classList.contains('active');
+
+        const winOpen =
+            document
+                .getElementById('winOverlay')
+                ?.classList.contains('active');
+
+        const failOpen =
+            document
+                .getElementById('failOverlay')
+                ?.classList.contains('active');
+
+        return (
+            gameScreen?.classList.contains('active') &&
+            !document.hidden &&
+            !helpOpen &&
+            !winOpen &&
+            !failOpen &&
+            !isProcessing &&
+            movesLeft > 0
+        );
+    }
+
+    function findGameHintMove() {
+        for (let r = 0; r < BOARD_SIZE; r++) {
+            for (let c = 0; c < BOARD_SIZE; c++) {
+                const currentKey = `${r}-${c}`;
+
+                if (
+                    isBlocked(r, c) ||
+                    specialCells.has(currentKey) ||
+                    board[r][c] < 0
+                ) {
+                    continue;
+                }
+
+                const candidates = [
+                    [r, c + 1],
+                    [r + 1, c]
+                ];
+
+                for (const [nr, nc] of candidates) {
+                    if (
+                        nr < 0 ||
+                        nr >= BOARD_SIZE ||
+                        nc < 0 ||
+                        nc >= BOARD_SIZE
+                    ) {
+                        continue;
+                    }
+
+                    const nextKey = `${nr}-${nc}`;
+
+                    if (
+                        isBlocked(nr, nc) ||
+                        specialCells.has(nextKey) ||
+                        board[nr][nc] < 0
+                    ) {
+                        continue;
+                    }
+
+                    swap(r, c, nr, nc);
+                    const hasMatch =
+                        checkMatchesOnly().length > 0;
+                    swap(r, c, nr, nc);
+
+                    if (hasMatch) {
+                        return {
+                            from: { r, c },
+                            to: { r: nr, c: nc }
+                        };
+                    }
+                }
+            }
+        }
+
+        for (let r = 0; r < BOARD_SIZE; r++) {
+            for (let c = 0; c < BOARD_SIZE; c++) {
+                const key = `${r}-${c}`;
+
+                if (
+                    !specialCells.has(key) ||
+                    isBlocked(r, c)
+                ) {
+                    continue;
+                }
+
+                const deltas = [
+                    [0, 1],
+                    [1, 0],
+                    [0, -1],
+                    [-1, 0]
+                ];
+
+                for (const [dr, dc] of deltas) {
+                    const nr = r + dr;
+                    const nc = c + dc;
+
+                    if (
+                        nr >= 0 &&
+                        nr < BOARD_SIZE &&
+                        nc >= 0 &&
+                        nc < BOARD_SIZE &&
+                        !isBlocked(nr, nc)
+                    ) {
+                        return {
+                            from: { r, c },
+                            to: { r: nr, c: nc }
+                        };
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    function animateGameHint(move) {
+        if (!move) return;
+
+        clearGameHintVisual();
+
+        const fromEl =
+            getCellElement(move.from.r, move.from.c);
+        const toEl =
+            getCellElement(move.to.r, move.to.c);
+
+        if (!fromEl || !toEl) return;
+
+        const cellSize = Math.max(
+            20,
+            Math.min(
+                fromEl.offsetWidth,
+                fromEl.offsetHeight
+            )
+        );
+
+        const distance =
+            Math.max(5, Math.round(cellSize * 0.17));
+
+        const dr = move.to.r - move.from.r;
+        const dc = move.to.c - move.from.c;
+
+        const x = dc * distance;
+        const y = dr * distance;
+
+        fromEl.style.setProperty('--hint-x', `${x}px`);
+        fromEl.style.setProperty('--hint-y', `${y}px`);
+        toEl.style.setProperty('--hint-x', `${-x}px`);
+        toEl.style.setProperty('--hint-y', `${-y}px`);
+
+        fromEl.classList.add('game-hint-move');
+        toEl.classList.add('game-hint-move');
+
+        gameHintVisualTimer = setTimeout(() => {
+            clearGameHintVisual();
+            scheduleGameHint();
+        }, 2350);
+    }
+
+    function showGameHint() {
+        gameHintTimer = null;
+
+        if (!canShowGameHint()) {
+            if (
+                document
+                    .getElementById('gameScreen')
+                    ?.classList.contains('active')
+            ) {
+                scheduleGameHint(1500);
+            }
+            return;
+        }
+
+        const move = findGameHintMove();
+
+        if (!move) {
+            return;
+        }
+
+        animateGameHint(move);
+    }
+
+    function scheduleGameHint(delay = GAME_HINT_DELAY_MS) {
+        clearGameHintTimer();
+        clearGameHintVisual();
+
+        const gameScreen =
+            document.getElementById('gameScreen');
+
+        if (
+            !gameScreen?.classList.contains('active') ||
+            movesLeft <= 0
+        ) {
+            return;
+        }
+
+        gameHintTimer = setTimeout(
+            showGameHint,
+            delay
+        );
+    }
+
+    function noteGameActivity() {
+        clearGameHintVisual();
+        scheduleGameHint();
+    }
+
     async function startGame(level) {
         currentGameSessionId = await startServerGameSession(level);
         if (!currentGameSessionId) return;
@@ -5625,6 +6175,7 @@
         await checkAndShuffle(false);
         showScreen('gameScreen');
         updateGameUI();
+        maybeShowGameHelpOnce();
     }
 
     function initBoard() {
@@ -5743,7 +6294,17 @@
 
     const gameBoardElement = document.getElementById('gameBoard');
     if (gameBoardElement) {
-        gameBoardElement.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+        gameBoardElement.addEventListener(
+            'touchmove',
+            (e) => e.preventDefault(),
+            { passive: false }
+        );
+
+        gameBoardElement.addEventListener(
+            'pointerdown',
+            noteGameActivity,
+            { passive: true }
+        );
     }
 
     function onCellClick(r, c) {
@@ -5839,6 +6400,7 @@
                 await checkGameStatus();
             }
             isProcessing = false;
+            scheduleGameHint();
             return;
         }
 
@@ -5854,6 +6416,7 @@
             await checkAndShuffle();
             await checkGameStatus();
             isProcessing = false;
+            scheduleGameHint();
             return;
         }
 
@@ -5874,6 +6437,7 @@
             renderBoard();
         }
         isProcessing = false;
+        scheduleGameHint();
     }
 
     function swap(r1, c1, r2, c2) {
@@ -6664,6 +7228,8 @@
         if ((taskType === 'collect' || taskType === 'boxes') && taskProgress >= taskTarget) isWin = true;
 
         if (isWin) {
+            clearGameHintTimer();
+            clearGameHintVisual();
             triggerHaptic('success');
             document.getElementById('winScoreText').textContent = `Счет: ${currentScore}`;
 
@@ -6673,6 +7239,8 @@
             document.getElementById('winOverlay').classList.add('active');
             await claimServerGameReward(currentLevel);
         } else if (movesLeft <= 0) {
+            clearGameHintTimer();
+            clearGameHintVisual();
             triggerHaptic('warning');
             document.getElementById('retryBtn').style.display = 'block';
             document.getElementById('failMsg').textContent = 'Попробуйте еще раз!';
