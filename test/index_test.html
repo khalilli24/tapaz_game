@@ -5722,6 +5722,38 @@
         }
     }
 
+    async function registerCurrentTapazUser() {
+        const initData =
+            window.Telegram?.WebApp?.initData || '';
+
+        if (!initData || !supabaseClient) {
+            return false;
+        }
+
+        try {
+            const { data, error } =
+                await supabaseClient.functions.invoke(
+                    'register-user',
+                    {
+                        body: { initData }
+                    }
+                );
+
+            if (error || !data?.success) {
+                console.warn(
+                    'Не удалось обновить профиль TAPAZ:',
+                    error || data
+                );
+                return false;
+            }
+
+            return true;
+        } catch (error) {
+            console.warn('Ошибка register-user:', error);
+            return false;
+        }
+    }
+
     async function initUserProgress() {
         bonusPoints = 0;
         bonusBalanceTotal = 0;
@@ -5731,6 +5763,9 @@
 
         updateBonusUI();
         renderLevelsGrid();
+
+        // Профиль обновляется параллельно и не тормозит запуск Mini App.
+        void registerCurrentTapazUser();
 
         await initFavorites();
         await loadProductsFromSupabase();
