@@ -2324,7 +2324,410 @@
             z-index: 1;
         }
 
-    </style>
+    
+        /* ================= MATCH-3 VISUAL UPGRADE =================
+           Больше поле, спокойнее постоянные поверхности, меньше золота,
+           выразительнее анимации без лишней ряби.
+        */
+
+        .game-container:has(> #gameScreen.active) {
+            max-width: 500px;
+        }
+
+        #gameScreen {
+            width: calc(100% + 16px);
+            margin-inline: -8px;
+        }
+
+        #gameScreen .hud,
+        #gameScreen .task-container,
+        #gameScreen .progress-bar {
+            margin-inline: 8px;
+        }
+
+        #gameScreen .hud {
+            gap: 5px 8px;
+            margin-bottom: 6px;
+        }
+
+        #gameScreen .hud-level {
+            color: #e7edf8;
+            font-size: 15px;
+            letter-spacing: 0.055em;
+            text-shadow: 0 1px 10px rgba(131, 159, 214, 0.15);
+        }
+
+        #gameScreen .hud-chip {
+            background: rgba(12, 18, 37, 0.9);
+            border-color: rgba(139, 158, 199, 0.2);
+            color: #aebbd2;
+            border-radius: 10px;
+            padding: 5px 10px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+        }
+
+        #gameScreen .hud-chip .val {
+            color: #f3f6fb;
+            text-shadow: none;
+            transition:
+                transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.4),
+                color 0.18s ease;
+        }
+
+        #gameScreen .hud-chip .val.stat-bump {
+            animation: statBump 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.35);
+        }
+
+        @keyframes statBump {
+            0%   { transform: scale(1); color: #f3f6fb; }
+            45%  { transform: scale(1.18); color: #ffffff; }
+            100% { transform: scale(1); color: #f3f6fb; }
+        }
+
+        #gameScreen .task-container {
+            background:
+                linear-gradient(180deg, rgba(14, 21, 43, 0.94), rgba(9, 14, 29, 0.94));
+            border-color: rgba(139, 158, 199, 0.2);
+            border-radius: 12px;
+            padding: 7px 11px;
+            margin-bottom: 6px;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.03),
+                0 5px 15px rgba(0,0,0,0.16);
+        }
+
+        #gameScreen .task-text {
+            color: #cbd5e7;
+        }
+
+        #gameScreen .task-val {
+            color: #f5f7fb;
+            text-shadow: none;
+        }
+
+        #gameScreen .progress-bar {
+            height: 7px;
+            margin-bottom: 7px;
+            border-radius: 999px;
+            background: rgba(131, 148, 185, 0.12);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.38);
+        }
+
+        #gameScreen .progress-fill {
+            border-radius: inherit;
+            background:
+                linear-gradient(90deg, #667eb9 0%, #8ba7dd 48%, #b7c8ec 100%);
+            box-shadow:
+                0 0 10px rgba(125, 160, 220, 0.22),
+                inset 0 1px 0 rgba(255,255,255,0.25);
+            transition: width 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #gameScreen .progress-fill::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                110deg,
+                transparent 0%,
+                rgba(255,255,255,0.16) 46%,
+                transparent 58%
+            );
+            transform: translateX(-120%);
+            animation: progressSheen 2.8s ease-in-out infinite;
+        }
+
+        @keyframes progressSheen {
+            0%, 68% { transform: translateX(-120%); opacity: 0; }
+            76% { opacity: 1; }
+            100% { transform: translateX(120%); opacity: 0; }
+        }
+
+        #gameScreen .board-container {
+            padding: 2px 0 5px;
+            align-items: center;
+        }
+
+        #gameScreen .board {
+            width: min(100%, calc(100dvh - 205px));
+            max-width: 476px;
+            gap: 3px;
+            padding: 5px;
+            border-radius: 18px;
+            border: 1px solid rgba(139, 158, 199, 0.2);
+            background:
+                radial-gradient(circle at 50% 44%, rgba(28, 40, 78, 0.9) 0%, rgba(8, 13, 30, 0.98) 58%, rgba(4, 7, 18, 0.99) 100%);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.035),
+                inset 0 0 34px rgba(0, 0, 0, 0.72),
+                0 12px 28px rgba(0, 0, 0, 0.42);
+        }
+
+        #gameScreen.active .board {
+            animation: boardEnter 0.38s cubic-bezier(0.2, 0.85, 0.25, 1);
+        }
+
+        @keyframes boardEnter {
+            0% {
+                opacity: 0;
+                transform: translateY(8px) scale(0.975);
+                filter: saturate(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: saturate(1);
+            }
+        }
+
+        #gameScreen .cell {
+            border-radius: 9px;
+            border: 1px solid rgba(150, 166, 202, 0.12);
+            background:
+                radial-gradient(circle at 36% 28%, rgba(36, 49, 89, 0.72) 0%, rgba(13, 19, 40, 0.96) 66%, rgba(8, 12, 27, 0.98) 100%);
+            box-shadow:
+                inset 0 1px 1px rgba(255, 255, 255, 0.055),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.28),
+                0 2px 5px rgba(0, 0, 0, 0.24);
+            transition:
+                transform 0.15s cubic-bezier(0.2, 0.9, 0.3, 1.2),
+                border-color 0.16s ease,
+                box-shadow 0.16s ease,
+                background 0.16s ease;
+        }
+
+        #gameScreen .cell:active {
+            transform: scale(0.965);
+        }
+
+        #gameScreen .cell svg {
+            width: 90%;
+            height: 90%;
+            filter:
+                drop-shadow(0 3px 5px rgba(0,0,0,0.48))
+                saturate(1.04);
+            transition:
+                transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.25),
+                filter 0.18s ease;
+        }
+
+        #gameScreen .cell.selected {
+            border-color: rgba(185, 221, 255, 0.88);
+            background:
+                radial-gradient(circle at 36% 28%, rgba(52, 77, 128, 0.78) 0%, rgba(18, 28, 55, 0.97) 72%);
+            box-shadow:
+                0 0 0 2px rgba(175, 216, 255, 0.18),
+                0 0 13px rgba(118, 185, 240, 0.26),
+                inset 0 0 8px rgba(177, 220, 255, 0.11);
+            transform: scale(1.045);
+        }
+
+        #gameScreen .cell.selected svg {
+            transform: scale(1.055);
+            filter:
+                drop-shadow(0 4px 6px rgba(0,0,0,0.48))
+                brightness(1.08);
+        }
+
+        /* Коробки — тёплые, но не ярко-золотые */
+        #gameScreen .cell.box {
+            background:
+                linear-gradient(145deg, rgba(87, 63, 39, 0.88), rgba(44, 31, 24, 0.96));
+            border-color: rgba(177, 133, 87, 0.38);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.07),
+                0 2px 6px rgba(0,0,0,0.35);
+        }
+
+        /* Спец-фишки получили разные цветовые роли вместо общего золотого сияния */
+        #gameScreen .cell.bomb {
+            background: radial-gradient(circle at 50% 42%, #5a1b28 0%, #24101a 58%, #11080d 100%);
+            border-color: rgba(224, 101, 126, 0.34);
+            animation: bombBreath 2.3s ease-in-out infinite;
+        }
+
+        #gameScreen .cell.rocket {
+            background: radial-gradient(circle at 50% 42%, #1d3c69 0%, #101d39 58%, #080e1e 100%);
+            border-color: rgba(102, 170, 232, 0.38);
+            animation: rocketBreath 2.5s ease-in-out infinite;
+        }
+
+        #gameScreen .cell.rainbow {
+            background: radial-gradient(circle at 50% 42%, #41255c 0%, #21152f 58%, #0e0915 100%);
+            border-color: rgba(183, 137, 226, 0.36);
+            animation: rainbowBreath 2.2s ease-in-out infinite;
+        }
+
+        @keyframes bombBreath {
+            0%,100% { box-shadow: inset 0 0 9px rgba(223, 83, 112, 0.06), 0 2px 5px rgba(0,0,0,.3); }
+            50% { box-shadow: inset 0 0 14px rgba(223, 83, 112, 0.16), 0 0 10px rgba(223, 83, 112, 0.11); }
+        }
+
+        @keyframes rocketBreath {
+            0%,100% { box-shadow: inset 0 0 9px rgba(86, 162, 232, 0.06), 0 2px 5px rgba(0,0,0,.3); }
+            50% { box-shadow: inset 0 0 14px rgba(86, 162, 232, 0.16), 0 0 10px rgba(86, 162, 232, 0.11); }
+        }
+
+        @keyframes rainbowBreath {
+            0%,100% { box-shadow: inset 0 0 9px rgba(177, 120, 225, 0.06), 0 2px 5px rgba(0,0,0,.3); }
+            50% { box-shadow: inset 0 0 14px rgba(177, 120, 225, 0.16), 0 0 10px rgba(177, 120, 225, 0.11); }
+        }
+
+        #gameScreen .cell.iced {
+            border-color: rgba(188, 228, 255, 0.58);
+            box-shadow:
+                inset 0 0 10px rgba(155, 211, 255, 0.22),
+                0 0 7px rgba(134, 195, 239, 0.08);
+        }
+
+        /* Матч: яркая короткая вспышка без золотого постоянного свечения */
+        @keyframes cellPopCalm {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+                filter: brightness(1);
+            }
+            42% {
+                transform: scale(1.22);
+                opacity: 1;
+                filter:
+                    brightness(1.45)
+                    drop-shadow(0 0 8px rgba(194, 228, 255, 0.58));
+            }
+            100% {
+                transform: scale(0.2);
+                opacity: 0;
+                filter: brightness(1);
+            }
+        }
+
+        #gameScreen .cell.pop-anim {
+            animation: cellPopCalm 0.24s cubic-bezier(0.35, 0, 0.2, 1) forwards !important;
+        }
+
+        @keyframes cellDropSoft {
+            0% {
+                transform: translateY(-30px) scale(0.9);
+                opacity: 0.25;
+            }
+            68% {
+                transform: translateY(3px) scale(1.025);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        #gameScreen .cell.drop-anim {
+            animation: cellDropSoft 0.3s cubic-bezier(0.2, 0.85, 0.3, 1.2) forwards;
+        }
+
+        #gameScreen .cell.shake-anim {
+            animation-duration: 0.23s !important;
+        }
+
+        /* Подсказка — холодный свет вместо золотой рамки */
+        #gameScreen .cell.game-hint-move {
+            border-color: rgba(183, 220, 255, 0.72);
+            box-shadow:
+                0 0 0 1px rgba(183, 220, 255, 0.22),
+                0 0 12px rgba(117, 184, 239, 0.24),
+                inset 0 0 6px rgba(183, 220, 255, 0.1);
+        }
+
+        /* Эффекты specials — меньше золота */
+        #gameScreen .fx-shockwave {
+            border-color: rgba(235, 244, 255, 0.9);
+            box-shadow:
+                0 0 18px rgba(211, 104, 132, 0.52),
+                inset 0 0 15px rgba(255, 184, 196, 0.22);
+        }
+
+        #gameScreen .fx-laser-row,
+        #gameScreen .fx-laser-col {
+            background:
+                linear-gradient(90deg, transparent, #eaf7ff, #78b8ef, #ffffff, transparent);
+            box-shadow: 0 0 12px rgba(106, 180, 238, 0.55);
+        }
+
+        #gameScreen .fx-laser-col {
+            background:
+                linear-gradient(180deg, transparent, #eaf7ff, #78b8ef, #ffffff, transparent);
+        }
+
+        #gameScreen .fx-lightning-segment {
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0) 0%,
+                    rgba(255,255,255,0.96) 14%,
+                    rgba(143, 214, 255, 1) 42%,
+                    rgba(206, 232, 255, 0.95) 72%,
+                    rgba(255,255,255,0) 100%
+                );
+            box-shadow:
+                0 0 6px rgba(150, 220, 255, 0.9),
+                0 0 13px rgba(98, 179, 235, 0.6);
+        }
+
+        /* Победа остаётся премиальной — золото здесь уместно */
+        #winOverlay .overlay-panel {
+            border-color: rgba(212, 160, 76, 0.55);
+        }
+
+        @media (max-height: 700px) {
+            #gameScreen .board {
+                width: min(100%, calc(100dvh - 184px));
+            }
+
+            #gameScreen .hud-chip {
+                padding-block: 4px;
+            }
+
+            #gameScreen .task-container {
+                padding-block: 6px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            #gameScreen {
+                width: calc(100% + 10px);
+                margin-inline: -5px;
+            }
+
+            #gameScreen .hud,
+            #gameScreen .task-container,
+            #gameScreen .progress-bar {
+                margin-inline: 5px;
+            }
+
+            #gameScreen .board {
+                gap: 2px;
+                padding: 4px;
+                border-radius: 15px;
+            }
+
+            #gameScreen .cell {
+                border-radius: 7px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            #gameScreen.active .board,
+            #gameScreen .progress-fill::after,
+            #gameScreen .cell.bomb,
+            #gameScreen .cell.rocket,
+            #gameScreen .cell.rainbow,
+            #gameScreen .hud-chip .val.stat-bump {
+                animation: none !important;
+            }
+        }
+
+</style>
 </head>
 <body>
 
@@ -5728,6 +6131,10 @@
     let selectedCell = null;
     let isProcessing = false;
 
+    let lastRenderedGameScore = null;
+    let lastRenderedGameMoves = null;
+    let lastRenderedTaskProgress = null;
+
     let currentLevel = 1;
     let unlockedLevel = 1;
     let bonusPoints = 0;
@@ -6513,6 +6920,9 @@
         currentLevel = level;
         currentScore = 0;
         taskProgress = 0;
+        lastRenderedGameScore = null;
+        lastRenderedGameMoves = null;
+        lastRenderedTaskProgress = null;
         selectedCell = null;
         isProcessing = false;
 
@@ -7577,26 +7987,68 @@
         renderBoard();
     }
 
+    function bumpGameValue(element) {
+        if (!element) return;
+        element.classList.remove('stat-bump');
+        void element.offsetWidth;
+        element.classList.add('stat-bump');
+        setTimeout(() => element.classList.remove('stat-bump'), 340);
+    }
+
     function updateGameUI() {
-        document.getElementById('hudLevelNum').textContent = currentLevel;
-        document.getElementById('hudMoves').textContent = movesLeft;
-        document.getElementById('hudScore').textContent = currentScore;
+        const levelEl = document.getElementById('hudLevelNum');
+        const movesEl = document.getElementById('hudMoves');
+        const scoreEl = document.getElementById('hudScore');
+
+        levelEl.textContent = currentLevel;
+        movesEl.textContent = movesLeft;
+        scoreEl.textContent = currentScore;
+
+        if (
+            lastRenderedGameMoves !== null &&
+            lastRenderedGameMoves !== movesLeft
+        ) {
+            bumpGameValue(movesEl);
+        }
+
+        if (
+            lastRenderedGameScore !== null &&
+            lastRenderedGameScore !== currentScore
+        ) {
+            bumpGameValue(scoreEl);
+        }
+
+        lastRenderedGameMoves = movesLeft;
+        lastRenderedGameScore = currentScore;
 
         let cur = taskProgress;
         if (taskType === 'score') cur = currentScore;
         const pct = Math.min(100, Math.floor((cur / taskTarget) * 100));
         document.getElementById('progressFill').style.width = `${pct}%`;
 
+        const taskProgressEl = document.getElementById('taskProgress');
+        let renderedTaskValue = taskProgress;
+
         if (taskType === 'collect') {
             document.getElementById('taskDesc').innerHTML = `Соберите флаконы ${PERFUMES[targetIcon]}`;
-            document.getElementById('taskProgress').textContent = `${taskProgress}/${taskTarget}`;
+            taskProgressEl.textContent = `${taskProgress}/${taskTarget}`;
         } else if (taskType === 'boxes') {
             document.getElementById('taskDesc').innerHTML = `Разбейте коробки ${BOX_SVG}`;
-            document.getElementById('taskProgress').textContent = `${taskProgress}/${taskTarget}`;
+            taskProgressEl.textContent = `${taskProgress}/${taskTarget}`;
         } else {
+            renderedTaskValue = currentScore;
             document.getElementById('taskDesc').textContent = `Наберите очки`;
-            document.getElementById('taskProgress').textContent = `${currentScore}/${taskTarget}`;
+            taskProgressEl.textContent = `${currentScore}/${taskTarget}`;
         }
+
+        if (
+            lastRenderedTaskProgress !== null &&
+            lastRenderedTaskProgress !== renderedTaskValue
+        ) {
+            bumpGameValue(taskProgressEl);
+        }
+
+        lastRenderedTaskProgress = renderedTaskValue;
     }
 
     async function checkGameStatus() {
