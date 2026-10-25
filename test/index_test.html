@@ -3261,23 +3261,19 @@
                 0 4px 10px rgba(0,0,0,0.28);
         }
 
-
-        /* ================= MOBILE NAV POSITION FIX v2 =================
-           Не меняем внутреннюю геометрию safe-area.
-           Просто физически поднимаем сам ряд кнопок выше.
+        /* ================= NAVIGATION HARD LIFT =================
+           Без адаптации по моделям и размерам.
+           Жёстко поднимаем саму линию навигационных кнопок выше.
         */
-        @media (max-width: 480px) {
-            .main-nav .nav-item {
-                position: relative;
-                top: -10px;
-                padding: 4px 0;
-            }
+        .main-nav {
+            transform: translateY(-22px) !important;
         }
 
-        @media (max-width: 380px), (max-height: 700px) {
-            .main-nav .nav-item {
-                top: -12px;
-            }
+        .main-nav .nav-item {
+            transform: none !important;
+            position: static !important;
+            top: auto !important;
+            margin: 0 !important;
         }
 
 </style>
