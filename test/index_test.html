@@ -2169,6 +2169,153 @@
             background: rgba(5, 8, 20, 0.22);
         }
 
+
+        /* ================= ЗАГРУЗКА ДАННЫХ TAPAZ ================= */
+        .app-loading-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background:
+                radial-gradient(circle at 50% 42%, rgba(212, 160, 76, 0.12), transparent 34%),
+                rgba(5, 8, 20, 0.965);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transition: opacity 0.28s ease, visibility 0.28s ease;
+        }
+
+        .app-loading-overlay.is-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .app-loading-card {
+            width: min(310px, 88%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 28px 24px 24px;
+            border-radius: 22px;
+            border: 1px solid rgba(212, 160, 76, 0.42);
+            background: linear-gradient(180deg, rgba(14, 19, 43, 0.96), rgba(7, 11, 28, 0.96));
+            box-shadow:
+                0 20px 55px rgba(0, 0, 0, 0.55),
+                inset 0 1px rgba(255, 255, 255, 0.04);
+        }
+
+        .app-loading-spinner {
+            width: 58px;
+            height: 58px;
+            position: relative;
+            margin-bottom: 18px;
+        }
+
+        .app-loading-spinner::before,
+        .app-loading-spinner::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+        }
+
+        .app-loading-spinner::before {
+            border: 2px solid rgba(212, 160, 76, 0.18);
+        }
+
+        .app-loading-spinner::after {
+            border: 2px solid transparent;
+            border-top-color: var(--gold-light);
+            border-right-color: var(--gold);
+            box-shadow: 0 0 18px rgba(212, 160, 76, 0.32);
+            animation: tapazLoadingSpin 0.85s linear infinite;
+        }
+
+        .app-loading-spinner-core {
+            position: absolute;
+            inset: 15px;
+            border-radius: 50%;
+            background: var(--gold-grad);
+            box-shadow: 0 0 18px rgba(212, 160, 76, 0.3);
+            animation: tapazLoadingPulse 1.35s ease-in-out infinite;
+        }
+
+        .app-loading-brand {
+            font-family: 'Cinzel', var(--font-display);
+            color: var(--gold-light);
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 0.18em;
+            margin-left: 0.18em;
+        }
+
+        .app-loading-text {
+            min-height: 34px;
+            margin-top: 9px;
+            color: var(--text-dim);
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .app-loading-dots {
+            display: flex;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .app-loading-dots span {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--gold);
+            animation: tapazLoadingDot 1.15s ease-in-out infinite;
+        }
+
+        .app-loading-dots span:nth-child(2) { animation-delay: 0.14s; }
+        .app-loading-dots span:nth-child(3) { animation-delay: 0.28s; }
+
+        .levels-loading-inline {
+            grid-column: 1 / -1;
+            min-height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 13px;
+            line-height: 1.5;
+            padding: 24px;
+        }
+
+        @keyframes tapazLoadingSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes tapazLoadingPulse {
+            0%, 100% { transform: scale(0.82); opacity: 0.65; }
+            50% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes tapazLoadingDot {
+            0%, 100% { transform: translateY(0); opacity: 0.35; }
+            50% { transform: translateY(-5px); opacity: 1; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .app-loading-spinner::after,
+            .app-loading-spinner-core,
+            .app-loading-dots span {
+                animation-duration: 2.4s;
+            }
+        }
+
         /* Нужные экраны остаются поверх фоновой фотографии. */
         #ordersScreen,
         #consultantScreen,
@@ -2182,6 +2329,19 @@
 <body>
 
 <div class="game-container">
+
+        <div class="app-loading-overlay" id="appLoadingOverlay" role="status" aria-live="polite" aria-busy="true">
+            <div class="app-loading-card">
+                <div class="app-loading-spinner" aria-hidden="true">
+                    <div class="app-loading-spinner-core"></div>
+                </div>
+                <div class="app-loading-brand">TAPAZ</div>
+                <div class="app-loading-text" id="appLoadingText">Загружаем ваши данные...</div>
+                <div class="app-loading-dots" aria-hidden="true">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+        </div>
 
         <div class="section-photo-background" aria-hidden="true"></div>
 
@@ -2538,7 +2698,7 @@
 
         <div class="menu-actions">
             <button class="btn btn-gold btn-action-main" onclick="showScreen('categoriesScreen')">КАТАЛОГ ТОВАРОВ</button>
-            <button class="btn btn-gold btn-action-main" id="playBtn" onclick="showScreen('levelsScreen')">ИГРОВАЯ АРЕНА TAPAZ</button>
+            <button class="btn btn-gold btn-action-main" id="playBtn" onclick="openGameArena()">ИГРОВАЯ АРЕНА TAPAZ</button>
         </div>
     </div>
 
@@ -5580,6 +5740,10 @@
 
     let newlyDroppedKeys = new Set();
 
+    // Серверный прогресс нельзя считать нулевым, пока запрос не завершился.
+    let gameStateStatus = 'idle'; // idle | loading | ready | error
+    let gameStateLoadPromise = null;
+
     const GAME_HINT_DELAY_MS = 7000;
     const GAME_HINT_REPEAT_MS = 2000;
     const GAME_HELP_SEEN_KEY = 'tapaz_game_help_seen_v1';
@@ -5614,6 +5778,109 @@
                 Telegram.WebApp.CloudStorage.setItem(key, strVal, () => {});
             } catch (e) {}
         }
+    }
+
+    function setAppLoading(visible, message = '') {
+        const overlay = document.getElementById('appLoadingOverlay');
+        const text = document.getElementById('appLoadingText');
+
+        if (text && message) {
+            text.textContent = message;
+        }
+
+        if (!overlay) return;
+
+        overlay.classList.toggle('is-hidden', !visible);
+        overlay.setAttribute('aria-busy', visible ? 'true' : 'false');
+    }
+
+    function setAppLoadingText(message) {
+        const text = document.getElementById('appLoadingText');
+        if (text && message) text.textContent = message;
+    }
+
+    async function ensureGameStateLoaded({
+        showLoader = false,
+        attempts = 3
+    } = {}) {
+        if (gameStateStatus === 'ready') {
+            return true;
+        }
+
+        // Если запрос уже выполняется, не создаём второй параллельный запрос.
+        if (gameStateLoadPromise) {
+            if (showLoader) {
+                setAppLoading(true, 'Загружаем игровой прогресс...');
+            }
+
+            const result = await gameStateLoadPromise;
+
+            if (showLoader) {
+                setAppLoading(false);
+            }
+
+            return result;
+        }
+
+        gameStateStatus = 'loading';
+        updateBonusUI();
+        renderLevelsGrid();
+
+        if (showLoader) {
+            setAppLoading(true, 'Загружаем игровой прогресс...');
+        }
+
+        gameStateLoadPromise = (async () => {
+            for (let attempt = 1; attempt <= attempts; attempt++) {
+                setAppLoadingText(
+                    attempt === 1
+                        ? 'Загружаем игровой прогресс...'
+                        : `Повторяем загрузку прогресса… ${attempt}/${attempts}`
+                );
+
+                const loaded = await loadServerGameState();
+
+                if (loaded) {
+                    gameStateStatus = 'ready';
+                    updateBonusUI();
+                    renderLevelsGrid();
+                    return true;
+                }
+
+                if (attempt < attempts) {
+                    await sleep(650 * attempt);
+                }
+            }
+
+            gameStateStatus = 'error';
+            updateBonusUI();
+            renderLevelsGrid();
+            return false;
+        })();
+
+        try {
+            return await gameStateLoadPromise;
+        } finally {
+            gameStateLoadPromise = null;
+
+            if (showLoader) {
+                setAppLoading(false);
+            }
+        }
+    }
+
+    async function openGameArena() {
+        const loaded = await ensureGameStateLoaded({
+            showLoader: true,
+            attempts: 3
+        });
+
+        if (!loaded) {
+            showToast('Не удалось загрузить игровой прогресс. Проверьте интернет и попробуйте ещё раз.');
+            return;
+        }
+
+        showScreen('levelsScreen');
     }
 
     async function loadServerGameState() {
@@ -5755,11 +6022,16 @@
     }
 
     async function initUserProgress() {
+        setAppLoading(true, 'Загружаем ваши данные...');
+
+        // Эти значения являются только внутренними дефолтами.
+        // До ответа сервера они больше не показываются как реальные данные.
         bonusPoints = 0;
         bonusBalanceTotal = 0;
         bonusReservedTotal = 0;
         gameHighestCompletedLevel = 0;
         unlockedLevel = 1;
+        gameStateStatus = 'loading';
 
         updateBonusUI();
         renderLevelsGrid();
@@ -5767,17 +6039,54 @@
         // Профиль обновляется параллельно и не тормозит запуск Mini App.
         void registerCurrentTapazUser();
 
-        await initFavorites();
-        await loadProductsFromSupabase();
-        await loadMyOrders(false);
-        await loadExistingReview();
-        await loadServerGameState();
-        updateCartCount();
+        try {
+            // Локальное избранное поднимаем быстро, затем сетевые запросы идут
+            // параллельно. Игровой прогресс больше не ждёт каталог/заказы/отзыв.
+            await initFavorites();
+
+            const gameStateTask = ensureGameStateLoaded({
+                showLoader: false,
+                attempts: 3
+            });
+
+            const otherDataTask = Promise.allSettled([
+                loadProductsFromSupabase(),
+                loadMyOrders(false),
+                loadExistingReview()
+            ]);
+
+            const [gameLoaded] = await Promise.all([
+                gameStateTask,
+                otherDataTask
+            ]);
+
+            updateCartCount();
+
+            if (!gameLoaded) {
+                console.warn('Игровой прогресс не загрузился при старте. При открытии арены будет повторная попытка.');
+            }
+        } catch (error) {
+            console.error('Ошибка инициализации TAPAZ:', error);
+        } finally {
+            setAppLoading(false);
+        }
     }
 
     function updateBonusUI() {
         const btn = document.getElementById('bonusBtn');
-        if (btn) btn.textContent = `БОНУС: ${bonusPoints} Б`;
+        if (!btn) return;
+
+        if (gameStateStatus === 'idle' || gameStateStatus === 'loading') {
+            btn.textContent = 'БОНУС: …';
+            return;
+        }
+
+        if (gameStateStatus === 'error') {
+            btn.textContent = 'БОНУС: —';
+            return;
+        }
+
+        btn.textContent = `БОНУС: ${bonusPoints} Б`;
     }
 
     function showBonusInfo() {
@@ -5835,7 +6144,19 @@
 
     function renderLevelsGrid() {
         const grid = document.getElementById('levelsGrid');
+        if (!grid) return;
+
         grid.replaceChildren();
+
+        if (gameStateStatus !== 'ready') {
+            const loading = document.createElement('div');
+            loading.className = 'levels-loading-inline';
+            loading.textContent = gameStateStatus === 'error'
+                ? 'Игровой прогресс пока не загрузился. Вернитесь назад и откройте арену ещё раз.'
+                : 'Загружаем ваш игровой прогресс…';
+            grid.appendChild(loading);
+            return;
+        }
 
         for (let i = 1; i <= 24; i++) {
             const btn = document.createElement('button');
@@ -6167,6 +6488,25 @@
     }
 
     async function startGame(level) {
+        if (gameStateStatus !== 'ready') {
+            const loaded = await ensureGameStateLoaded({
+                showLoader: true,
+                attempts: 3
+            });
+
+            if (!loaded) {
+                showToast('Не удалось загрузить игровой прогресс.');
+                return;
+            }
+
+            // Нельзя стартовать уровень, который был выбран по устаревшему состоянию.
+            if (level > unlockedLevel) {
+                showScreen('levelsScreen');
+                showToast('Игровой прогресс обновлён.');
+                return;
+            }
+        }
+
         currentGameSessionId = await startServerGameSession(level);
         if (!currentGameSessionId) return;
 
