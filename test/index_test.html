@@ -5810,7 +5810,7 @@
         // Если запрос уже выполняется, не создаём второй параллельный запрос.
         if (gameStateLoadPromise) {
             if (showLoader) {
-                setAppLoading(true, 'Загружаем игровой прогресс...');
+                setAppLoading(true, 'Загружаем ваши данные...');
             }
 
             const result = await gameStateLoadPromise;
@@ -5827,15 +5827,15 @@
         renderLevelsGrid();
 
         if (showLoader) {
-            setAppLoading(true, 'Загружаем игровой прогресс...');
+            setAppLoading(true, 'Загружаем ваши данные...');
         }
 
         gameStateLoadPromise = (async () => {
             for (let attempt = 1; attempt <= attempts; attempt++) {
                 setAppLoadingText(
                     attempt === 1
-                        ? 'Загружаем игровой прогресс...'
-                        : `Повторяем загрузку прогресса… ${attempt}/${attempts}`
+                        ? 'Загружаем ваши данные...'
+                        : `Повторяем загрузку данных… ${attempt}/${attempts}`
                 );
 
                 const loaded = await loadServerGameState();
@@ -6153,7 +6153,7 @@
             loading.className = 'levels-loading-inline';
             loading.textContent = gameStateStatus === 'error'
                 ? 'Игровой прогресс пока не загрузился. Вернитесь назад и откройте арену ещё раз.'
-                : 'Загружаем ваш игровой прогресс…';
+                : 'Загружаем ваши данные…';
             grid.appendChild(loading);
             return;
         }
