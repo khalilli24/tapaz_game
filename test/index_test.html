@@ -1693,7 +1693,7 @@
 
         .game-help-rule {
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             gap: 10px;
             padding: 10px 11px;
             border-radius: 11px;
@@ -1708,6 +1708,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            align-self: center;
+            margin-top: 4px;
             border-radius: 10px;
             background: rgba(212, 160, 76, 0.08);
         }
@@ -5579,6 +5581,7 @@
     let newlyDroppedKeys = new Set();
 
     const GAME_HINT_DELAY_MS = 7000;
+    const GAME_HINT_REPEAT_MS = 2000;
     const GAME_HELP_SEEN_KEY = 'tapaz_game_help_seen_v1';
 
     let gameHintTimer = null;
@@ -6076,7 +6079,7 @@
 
         gameHintVisualTimer = setTimeout(() => {
             clearGameHintVisual();
-            scheduleGameHint();
+            scheduleGameHint(GAME_HINT_REPEAT_MS);
         }, 2350);
     }
 
