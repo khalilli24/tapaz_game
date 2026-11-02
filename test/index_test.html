@@ -762,6 +762,47 @@
             font-weight: 800;
             color: #ffffff;
         }
+
+        .product-modal-variants {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            padding: 10px 0 2px;
+        }
+        .product-modal-variants-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+        }
+        .product-modal-variants-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .product-variant-btn {
+            min-width: 68px;
+            min-height: 40px;
+            padding: 8px 13px;
+            border-radius: 10px;
+            border: 1px solid rgba(212, 160, 76, 0.28);
+            background: rgba(14, 19, 43, 0.78);
+            color: #d9dce8;
+            font-family: var(--font-ui);
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: border-color 0.12s ease, background 0.12s ease, transform 0.08s ease;
+        }
+        .product-variant-btn:active {
+            transform: scale(0.96);
+        }
+        .product-variant-btn.active {
+            border-color: var(--gold-light);
+            background: rgba(212, 160, 76, 0.18);
+            color: var(--gold-light);
+        }
         .product-modal-desc {
             background: rgba(5, 8, 20, 0.65);
             border: 1px solid rgba(212, 160, 76, 0.25);
@@ -3425,6 +3466,11 @@
                     <div class="product-modal-volume" id="productModalVolume">100 ml</div>
                 </div>
 
+                <div class="product-modal-variants" id="productModalVariantsWrap" style="display: none;">
+                    <div class="product-modal-variants-label">Выберите объём</div>
+                    <div class="product-modal-variants-list" id="productModalVariants"></div>
+                </div>
+
                 <div class="product-modal-price" id="productModalPrice">8 200 ₽</div>
 
                 <div class="product-modal-desc" id="productModalDesc">
@@ -3559,7 +3605,7 @@
                     <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
                     Обратная связь
                 </div>
-                <div class="support-card-desc">Для улучшения нашего обслуживания вы можете оставить обратную связь, которая очень важна для нашего развития.</div>
+                <div class="support-card-desc">Для улучшения нашего обслуживания вы можете оставить обратную связь, которая очень важна для нашего развития</div>
                 <button class="btn btn-gold" id="reviewActionBtn" style="min-height: 40px; font-size: 13px;" onclick="openReviewModal()">ОСТАВИТЬ ОТЗЫВ</button>
             </div>
 
@@ -3996,11 +4042,14 @@
     let isFavoritesFilter = false;
     let favorites = new Set();
     let currentModalProduct = null;
+    let currentModalSelection = null;
+    let PRODUCT_VARIANTS_BY_PRODUCT_ID = new Map();
     let hasHandledDeepLink = false;
 
-    /* Подгрузка каталога из Supabase */
+    /* Подгрузка каталога и дополнительных объёмов из Supabase */
     async function loadProductsFromSupabase() {
         if (!supabaseClient) return;
+
         try {
             const { data, error } = await supabaseClient
                 .from('products')
@@ -4009,15 +4058,47 @@
                 .order('id', { ascending: true });
 
             if (error) {
-                console.warn('Ошибка запроса в Supabase:', error);
+                console.warn('Ошибка запроса products в Supabase:', error);
                 return;
+            }
+
+            const variantsResult = await supabaseClient
+                .from('product_variants')
+                .select('id, product_id, volume_ml, price, in_stock')
+                .eq('in_stock', true)
+                .order('volume_ml', { ascending: true });
+
+            PRODUCT_VARIANTS_BY_PRODUCT_ID = new Map();
+
+            if (variantsResult.error) {
+                console.warn(
+                    'Дополнительные объёмы пока недоступны:',
+                    variantsResult.error
+                );
+            } else {
+                (variantsResult.data || []).forEach(variant => {
+                    const productId = Number(variant.product_id);
+                    if (!Number.isSafeInteger(productId) || productId <= 0) return;
+
+                    const list = PRODUCT_VARIANTS_BY_PRODUCT_ID.get(productId) || [];
+                    list.push({
+                        id: Number(variant.id),
+                        product_id: productId,
+                        volume_ml: Number(variant.volume_ml),
+                        price: Number(variant.price),
+                        in_stock: variant.in_stock === true
+                    });
+                    PRODUCT_VARIANTS_BY_PRODUCT_ID.set(productId, list);
+                });
             }
 
             if (data && data.length > 0) {
                 BASE_PRODUCTS = data;
+
                 if (document.getElementById('catalogScreen').classList.contains('active')) {
                     renderCatalogByCategory(currentCategoryKey);
                 }
+
                 if (!hasHandledDeepLink) {
                     checkDeepLink();
                 }
@@ -4025,6 +4106,144 @@
         } catch (err) {
             console.warn('Сбой подключения к Supabase:', err);
         }
+    }
+
+    function getProductVariants(productId) {
+        const id = Number(productId);
+        const variants = PRODUCT_VARIANTS_BY_PRODUCT_ID.get(id) || [];
+
+        return variants
+            .filter(item =>
+                item &&
+                item.in_stock === true &&
+                Number.isSafeInteger(Number(item.id)) &&
+                Number(item.id) > 0 &&
+                Number.isFinite(Number(item.price)) &&
+                Number(item.price) >= 0 &&
+                Number.isSafeInteger(Number(item.volume_ml)) &&
+                Number(item.volume_ml) > 0
+            )
+            .sort((a, b) => Number(a.volume_ml) - Number(b.volume_ml));
+    }
+
+    function parseVolumeMl(value) {
+        const match = String(value || '').match(/(\d+(?:[.,]\d+)?)/);
+        if (!match) return null;
+
+        const ml = Number(match[1].replace(',', '.'));
+        return Number.isFinite(ml) ? ml : null;
+    }
+
+    function variantVolumeLabel(volumeMl) {
+        const value = Number(volumeMl);
+        return Number.isFinite(value)
+            ? `${value.toLocaleString('ru-RU')} мл`
+            : '';
+    }
+
+    function getProductPurchaseOptions(product) {
+        if (!product) return [];
+
+        const options = [{
+            variantId: null,
+            volumeLabel: String(product.volume || '').trim(),
+            volumeMl: parseVolumeMl(product.volume),
+            price: Number(product.price),
+            isBase: true
+        }];
+
+        getProductVariants(product.id).forEach(variant => {
+            options.push({
+                variantId: Number(variant.id),
+                volumeLabel: variantVolumeLabel(variant.volume_ml),
+                volumeMl: Number(variant.volume_ml),
+                price: Number(variant.price),
+                isBase: false
+            });
+        });
+
+        return options.sort((a, b) => {
+            const av = Number.isFinite(Number(a.volumeMl))
+                ? Number(a.volumeMl)
+                : Number.MAX_SAFE_INTEGER;
+            const bv = Number.isFinite(Number(b.volumeMl))
+                ? Number(b.volumeMl)
+                : Number.MAX_SAFE_INTEGER;
+
+            if (av !== bv) return av - bv;
+            return a.isBase ? -1 : 1;
+        });
+    }
+
+    function selectProductModalOption(option) {
+        if (!option) return;
+
+        currentModalSelection = option;
+
+        const volEl = document.getElementById('productModalVolume');
+        const priceEl = document.getElementById('productModalPrice');
+
+        if (option.volumeLabel) {
+            volEl.textContent = option.volumeLabel;
+            volEl.style.display = 'block';
+        } else {
+            volEl.style.display = 'none';
+        }
+
+        priceEl.textContent =
+            `${Number(option.price).toLocaleString('ru-RU')} ₽`;
+
+        document.querySelectorAll('#productModalVariants .product-variant-btn')
+            .forEach(button => {
+                const raw = button.dataset.variantId;
+                const buttonVariantId =
+                    raw === 'base' ? null : Number(raw);
+
+                button.classList.toggle(
+                    'active',
+                    buttonVariantId === option.variantId
+                );
+            });
+    }
+
+    function renderProductModalVariants(product) {
+        const wrap = document.getElementById('productModalVariantsWrap');
+        const list = document.getElementById('productModalVariants');
+        const options = getProductPurchaseOptions(product);
+        const hasExtraVariants = options.some(option => !option.isBase);
+
+        list.replaceChildren();
+
+        const baseOption =
+            options.find(option => option.isBase) || options[0];
+
+        if (!hasExtraVariants) {
+            wrap.style.display = 'none';
+            selectProductModalOption(baseOption);
+            return;
+        }
+
+        options.forEach(option => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'product-variant-btn';
+            button.dataset.variantId =
+                option.variantId == null ? 'base' : String(option.variantId);
+
+            button.textContent = option.volumeMl != null
+                ? variantVolumeLabel(option.volumeMl)
+                : (option.volumeLabel || 'Основной');
+
+            button.addEventListener('click', () => {
+                selectProductModalOption(option);
+                triggerHaptic('light');
+            });
+
+            list.appendChild(button);
+        });
+
+        wrap.style.display = 'flex';
+        selectProductModalOption(baseOption);
     }
 
     function triggerHaptic(style = 'light') {
@@ -4543,12 +4762,29 @@
             const buyBtn = document.createElement('button');
             buyBtn.className = 'btn btn-gold btn-card-buy';
             buyBtn.type = 'button';
-            buyBtn.textContent = 'В КОРЗИНУ';
 
-            const cartItemName = item.volume ? `${item.name} (${item.volume})` : item.name;
+            const hasVariants = getProductVariants(item.id).length > 0;
+            buyBtn.textContent = hasVariants ? 'ВЫБРАТЬ' : 'В КОРЗИНУ';
+
+            const cartItemName = item.volume
+                ? `${item.name} (${item.volume})`
+                : item.name;
+
             buyBtn.addEventListener('click', event => {
                 event.stopPropagation();
-                addToCart(item.id, cartItemName, Number(item.price));
+
+                if (hasVariants) {
+                    openProductModal(item);
+                    return;
+                }
+
+                addToCart(
+                    item.id,
+                    cartItemName,
+                    Number(item.price),
+                    null,
+                    String(item.volume || '')
+                );
             });
 
             const favBtn = document.createElement('button');
@@ -4607,7 +4843,9 @@
 
     function openProductModal(product) {
         if (!product) return;
+
         currentModalProduct = product;
+        currentModalSelection = null;
 
         const imgEl = document.getElementById('productModalImg');
         imgEl.style.opacity = '1';
@@ -4621,28 +4859,38 @@
         }
 
         document.getElementById('productModalName').textContent = product.name;
-        
-        const volEl = document.getElementById('productModalVolume');
-        if (product.volume) {
-            volEl.textContent = product.volume;
-            volEl.style.display = 'block';
-        } else {
-            volEl.style.display = 'none';
-        }
 
-        document.getElementById('productModalPrice').textContent = Number(product.price).toLocaleString('ru-RU') + ' ₽';
+        renderProductModalVariants(product);
         renderProductDescription(product.desc);
-        
-        // Синхронизация кнопки избранного
+
         const modalFavBtn = document.getElementById('productModalFavBtn');
         modalFavBtn.classList.toggle('active', favorites.has(product.name));
         modalFavBtn.onclick = () => toggleFavorite(product.name);
 
         const buyBtn = document.getElementById('productModalBuyBtn');
-        const cartItemName = product.volume ? `${product.name} (${product.volume})` : product.name;
-        
+
         buyBtn.onclick = () => {
-            addToCart(product.id, cartItemName, product.price);
+            const selection = currentModalSelection ||
+                getProductPurchaseOptions(product)
+                    .find(option => option.isBase);
+
+            if (!selection) {
+                showToast('Не удалось определить выбранный объём.');
+                return;
+            }
+
+            const cartItemName = selection.volumeLabel
+                ? `${product.name} (${selection.volumeLabel})`
+                : product.name;
+
+            addToCart(
+                product.id,
+                cartItemName,
+                Number(selection.price),
+                selection.variantId,
+                selection.volumeLabel
+            );
+
             triggerHaptic('success');
             closeProductModal();
         };
@@ -4654,6 +4902,7 @@
     function closeProductModal() {
         document.getElementById('productModal').classList.remove('active');
         currentModalProduct = null;
+        currentModalSelection = null;
     }
 
     /* ================= ЛОГИКА ИИ-КОНСУЛЬТАНТА TAPAZ AI v2 ================= */
@@ -5499,7 +5748,13 @@
         );
     }
 
-    function addToCart(productId, name, price) {
+    function addToCart(
+        productId,
+        name,
+        price,
+        variantId = null,
+        volume = ''
+    ) {
         const existingQty = Number(cart[name]?.qty || 0);
 
         if (existingQty >= 5) {
@@ -5512,10 +5767,21 @@
             return;
         }
 
+        const normalizedVariantId =
+            variantId == null || variantId === ''
+                ? null
+                : Number(variantId);
+
         if (!cart[name]) {
             cart[name] = {
-                productId: productId,
-                price: price,
+                productId: Number(productId),
+                variantId:
+                    Number.isSafeInteger(normalizedVariantId) &&
+                    normalizedVariantId > 0
+                        ? normalizedVariantId
+                        : null,
+                volume: String(volume || ''),
+                price: Number(price),
                 qty: 1
             };
         } else {
@@ -5723,13 +5989,31 @@
 
             const items = keys.map(name => ({
                 productId: cart[name].productId,
+                variantId: cart[name].variantId ?? null,
                 quantity: cart[name].qty
             }));
 
             if (items.some(item => {
                 const productId = Number(item.productId);
                 const quantity = Number(item.quantity);
-                return !Number.isSafeInteger(productId) || productId <= 0 || !Number.isSafeInteger(quantity) || quantity <= 0;
+                const variantId =
+                    item.variantId == null
+                        ? null
+                        : Number(item.variantId);
+
+                return (
+                    !Number.isSafeInteger(productId) ||
+                    productId <= 0 ||
+                    !Number.isSafeInteger(quantity) ||
+                    quantity <= 0 ||
+                    (
+                        variantId !== null &&
+                        (
+                            !Number.isSafeInteger(variantId) ||
+                            variantId <= 0
+                        )
+                    )
+                );
             })) {
                 showToast('Не удалось определить товар. Обновите каталог и попробуйте снова.');
                 return;
@@ -6355,13 +6639,24 @@
         const validItems = items
             .map(item => ({
                 productId: Number(item.product_id),
+                variantId:
+                    item.variant_id == null
+                        ? null
+                        : Number(item.variant_id),
                 quantity: Number(item.quantity)
             }))
             .filter(item =>
                 Number.isSafeInteger(item.productId) &&
                 item.productId > 0 &&
                 Number.isSafeInteger(item.quantity) &&
-                item.quantity > 0
+                item.quantity > 0 &&
+                (
+                    item.variantId === null ||
+                    (
+                        Number.isSafeInteger(item.variantId) &&
+                        item.variantId > 0
+                    )
+                )
             );
 
         if (validItems.length === 0) {
@@ -6373,26 +6668,45 @@
             ...new Set(validItems.map(item => item.productId))
         ];
 
+        const variantIds = [
+            ...new Set(
+                validItems
+                    .map(item => item.variantId)
+                    .filter(id => id !== null)
+            )
+        ];
+
         let products = [];
+        let variants = [];
 
         try {
-            const { data, error } = await supabaseClient
+            const productsResult = await supabaseClient
                 .from('products')
-                .select(
-                    'id, name, volume, price, in_stock'
-                )
+                .select('id, name, volume, price, in_stock')
                 .in('id', productIds);
 
-            if (error) {
-                console.error(
-                    'Не удалось обновить товары повторного заказа:',
-                    error
-                );
-                showToast('Не удалось проверить актуальные товары.');
-                return;
+            if (productsResult.error) {
+                throw productsResult.error;
             }
 
-            products = Array.isArray(data) ? data : [];
+            products = Array.isArray(productsResult.data)
+                ? productsResult.data
+                : [];
+
+            if (variantIds.length > 0) {
+                const variantsResult = await supabaseClient
+                    .from('product_variants')
+                    .select('id, product_id, volume_ml, price, in_stock')
+                    .in('id', variantIds);
+
+                if (variantsResult.error) {
+                    throw variantsResult.error;
+                }
+
+                variants = Array.isArray(variantsResult.data)
+                    ? variantsResult.data
+                    : [];
+            }
         } catch (error) {
             console.error(
                 'Ошибка обновления повторного заказа:',
@@ -6409,6 +6723,13 @@
             ])
         );
 
+        const variantsById = new Map(
+            variants.map(variant => [
+                Number(variant.id),
+                variant
+            ])
+        );
+
         let totalQty = getCartTotalQty();
         let addedQty = 0;
         let unavailableQty = 0;
@@ -6417,13 +6738,24 @@
 
         for (const oldItem of items) {
             const productId = Number(oldItem.product_id);
+            const variantId =
+                oldItem.variant_id == null
+                    ? null
+                    : Number(oldItem.variant_id);
             const requestedQty = Number(oldItem.quantity);
 
             if (
                 !Number.isSafeInteger(productId) ||
                 productId <= 0 ||
                 !Number.isSafeInteger(requestedQty) ||
-                requestedQty <= 0
+                requestedQty <= 0 ||
+                (
+                    variantId !== null &&
+                    (
+                        !Number.isSafeInteger(variantId) ||
+                        variantId <= 0
+                    )
+                )
             ) {
                 continue;
             }
@@ -6435,7 +6767,27 @@
                 continue;
             }
 
-            const currentPrice = Number(product.price);
+            let currentPrice;
+            let currentVolume;
+
+            if (variantId !== null) {
+                const variant = variantsById.get(variantId);
+
+                if (
+                    !variant ||
+                    variant.in_stock !== true ||
+                    Number(variant.product_id) !== productId
+                ) {
+                    unavailableQty += requestedQty;
+                    continue;
+                }
+
+                currentPrice = Number(variant.price);
+                currentVolume = variantVolumeLabel(variant.volume_ml);
+            } else {
+                currentPrice = Number(product.price);
+                currentVolume = String(product.volume || '').trim();
+            }
 
             if (
                 !Number.isFinite(currentPrice) ||
@@ -6446,6 +6798,7 @@
             }
 
             const oldPrice = Number(oldItem.unit_price || 0);
+
             if (
                 Number.isFinite(oldPrice) &&
                 oldPrice > 0 &&
@@ -6454,60 +6807,45 @@
                 priceChangedCount++;
             }
 
-            const currentName = String(
-                product.name || ''
-            ).trim();
+            const currentName = String(product.name || '').trim();
 
             if (!currentName) {
                 unavailableQty += requestedQty;
                 continue;
             }
 
-            const currentVolume = String(
-                product.volume || ''
-            ).trim();
-
             const cartName = currentVolume
                 ? `${currentName} (${currentVolume})`
                 : currentName;
 
-            // Если этот productId уже лежал в корзине под старым
-            // названием, переносим его на актуальное название товара.
-            const existingKey = Object.keys(cart).find(
-                key =>
-                    Number(cart[key]?.productId) ===
-                    productId
-            );
+            const existingKey = Object.keys(cart).find(key => {
+                const cartProductId = Number(cart[key]?.productId);
+                const cartVariantId =
+                    cart[key]?.variantId == null
+                        ? null
+                        : Number(cart[key].variantId);
 
-            if (
-                existingKey &&
-                existingKey !== cartName
-            ) {
+                return (
+                    cartProductId === productId &&
+                    cartVariantId === variantId
+                );
+            });
+
+            if (existingKey && existingKey !== cartName) {
                 const existingItem = cart[existingKey];
                 delete cart[existingKey];
 
                 if (cart[cartName]) {
-                    cart[cartName].qty += Number(
-                        existingItem.qty || 0
-                    );
+                    cart[cartName].qty += Number(existingItem.qty || 0);
                 } else {
                     cart[cartName] = existingItem;
                 }
             }
 
-            const existingQty = Number(
-                cart[cartName]?.qty || 0
-            );
+            const existingQty = Number(cart[cartName]?.qty || 0);
 
-            const perProductRoom = Math.max(
-                0,
-                5 - existingQty
-            );
-
-            const orderRoom = Math.max(
-                0,
-                15 - totalQty
-            );
+            const perProductRoom = Math.max(0, 5 - existingQty);
+            const orderRoom = Math.max(0, 15 - totalQty);
 
             const qtyToAdd = Math.min(
                 requestedQty,
@@ -6523,12 +6861,16 @@
             if (!cart[cartName]) {
                 cart[cartName] = {
                     productId,
+                    variantId,
+                    volume: currentVolume,
                     price: currentPrice,
                     qty: 0
                 };
             }
 
             cart[cartName].productId = productId;
+            cart[cartName].variantId = variantId;
+            cart[cartName].volume = currentVolume;
             cart[cartName].price = currentPrice;
             cart[cartName].qty =
                 Number(cart[cartName].qty || 0) +
@@ -6545,7 +6887,7 @@
         if (addedQty === 0) {
             if (unavailableQty > 0 && limitedQty === 0) {
                 showToast(
-                    'Товары из этого заказа сейчас недоступны.'
+                    'Товары или выбранные объёмы из этого заказа сейчас недоступны.'
                 );
             } else {
                 showToast(
